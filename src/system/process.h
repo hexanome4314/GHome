@@ -5,7 +5,13 @@ Gestion de multi-tâche maison.
 #include <stdlib.h>
 #include <unistd.h>
 
-typedef void (*fptr_t) (int, int*);
+/*
+Une fonction processus est une fonction ne renvoyant rien
+Elle prend en paramètre le nombre de paramètres passés et
+un tableau contenant les paramètres
+ */
+typedef void (*fptr_t) (int argc, int* argv);
+
 typedef pid_t gpid_t;
 
 /**
