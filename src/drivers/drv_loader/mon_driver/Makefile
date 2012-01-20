@@ -16,4 +16,4 @@ $(OUTPUT): $(OBJECT)
 	$(COMPILE) $(C_FLAGS) $< -o $@
 
 clean:
-	rm *.o
+	rm *.o $(OUTPUT)

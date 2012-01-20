@@ -14,32 +14,27 @@
 
 #define MAX_SENSOR 32
 #define SEED	   5
+#define MIN_PULSE_INTERVAL 500
+#define MAX_PULSE_INTERVAL 2000
 
-struct SENSOR_MAP
-{
-	unsigned int 	_id;
-	unsigned char*	_ptr;
-};
-
+static int the_msgq;
 static pthread_t the_thread;
 static pthread_mutex_t the_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t memory_mutex;
 static short must_continue;
 
-struct SENSOR_MAP added_sensors[MAX_SENSOR];
+int added_sensors[MAX_SENSOR];
 unsigned int sensor_count;
 
-void add_sensor( unsigned int id, unsigned char* ptr )
+void add_sensor( unsigned int id )
 {
 	int i = 0;
 
 	pthread_mutex_lock( &the_mutex );
 	for( i = 0; i < MAX_SENSOR; i++ )
 	{
-		if( added_sensors[i]._id == 0 )
+		if( added_sensors[i] == 0 )
 		{
-			added_sensors[i]._id = id;
-			added_sensors[i]._ptr = ptr;
+			added_sensors[i] = id;
 			sensor_count++;
 
 			break;
@@ -60,7 +55,7 @@ unsigned int sensor_exists( unsigned int id )
 	pthread_mutex_lock( &the_mutex );
         for( i = 0; i < MAX_SENSOR; i++ )
         {
-                if( added_sensors[i]._id == id )
+                if( added_sensors[i] == id )
                         break;
         }
         pthread_mutex_unlock( &the_mutex );
@@ -75,8 +70,7 @@ void remove_sensor( unsigned int id )
 	if( res >= 0 && res < MAX_SENSOR )
 	{
 		pthread_mutex_lock( &the_mutex );
-		added_sensors[res]._id = 0;
-		added_sensors[res]._ptr = 0;
+		added_sensors[res] = 0;
 		sensor_count--;
 	        pthread_mutex_unlock( &the_mutex );
 	}
@@ -111,16 +105,17 @@ void* callback( void* ptr )
 
 		if( index >= 0 && index < MAX_SENSOR )
 		{
-			unsigned char* ptr_addr;
+			struct msg_drv_notify buf;
 
-			pthread_mutex_lock( &the_mutex );
-			ptr_addr = added_sensors[index]._ptr;
-			pthread_mutex_unlock( &the_mutex );
+			buf.msg_type = DRV_MSG_TYPE;
+			buf.id_sensor = id;
+			buf.flag_value = (rand() % DRV_LAST_VALUE);
+			buf.value = rand()%255;
 
-			pthread_mutex_lock( &memory_mutex );
-			*ptr_addr = 100 + rand()%5;
-			pthread_mutex_unlock( &memory_mutex );
+			msgsnd( the_msgq, (const void*) &buf, sizeof(struct msg_drv_notify), 0 );
 		}
+
+		usleep( rand()%(MAX_PULSE_INTERVAL-MIN_PULSE_INTERVAL) + MIN_PULSE_INTERVAL );
 
 		pthread_mutex_lock( &the_mutex );
 		buffer = must_continue;
@@ -139,21 +134,18 @@ int drv_init( const char* addr, int port )
 
 	/* Initialise la liste des capteurs ajoutés */
 	for( i = 0; i < MAX_SENSOR; i++ )
-	{
-		added_sensors[i]._id  = 0;
-		added_sensors[i]._ptr = 0;
-	}
+		added_sensors[i]  = 0;
 
 	sensor_count = 0;
 
 	return 0;
 }
 
-int drv_run( pthread_mutex_t mem_mtx )
+int drv_run( int msgq_id )
 {
 	int ret;
 
-	memory_mutex = mem_mtx;
+	the_msgq = msgq_id;
 	ret = pthread_create( &the_thread, NULL, callback, NULL );
 
 	return 0;
@@ -172,11 +164,11 @@ void drv_stop( void )
 	printf( "Stop\n" );
 }
 
-int drv_add_sensor( unsigned int id_sensor, unsigned char* mem_ptr )
+int drv_add_sensor( unsigned int id_sensor )
 {
-	printf( "Adding sensor #%d, mapped at 0x%x\n", id_sensor, (unsigned int) mem_ptr );
+	printf( "Adding sensor #%d\n", id_sensor );
 
-	add_sensor( id_sensor, mem_ptr );
+	add_sensor( id_sensor );
 
 	return 0;
 }
