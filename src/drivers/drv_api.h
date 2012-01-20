@@ -21,7 +21,7 @@
 #ifndef __DRV_API_H__
 #define __DRV_API_H__
 
-#include <semaphore.h>
+#include <pthread.h>
 
 /**
 Fonction appelée juste après le chargement de la librairie en mémoire pour initialiser le capteur en spécifiant les données de connexion.
@@ -35,10 +35,10 @@ int drv_init( const char* remote_addr, int remote_port );
 
 /**
 Fonction appelée par le gestionnaire de drivers pour activer l'écoute (après l'initialisation)
-\param mem_sem	Semaphore protegeant les accès concurrents à la mémoire
+\param mem_mtx	Exclusion mutuelle protegeant les accès concurrents à la mémoire
 \return 0 si tout est ok, > 0 si erreur
 */
-int drv_run( sem_t mem_sem );
+int drv_run( pthread_mutex_t mem_mtx );
 
 /**
 Fonction appelée par le gestionnaire de drivers juste avant de décharger la librairie de la mémoire. L'écoute se stoppe et les ressources sont libérées
@@ -77,5 +77,12 @@ Permet d'envoyer des données à un capteur (sans retour de sa part)
 \return 0 si tout est ok, > 0 si erreur
 */
 int drv_send_data( unsigned int id_sensor, unsigned int id_trame );
+
+/**
+Retourne les informations concernant le driver (nom, version, ...)
+\param  buffer		Chaîne de caractère qui reçoit les données
+	max_length	Taille du buffer max
+*/
+void drv_get_info( char* buffer, int max_length );
 
 #endif
