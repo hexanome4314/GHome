@@ -21,20 +21,31 @@
 #ifndef __DRV_API_H__
 #define __DRV_API_H__
 
-#include <pthread.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
 
-#define DRV_FIELD_BUTTON1
-#define DRV_FIELD_BUTTON2
-#define DRV_FIELD_BUTTON3
-#define DRV_FIELD_BUTTON4
-#define DRV_FIELD_BUTTON5
-#define DRV_FIELD_BUTTON6
-#define DRV_FIELD_BUTTON7
-#define DRV_FIELD_BUTTON8
-#define DRV_FIELD_TEMPERATURE
-#define DRV_FIELD_HUMIDITY
-#define DRV_FIELD_LIGHTING
-#define DRV_FIELD_VOLTAGE
+#define DRV_FIELD_BUTTON1	0
+#define DRV_FIELD_BUTTON2	1
+#define DRV_FIELD_BUTTON3	2
+#define DRV_FIELD_BUTTON4	3
+#define DRV_FIELD_BUTTON5	4
+#define DRV_FIELD_BUTTON6	5
+#define DRV_FIELD_BUTTON7	6
+#define DRV_FIELD_BUTTON8	7
+#define DRV_FIELD_TEMPERATURE	8
+#define DRV_FIELD_HUMIDITY	9
+#define DRV_FIELD_LIGHTING	10
+#define DRV_FIELD_VOLTAGE	11
+#define DRV_LAST_VALUE		12
+
+struct msg_drv_notify
+{
+	long mtype;
+	unsigned int id_sensor;
+	unsigned int flag_value;
+	char value;
+};
 
 /**
 Fonction appelée juste après le chargement de la librairie en mémoire pour initialiser le capteur en spécifiant les données de connexion.
@@ -48,10 +59,10 @@ int drv_init( const char* remote_addr, int remote_port );
 
 /**
 Fonction appelée par le gestionnaire de drivers pour activer l'écoute (après l'initialisation)
-\param mem_mtx	Exclusion mutuelle protegeant les accès concurrents à la mémoire
+\param	msgq_id		Identifiant de la boîte aux lettres à utiliser pour notifier le manager du changement de valeur
 \return 0 si tout est ok, > 0 si erreur
 */
-int drv_run( pthread_mutex_t mem_mtx );
+int drv_run( int msgq_id );
 
 /**
 Fonction appelée par le gestionnaire de drivers juste avant de décharger la librairie de la mémoire. L'écoute se stoppe et les ressources sont libérées
@@ -61,10 +72,9 @@ void drv_stop( void );
 /**
 Fonction appelée par le gestionnaire de drivers pour ajouter un capteur à écouter. Peut survenir n'importe quand.
 \param	id_sensor	Identifiant unique du capteur qui doit être écouté
-	mem_ptr		Pointeur vers l'espace mémoire dans lequelle les données lues pour ce capteur doivent être stockées
 \return 0 si tout est ok, > 0 si erreur
 */
-int drv_add_sensor( unsigned int id_sensor, unsigned char* mem_ptr );
+int drv_add_sensor( unsigned int id_sensor );
 
 /**
 Fonction appelée par le gestionnaire de drivers pour supprimer un capteur en cours d'écoute.
