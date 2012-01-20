@@ -4,13 +4,57 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-
+#include <string.h>
 
 #include "listen.h"
 #include "utils.h"
+#include "drv_api.h"
 
-#define IP_BORNE_ENOCEAN "127.0.0.1"
-#define PORT_BORNE_ENOCEAN 1338
+int main()
+{
+	int sock;
+	int loop = 1;
+	char* buffer;
+	enocean_data_structure* message;
+
+	buffer = malloc(29);
+	memset(buffer,0,sizeof(buffer));
+
+	sock = connect_to(inet_addr(IP_BORNE_ENOCEAN), PORT_BORNE_ENOCEAN, 0);
+
+	if(sock == -1){
+		perror("listen - Start driver fail due to socket connection");
+		return -1;
+	}else{ // politeness
+		send(sock,"Hi from Hx4314's driver!",25,0);
+	}
+
+	/* as long as you answer 1 you get a new message */
+	while(loop == 1){
+
+		printf("listen - I'm listening\n");
+
+		/* get a new frame */
+		if(recv(sock, buffer, 28,MSG_WAITALL)==-1)
+			perror("listen - recv fail");
+		buffer[29] = '\0';
+		printf("listen - recv: %s \n",buffer);
+
+		/* create a new message */
+		message = malloc(sizeof(enocean_data_structure));
+		parser(buffer,message);
+
+		/* store the new message */
+		
+
+		/* electricity ON */
+		// send(sock,"A55A0B0600000000FF9F1E040000",14,0);
+	}
+
+	shutdown(sock,2);
+	return 1;
+}
+
 
 /**
  * change a "A55A0B05100000000021CC31306E" char* as
@@ -32,36 +76,3 @@ void parser(char* aFrame, enocean_data_structure* aMessage){
 	sscanf(&aFrame[20],"%02X",(unsigned int*) &(aMessage->STATUS));
 	sscanf(&aFrame[22],"%02X",(unsigned int*) &(aMessage->CHECKSUM));
 }
-
-int main()
-{
-	int sock;
-	int loop = 1;
-	char* buffer;
-	enocean_data_structure message;
-	buffer = malloc(29);
-
-	sock = connect_to(inet_addr(IP_BORNE_ENOCEAN), PORT_BORNE_ENOCEAN, 0);
-
-	{ // politeness
-		char hi[26] = "Hi from Hx4314's driver!/0";
-		send(sock,hi,sizeof(hi),0);
-	}
-
-
-	// as long as you answer 1 you get a new message
-	while(loop == 1){
-		memset(buffer,0,sizeof(buffer));
-		printf("listen - I'm listening\n");
-		recv(sock, buffer, 28,MSG_WAITALL);
-		perror(errno);
-		buffer[29] = '\0';
-		printf("listen - recv : %s \n",buffer);
-		parser(buffer, &message);
-		scanf("%d",&loop);
-	}
-
-	shutdown(sock,2);
-	return 1;
-}
-

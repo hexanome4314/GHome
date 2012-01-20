@@ -11,6 +11,16 @@
 #include <stdint.h>
 #define BYTE uint8_t
 
+/* network */
+
+#define IP_BORNE_ENOCEAN "127.0.0.1"
+#define PORT_BORNE_ENOCEAN 1337
+/*
+#define IP_BORNE_ENOCEAN "134.214.105.28"
+#define PORT_BORNE_ENOCEAN 5000
+*/
+/************************************************** TYPES */
+
 /**
  * \brief The default structure for EnOcean packets
  *
@@ -34,6 +44,32 @@ typedef struct enocean_data_structure {
   BYTE CHECKSUM; ///< Checksum of the packet
 } enocean_data_structure;
 
+
+/**
+ * The default linked lists structure for EnOcean received messages
+ *
+ **/
+typedef struct _enocean_data_structure_queue _enocean_data_structure_queue;
+struct _enocean_data_structure_queue{
+	enocean_data_structure* enocean_data_structure;
+	struct _enocean_data_structure_queue* previous;
+};
+typedef _enocean_data_structure_queue enocean_data_structure_queue;
+
+/************************************************ GLOBALS */
+
+/*
+ * received messages are stored in linked lists
+ * a new message is stored as the new head,
+ * so the name structure is captorName_head
+ */
+
+enocean_data_structure_queue interruptor_head;
+
+
+/********************************************** FUNCTIONS */
+
 void parser(char* uneTrame, enocean_data_structure* unMessage);
 
-#endif LISTEN_H_
+
+#endif
