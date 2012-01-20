@@ -75,7 +75,7 @@ Fonction appelée par le gestionnaire de drivers pour activer l'écoute (après 
 \param	msgq_id		Identifiant de la boîte aux lettres à utiliser pour notifier le manager du changement de valeur
 \return 0 si tout est ok, > 0 si erreur
 */
-int drv_run( int msgq_id );
+//int drv_run( sem_t mem_sem );
 
 /**
 Fonction appelée par le gestionnaire de drivers juste avant de décharger la librairie de la mémoire. L'écoute se stoppe et les ressources sont libérées
@@ -87,7 +87,7 @@ Fonction appelée par le gestionnaire de drivers pour ajouter un capteur à éco
 \param	id_sensor	Identifiant unique du capteur qui doit être écouté
 \return 0 si tout est ok, > 0 si erreur
 */
-int drv_add_sensor( unsigned int id_sensor );
+int drv_add_sensor( unsigned int id_sensor, unsigned char* mem_ptr );
 
 /**
 Fonction appelée par le gestionnaire de drivers pour supprimer un capteur en cours d'écoute.

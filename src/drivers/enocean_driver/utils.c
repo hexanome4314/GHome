@@ -6,9 +6,8 @@
 #include <arpa/inet.h>
 #include <string.h>
 
-
 #include "utils.h"
-
+#include "config.h"
 
 void prepare_sock(int port, int addr, int * sock, struct sockaddr_in * saddr)
 {
@@ -53,3 +52,22 @@ int connect_to(int addr, int c_port, int proto)
   return sock;
 }
 
+/*
+id_capteur* read_sensors_list_file(int* a_number_of_sensor){
+
+	FILE* sensors_file;
+	sensors_file = fopen(SENSORS_FILE,"rt");
+	fseek(sensors_file,0L,SEEK_END);
+	int size = ftell(sensors_file);
+	fseek(sensors_file,0L,SEEK_SET);
+	*(a_number_of_sensor) = (size/10)%1;
+
+	id_capteur* sensors = malloc(int[*(a_number_of_sensor)]);
+	int sensor_num = 0;
+	while(fgets(sensors[sensor_num],9,sensors_file)!=NULL
+		  || sensor_num != *(a_number_of_sensor) )
+	{
+		sensor_num++;
+	}
+	return sensors;
+}*/

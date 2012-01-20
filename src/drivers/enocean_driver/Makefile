@@ -3,7 +3,7 @@ CC=gcc #Compilateur
 EDL=gcc #Linker
 CCFLAGS=-Wall -m32 #Options de compilations
 EDLFLAGS=-Wall -m32
-EXE=enocean_driver #Nom du binaire à construire
+EXE= ../enocean_driver #Nom du binaire à construire
 
 OBJ=drv_api.o utils.o listen.o 
 LIBS=-lpthread

@@ -8,17 +8,6 @@
 #ifndef LISTEN_H_
 #define LISTEN_H_
 
-#include <stdint.h>
-#define BYTE uint8_t
-
-/* network */
-
-#define IP_BORNE_ENOCEAN "127.0.0.1"
-#define PORT_BORNE_ENOCEAN 1337
-/*
-#define IP_BORNE_ENOCEAN "134.214.105.28"
-#define PORT_BORNE_ENOCEAN 5000
-*/
 /************************************************** TYPES */
 
 /**
@@ -27,6 +16,9 @@
  * Data structure for RPS, 1BS and 4BS packages.
  *
  **/
+
+#include <stdint.h>
+#define BYTE uint8_t
 typedef struct enocean_data_structure {
   BYTE SYNC_BYTE1; ///< Synchronisation Byte 1
   BYTE SYNC_BYTE2; ///< Synchronisation Byte 2
@@ -70,6 +62,7 @@ enocean_data_structure_queue interruptor_head;
 /********************************************** FUNCTIONS */
 
 void parser(char* uneTrame, enocean_data_structure* unMessage);
+void interpretAndSend();
 
 
-#endif
+#endif /* LISTEN_H_ */
