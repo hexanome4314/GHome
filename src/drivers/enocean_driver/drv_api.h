@@ -80,7 +80,7 @@ int drv_add_sensor( unsigned int id_sensor );
 Fonction appelée par le gestionnaire de drivers pour supprimer un capteur en cours d'écoute.
 \param	id_sensor	Identifiant unique du capteur qui ne doit plus être écouté
 */
-void drv_remove_sensor( unsigned int id_sensor );
+int drv_remove_sensor( unsigned int id_sensor );
 
 /**
 Permet de demander des informations à un capteur

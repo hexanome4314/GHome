@@ -46,8 +46,10 @@ int connect_to(int addr, int c_port, int proto)
 
   if(connect(sock, (struct sockaddr*)&saddr, sizeof(struct sockaddr))==0)
 	 printf("Connexion to %s on port %d\n", inet_ntoa(saddr.sin_addr), htons(saddr.sin_port));
-  else
+  else{
 	 printf("Connexion fail : %s\n", strerror(errno));
+	 return -1;
+  }
   return sock;
 }
 
