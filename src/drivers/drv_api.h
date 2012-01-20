@@ -23,6 +23,19 @@
 
 #include <pthread.h>
 
+#define DRV_FIELD_BUTTON1
+#define DRV_FIELD_BUTTON2
+#define DRV_FIELD_BUTTON3
+#define DRV_FIELD_BUTTON4
+#define DRV_FIELD_BUTTON5
+#define DRV_FIELD_BUTTON6
+#define DRV_FIELD_BUTTON7
+#define DRV_FIELD_BUTTON8
+#define DRV_FIELD_TEMPERATURE
+#define DRV_FIELD_HUMIDITY
+#define DRV_FIELD_LIGHTING
+#define DRV_FIELD_VOLTAGE
+
 /**
 Fonction appelée juste après le chargement de la librairie en mémoire pour initialiser le capteur en spécifiant les données de connexion.
 \param:	remote_addr	Adresse IP ou DNS de l'hôte contacter
