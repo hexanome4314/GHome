@@ -25,6 +25,9 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 
+/*
+Définition des valeurs admissibles par l'IOS
+*/
 #define DRV_FIELD_BUTTON1	0
 #define DRV_FIELD_BUTTON2	1
 #define DRV_FIELD_BUTTON3	2
@@ -39,13 +42,23 @@
 #define DRV_FIELD_VOLTAGE	11
 #define DRV_LAST_VALUE		12
 
+/*
+Types des messages de la boîte aux lettres
+*/
+#define DRV_MSG_TYPE		0xAA
+
+/**
+Structure des messages contenus dans la boîte aux lettres
+*/
 struct msg_drv_notify
 {
-	long mtype;
+	long msg_type;
 	unsigned int id_sensor;
 	unsigned int flag_value;
 	char value;
 };
+
+#ifndef __DRVLOADER
 
 /**
 Fonction appelée juste après le chargement de la librairie en mémoire pour initialiser le capteur en spécifiant les données de connexion.
@@ -108,4 +121,5 @@ Retourne les informations concernant le driver (nom, version, ...)
 */
 void drv_get_info( char* buffer, int max_length );
 
+#endif // __DRVLOADER
 #endif
