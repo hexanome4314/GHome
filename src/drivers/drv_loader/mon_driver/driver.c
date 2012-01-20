@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "../../drv_api.h"
 
@@ -196,4 +197,9 @@ int drv_fetch_data( unsigned int id_sensor, unsigned int id_trame, char* buffer,
 int drv_send_data( unsigned int id_sensor, unsigned int id_trame )
 {
 	return 0;
+}
+
+void drv_get_info( char* buffer, int max_length )
+{
+	strcpy( buffer, "Driver de test, v1.0" );	
 }
