@@ -4,7 +4,7 @@ LINKER=gcc
 L_FLAGS=
 LIB=-lpthread -ldl
 
-OBJECT=drv_loader.o main.o
+OBJECT=drv_verbose.o drv_manager.o drv_loader.o main.o
 OUTPUT=drv_loader
 
 all: $(OUTPUT)

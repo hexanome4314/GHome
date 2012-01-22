@@ -7,17 +7,14 @@
 #define __DRVLOADER	/* Permet d'éviter la déclaration des fonctions et d'avoir des erreurs */
 #include "../drv_api.h"
 
-enum {
-	OK,
-	FILE_NOT_FOUND,
-	SYMBOL_NOT_FOUND,
-};
+#include "drv_error.h"
 
 /**
 Structure contenant les pointeurs vers les fonctions de la librairie ainsi que le handle lui même de la librairie
 */
 struct drv_func_ptr
 {
+	char filename[256];
 	void* handle;
 	int (*drv_init) (const char*, int);
 	int (*drv_add_sensor) (unsigned int);

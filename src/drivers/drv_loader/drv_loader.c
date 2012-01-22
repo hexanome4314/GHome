@@ -1,3 +1,4 @@
+#include <string.h>
 #include "drv_loader.h"
 
 /*
@@ -9,8 +10,11 @@ int drv_load( const char* filename, struct drv_func_ptr* func_ptr )
 	func_ptr->handle = (void*) dlopen( filename, RTLD_LAZY );
 	if( !func_ptr->handle )
 	{
-		return FILE_NOT_FOUND;
+		return DRV_FILE_NOT_FOUND;
 	}
+
+	/* Sauvegarde le chemin du driver */
+	strcpy( func_ptr->filename, filename );
 
 	/* Chargement des symboles */
 	*(void**) (&func_ptr->drv_init) = dlsym( func_ptr->handle, "drv_init" );
@@ -22,9 +26,9 @@ int drv_load( const char* filename, struct drv_func_ptr* func_ptr )
 
 	/* Petite vérification pour voir que tous les symboles sont bien chargés */
         if( ! (func_ptr->drv_init && func_ptr->drv_add_sensor && func_ptr->drv_remove_sensor && func_ptr->drv_run && func_ptr->drv_stop && func_ptr->drv_get_info) )
-		return SYMBOL_NOT_FOUND;
+		return DRV_SYMBOL_NOT_FOUND;
 
-	return OK;
+	return DRV_OK;
 }
 
 
