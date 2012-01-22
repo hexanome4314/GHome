@@ -3,9 +3,9 @@
 
 #include <stdlib.h>
 #include <unistd.h>
-#ifdef PRINT_MEMORY
+#ifdef MEMORY_DEBUG
 #include <stdio.h>
-#endif /* PRINT_MEMORY */
+#endif /* MEMORY_DEBUG */
 
 /**
 Allocation mémoire

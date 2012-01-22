@@ -1,11 +1,8 @@
 #include "memory.h"
-
 // Taille minimum à demander à sbrk()
 #define MIN_SIZE 1024
 
-// Récupérer l'adresse des données d'un slot
-#define DATAS(slot) (void*)((char*)slot+sizeof(Slot))
-
+#include <stdio.h>
 /*
 Cette gestion de mémoire n'est pas supposée fonctionner en
 parallèle avec un autre allocateur
@@ -51,7 +48,6 @@ static Slot* slice_slot(Slot* slot, size_t size)
 
 	slot->next = newslot;
 	slot->size = size;
-	slot->free = 1;
 
 	return slot;
 }
@@ -134,17 +130,17 @@ void* gmalloc(size_t size)
 		slice_slot(slot, size);
 	slot->free = 0;
 #ifdef MEMORY_DEBUG
-	printf("allocation of %lu to 0x%x\n", (unsigned long)size, (int)DATAS(slot));
+	printf("allocation of %lu to 0x%x\n", (unsigned long)size, slot+1);
 	print_memory();
 #endif /* MEMORY_DEBUG */
-	return DATAS(slot);
+	return slot+1;
 }
 
 void gfree(void* ptr)
 {
 	Slot* slot = slotlist;
 	Slot* prev_slot = NULL;
-	while(DATAS(slot) != ptr)
+	while(slot+1 != ptr)
 	{
 		if (slot == NULL)
 			return; // not found...
@@ -187,13 +183,35 @@ void* grealloc(void* ptr, size_t size)
 		gfree(ptr);
 		return NULL;
 	}
-	while(DATAS(slot) != ptr)
+	while(slot+1 != ptr)
 	{
 		if (slot == NULL)
 			return NULL; // not found...
 		slot = slot->next;
 	}
-	//old_area = ptr;
+	// Test si c'est du raccourcissement avec la place d'ajouter un slot
+	// bog
+	/*if (slot->size - size > sizeof(Slot))
+	{
+		slice_slot(slot, size);
+		slot->next->free = 1;
+		if (slot->next->next && slot->next->next->free)
+			merge_slots(slot->next);
+		return slot+1;
+	}
+	// Raccourcissement sans la place d'ajouter un slot
+	else if(slot->size >= size)
+	{
+		return(slot+1);
+		}*/
+	// Test si il n'y a pas besoin de le déplacer (bug?)
+	if (slot->next && slot->next->free && slot->next->size+sizeof(Slot) >= size - slot->size)
+	{
+		merge_slots(slot);
+		if(slot->size > size+sizeof(Slot))
+			slice_slot(slot, size);
+		return slot+1;
+	}
 	new_area = gmalloc(size);
 	cpy_size = size < slot->size ? size : slot->size;
 	for(i=0; i<cpy_size; i++)
