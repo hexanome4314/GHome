@@ -1,7 +1,6 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
-#include "config.h"
 /**
  * return a ready to use server-socket
  */
@@ -15,6 +14,6 @@ int connect_to(int addr, int c_port, int proto);
 /**
  * return the list of sensors id
  */
-//id_capteur* read_sensors_list_file(int* a_number_of_sensor);
+char** read_sensors_list_file(int* a_number_of_sensor);
 
 #endif

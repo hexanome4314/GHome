@@ -48,15 +48,35 @@ struct _enocean_data_structure_queue{
 };
 typedef _enocean_data_structure_queue enocean_data_structure_queue;
 
+/**
+ * linked lists structure for sensors id.
+ */
+typedef struct _sensors_queue _sensors_queue;
+struct _sensors_queue{
+	char sensor[9];
+	struct _sensors_queue* next;
+};
+typedef _sensors_queue sensors_queue;
 /************************************************ GLOBALS */
 
-/*
- * received messages are stored in linked lists
- * a new message is stored as the new head,
- * so the name structure is captorName_head
- */
+/*---------------- sensors */
 
-enocean_data_structure_queue interruptor_head;
+#define SENSORS_FILE "sensors_list"
+typedef char id_sensor[9];
+
+/*------------------ logs */
+
+#define DEBUG_MODE 1
+#define LOG 1
+
+/*--------------- network */
+
+#define IP_BORNE_ENOCEAN "127.0.0.1"
+#define PORT_BORNE_ENOCEAN 1338
+/*
+#define IP_BORNE_ENOCEAN "134.214.105.28"
+#define PORT_BORNE_ENOCEAN 5000
+*/
 
 
 /********************************************** FUNCTIONS */

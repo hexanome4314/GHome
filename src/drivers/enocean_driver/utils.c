@@ -19,7 +19,6 @@ void prepare_sock(int port, int addr, int * sock, struct sockaddr_in * saddr)
   saddr->sin_port = htons(port);
 }
 
-
 int mk_sock(int port, int addr, int flags)
 {
   int sock;
@@ -36,7 +35,6 @@ int mk_sock(int port, int addr, int flags)
   return sock;
 }
 
-
 int connect_to(int addr, int c_port, int proto)
 {
   int sock;
@@ -52,22 +50,28 @@ int connect_to(int addr, int c_port, int proto)
   return sock;
 }
 
-/*
-id_capteur* read_sensors_list_file(int* a_number_of_sensor){
+char** read_sensors_list_file(int* a_number_of_sensor){
 
 	FILE* sensors_file;
+	int loop_counter;
 	sensors_file = fopen(SENSORS_FILE,"rt");
 	fseek(sensors_file,0L,SEEK_END);
 	int size = ftell(sensors_file);
 	fseek(sensors_file,0L,SEEK_SET);
-	*(a_number_of_sensor) = (size/10)%1;
+	*(a_number_of_sensor) = size/9;
 
-	id_capteur* sensors = malloc(int[*(a_number_of_sensor)]);
+	char** sensors = (char**)malloc(sizeof(char**)*(*(a_number_of_sensor)));
+ 	for(loop_counter=0 ; loop_counter < *(a_number_of_sensor) ; loop_counter++){
+ 		char* mem = (char*)malloc(sizeof(id_sensor));
+ 		sensors[loop_counter] = (char*) mem;
+ 	}
+
 	int sensor_num = 0;
-	while(fgets(sensors[sensor_num],9,sensors_file)!=NULL
-		  || sensor_num != *(a_number_of_sensor) )
-	{
+	while( !feof(sensors_file) && sensor_num != *(a_number_of_sensor) ){
+		for(loop_counter=0 ; loop_counter < 8 ; loop_counter++){
+			sensors[sensor_num][loop_counter] = fgetc(sensors_file);
+		}
 		sensor_num++;
 	}
 	return sensors;
-}*/
+}
