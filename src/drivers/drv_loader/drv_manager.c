@@ -11,7 +11,8 @@
 /**
 Tableau représentant tous les drivers chargés en mémoire
 */
-static struct drv_func_ptr drivers_func[DRV_MAX_COUNT];
+struct drv_func_ptr drivers_func[DRV_MAX_COUNT];
+
 /**
 Compteur du nombre de drivers branchés
 */
@@ -97,9 +98,11 @@ void drv_list_plugged_drivers( char*** buffer, size_t* max_size )
 /**
 Branche un nouveau driver et le charge en mémoire
 \param  filename        Nom du driver à brancher
+        ip_address      Adresse ip du concentrateur
+        port            Port de connexion
 \return Le master du driver ou < 0 si une erreur est survenue
 */
-int drv_plug( const char* filename )
+int drv_plug( const char* filename, const char* ip_address, unsigned int port )
 {
 	int res;
 	size_t i;
@@ -125,6 +128,12 @@ int drv_plug( const char* filename )
 
 	plugged_driver_count++;
 
+	/* On initialise le driver */
+	res = (*drivers_func[i].drv_init)( ip_address, port );
+
+	if( res > 0 )
+		return DRV_UNABLE_TO_INIT_DRIVER;
+
 	return i;
 }
 
@@ -141,6 +150,10 @@ void drv_unplug( int master )
 		return;
 	}
 
+	/* On demande au driver de s'arrêter */
+	(*drivers_func[master].drv_stop)();
+
+	/* On le décharge de la mémoire */
 	drv_unload( &drivers_func[master] );
 	drivers_func[master].handle = NULL;
 

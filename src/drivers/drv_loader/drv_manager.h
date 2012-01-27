@@ -24,9 +24,11 @@ void drv_list_plugged_drivers( char*** buffer, size_t* max_size );
 /**
 Branche un nouveau driver et le charge en mémoire
 \param	filename	Nom du driver à brancher
+	ip_address	Adresse ip du concentrateur
+	port		Port de connexion
 \return	Le master du driver ou < 0 si une erreur est survenue
 */
-int drv_plug( const char* filename );
+int drv_plug( const char* filename, const char* ip_address, unsigned int port );
 
 /**
 Débranche un driver qui était au préalable branché
@@ -36,7 +38,7 @@ void drv_unplug( int master );
 
 /**
 Initialise le gestionnaire
-\return OK si tout est ok, < 0 sinon
+\return DRV_OK si tout est ok, < 0 sinon
 */
 int drv_manager_init();
 

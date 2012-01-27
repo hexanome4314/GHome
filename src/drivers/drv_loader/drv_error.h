@@ -6,6 +6,7 @@ enum {
         DRV_FILE_NOT_FOUND = -1,
         DRV_SYMBOL_NOT_FOUND = -2,
 	DRV_TOO_MANY_DRIVER_PLUGGED = -3,
+	DRV_UNABLE_TO_INIT_DRIVER= -4
 };
 
 

@@ -1,10 +1,10 @@
 COMPILE=gcc
-C_FLAGS=-c 
+C_FLAGS=-c -I../../../include
 LINKER=gcc
 L_FLAGS=
 LIB=-lpthread -ldl
 
-OBJECT=ios_data_mgr.o drv_verbose.o drv_manager.o drv_loader.o main.o
+OBJECT=ios_api.o ios_data_mgr.o drv_verbose.o drv_manager.o drv_loader.o main.o
 OUTPUT=drv_loader
 
 all: $(OUTPUT)

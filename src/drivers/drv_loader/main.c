@@ -3,21 +3,42 @@
 #include <string.h>
 #include <errno.h>
 
+#include "ios_api.h"
 #include "drv_manager.h"
 
 int main()
 {
-	int msgq_id;
-	unsigned int i;
-	struct drv_func_ptr func;
+	int major;
+	int fd1, fd2, fd3;
+
 	char** buf;
 	size_t len;
 
-	drv_manager_init();
+	ios_init();
 
-	drv_set_verbose( stdout );
+	major = ios_install_driver( "libdriver.so.1.0.1", "127.0.0.1", 8080 );
+	printf( "Result is : %d\n", major );
 
-	drv_plug( "mon_driver/libdriver.so.1.0.1" );
+	fd1 = ios_add_device( major, 7 );
+	printf( "Result is : %d\n", fd1 );
+
+	fd2 = ios_add_device( major, 3 );
+	printf( "Result is : %d\n", fd2 );
+
+	fd3 = ios_add_device( major, 2 );
+
+	sleep( 1 );
+
+	ios_remove_device( fd1 );
+	ios_remove_device( fd2 );
+
+	ios_uninstall_driver( major );
+
+	ios_release();
+
+	return 0;
+
+	/*drv_plug( "mon_driver/libdriver.so.1.0.1" );
 
 	drv_list_plugged_drivers( &buf, &len );
 	i = 0;
@@ -27,11 +48,7 @@ int main()
 		
 		i++;
 	}
-
-
-	drv_manager_release();
-
-	return 0;
+	
 
 	msgq_id = msgget(IPC_PRIVATE, 0600 | IPC_CREAT | IPC_EXCL );
 
@@ -62,6 +79,6 @@ int main()
 	drv_unload( &func );
 
 	msgctl( msgq_id, IPC_RMID, NULL );
+	*/
 
-	return 0;
 }
