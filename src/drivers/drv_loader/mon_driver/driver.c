@@ -105,6 +105,7 @@ void* callback( void* ptr )
 
 		if( index >= 0 && index < MAX_SENSOR )
 		{
+			int res;
 			struct msg_drv_notify buf;
 
 			buf.msg_type = DRV_MSG_TYPE;
@@ -112,7 +113,7 @@ void* callback( void* ptr )
 			buf.flag_value = (rand() % DRV_LAST_VALUE);
 			buf.value = rand()%255;
 
-			msgsnd( the_msgq, (const void*) &buf, sizeof(struct msg_drv_notify), 0 );
+			res = msgsnd( the_msgq, (const void*) &buf, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
 		}
 
 		usleep( rand()%(MAX_PULSE_INTERVAL-MIN_PULSE_INTERVAL) + MIN_PULSE_INTERVAL );

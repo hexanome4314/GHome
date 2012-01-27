@@ -68,7 +68,7 @@ int test()
 	if (erreur > -1)
 	{
 		printf("Capteur retire !!!!\n");
-	
+	/*
 		if (drv_rechercheCapteur(0x12) == -1)
 		{
 			printf("Capteur bien supprime !!!!\n");
@@ -77,6 +77,7 @@ int test()
 		{
 			printf("Retrait capteur ne marche pas !!!!\n");
 		}
+	*/
 	}
 	else
 	{
@@ -219,7 +220,7 @@ Fonction appelée par le gestionnaire de drivers pour activer l'écoute (après 
 \param mem_sem Semaphore protegeant les accès concurrents à la mémoire
 \return 0 si tout est ok, > 0 si erreur
 */
-int drv_run( sem_t mem_sem );
+//int drv_run( sem_t mem_sem );
 
 /**
 Fonction appelée par le gestionnaire de drivers juste avant de décharger la librairie de la mémoire. L'écoute se stoppe et les ressources sont libérées
