@@ -11,9 +11,4 @@ int mk_sock(int port, int addr, int flags);
  */
 int connect_to(int addr, int c_port, int proto);
 
-/**
- * return the list of sensors id
- */
-char** read_sensors_list_file(int* a_number_of_sensor);
-
 #endif

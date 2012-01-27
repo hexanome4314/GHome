@@ -26,26 +26,19 @@ char* interesting_frame;
 int main()
 {
 
-    /* get the sensors_id from "sensors_file"*/
-	int number_of_sensors;
-	char** sensors = read_sensors_list_file(&number_of_sensors);
-
+	/* init the communication with the sensors base */
 	int sock;
-	int loop_counter1;
-	int loop_counter2;
-	char* char_buffer;
-
-	char_buffer = malloc(29);
-	memset(char_buffer,0,sizeof(char_buffer));
-
 	sock = connect_to(inet_addr(IP_BORNE_ENOCEAN), PORT_BORNE_ENOCEAN, 0);
-
 	if(sock == -1){
 		perror("listen - Start driver fail due to socket connection");
 		return -1;
 	}else{ /* politeness */
 		send(sock,"Hi from Hx4314's driver!",25,0);
 	}
+
+    /* get the sensors_id from "sensors_file"*/
+	int number_of_sensors;
+	sensors_queue* sensors = read_sensors_list_file(&number_of_sensors);
 
 	/* creation of a thread for the interpretation and message sending stuff */
 	sem_init(&to_send,0,0);
@@ -54,35 +47,76 @@ int main()
 	p_function_to_interpret_and_send = &interpretAndSend;
 	pthread_create(&interprets_and_sends_thread,NULL,p_function_to_interpret_and_send,NULL);
 
+	/* useful stuffs for the main loop */
+	int loop_counter1;
+	char* char_buffer;
+	char_buffer = (char*)malloc(28);
+	printf( "malloc 0x%x \n", char_buffer );
+	memset(char_buffer,0,sizeof(char_buffer));
 
-	for(loop_counter1=0 ; loop_counter1<10 ; loop_counter1++){
+	for(loop_counter1=0 ; loop_counter1<10 ; loop_counter1++){ /* begin RECEIVE&FILTER THREAD LOOP */
 
-		printf("listen - I'm listening\n");
+		//printf("listen ---------------- I'm listening\n");
 
-		/* get a new frame */
-		if(recv(sock, char_buffer, 29,MSG_WAITALL)==-1)
-			perror("listen - recv fail");
+		/* LOOP get a new frame */
+		if(recv(sock, char_buffer, 28,MSG_WAITALL)==-1)
+			perror("listen - recv fail \n");
 		printf("listen - recv: %s \n",char_buffer);
+		if(SIMULATION){
+			char backslash_n;
+			recv(sock, &backslash_n,1,MSG_WAITALL);
+			printf("listen - backslash_n %c \n",backslash_n);
+		}
 
-		/* filter */
-		for(loop_counter2=0 ; loop_counter2<number_of_sensors ; loop_counter2++){
-			if(   (char)sensors[loop_counter2][0] == (char) char_buffer[16]
-			   && (char)sensors[loop_counter2][1] == (char) char_buffer[17]
-			   && (char)sensors[loop_counter2][2] == (char) char_buffer[18]
-			   && (char)sensors[loop_counter2][3] == (char) char_buffer[19]
-        	   && (char)sensors[loop_counter2][4] == (char) char_buffer[20]
-		       && (char)sensors[loop_counter2][5] == (char) char_buffer[21]
-               && (char)sensors[loop_counter2][6] == (char) char_buffer[22]
-		       && (char)sensors[loop_counter2][7] == (char) char_buffer[23]
+		/* LOOP filter */
+		printf("FILTRE ");
+		sensors_queue* p_sensor;
+		for(p_sensor = sensors ; (sensors_queue*)p_sensor->next != NULL ; p_sensor = p_sensor->next){
+			/*printf("%c%c %c%c %c%c %c%c == %c%c %c%c %c%c %c%c ?\n",
+					p_sensor->sensor[0],p_sensor->sensor[1],p_sensor->sensor[2],p_sensor->sensor[3],
+					p_sensor->sensor[4],p_sensor->sensor[5],p_sensor->sensor[6],p_sensor->sensor[7],
+					char_buffer[16],char_buffer[17],char_buffer[18],char_buffer[19],
+					char_buffer[20],char_buffer[21],char_buffer[22],char_buffer[23]);
+			*/
+			if(   (char)p_sensor->sensor[0] == (char) char_buffer[16]
+			   && (char)p_sensor->sensor[1] == (char) char_buffer[17]
+			   && (char)p_sensor->sensor[2] == (char) char_buffer[18]
+			   && (char)p_sensor->sensor[3] == (char) char_buffer[19]
+        	   && (char)p_sensor->sensor[4] == (char) char_buffer[20]
+		       && (char)p_sensor->sensor[5] == (char) char_buffer[21]
+               && (char)p_sensor->sensor[6] == (char) char_buffer[22]
+		       && (char)p_sensor->sensor[7] == (char) char_buffer[23]
 			){
-				printf("listen - message from one of ours sensors! \n");
 				sem_wait(&to_send_receive);
+				/*if(sem_wait(&to_send_receive) == 0){
+					int val;
+					sem_getvalue(&to_send,&val);
+					printf("listen - SEM GET to_send_receive %d\n",val);
+				}else{
+					printf("error during SEM GET to_send_receive %d",errno);
+				}*/
+				printf("listen - message from one of ours sensors! \n");
 				interesting_frame = char_buffer;
 				sem_post(&to_send);
+				char_buffer = (char*)malloc(28);
+				printf( "malloc 0x%x \n", char_buffer );
+				memset(char_buffer,0,sizeof(char_buffer));
+
+				/*if(sem_post(&to_send) == 0){
+					int val;
+					sem_getvalue(&to_send,&val);
+					printf("listen - SEM PUT to_send %d\n",val);
+				}else{
+					printf("error during SEM PUT to_send %d",errno);
+				}*/
 				break;
 			}
 		}
-	}
+		if(p_sensor->next == NULL && interesting_frame != char_buffer){
+			printf("listen - message i don't care about \n");
+		}
+		printf("FIN FILTRE \n");
+	} /* end RECEIVE&FILTER THREAD LOOP */
 	shutdown(sock,2);
 	return 1;
 }
@@ -104,15 +138,31 @@ void interpretAndSend(){
 
 	enocean_data_structure* message;
 
-	for(;;){
-
+	for(;;){ /* begin INTERPRET&SEND THREAD LOOP */
+		//printf("interpret&send --------------------- start of a loop ! \n");
 		/* get the new message */
 		message = malloc(sizeof(enocean_data_structure));
-		char* buffer;
+		char* buffer = NULL;
 		sem_wait(&to_send);
+		/*if(sem_wait(&to_send) == 0){
+			int val;
+			sem_getvalue(&to_send,&val);
+			printf("interpret&send - SEM GET to_send %d\n",val);
+		}else{
+			printf("error during SEM GET to_send %d",errno);
+		}*/
 		buffer = interesting_frame;
+		interesting_frame = NULL;
 		sem_post(&to_send_receive);
+		/*if(sem_post(&to_send_receive) == 0){
+			int val;
+			sem_getvalue(&to_send,&val);
+			printf("interpret&send - SEM PUT to_send_receive %d\n",val);
+		}else{
+			printf("error during SEM PUT to_send_receive %d",errno);
+		}*/
 		parser(buffer,message);
+		printf( "free 0x%x \n", buffer );
 		free(buffer);
 
 		/* send the message */
@@ -135,7 +185,7 @@ void interpretAndSend(){
 			printf("interpret&send - Tango Charlie :\n");
 			sleep(5);
 		}
-	}
+	}/* end INTERPRET&SEND THREAD LOOP */
 }
 
 /**
@@ -158,3 +208,41 @@ void parser(char* aFrame, enocean_data_structure* aMessage){
 	sscanf(&aFrame[24],"%02X",(unsigned int*) &(aMessage->STATUS));
 	sscanf(&aFrame[26],"%02X",(unsigned int*) &(aMessage->CHECKSUM));
 }
+
+sensors_queue* read_sensors_list_file(int* a_number_of_sensor){
+
+	FILE* sensors_file;
+	int loop_counter1;
+	int loop_counter2;
+	sensors_file = fopen(SENSORS_FILE,"rt");
+	fseek(sensors_file,0L,SEEK_END);
+	int size = ftell(sensors_file);
+	fseek(sensors_file,0L,SEEK_SET);
+	*(a_number_of_sensor) = size/9;
+
+	sensors_queue* sensors;
+	sensors_queue* current_sensor;
+
+	/* init for loop */
+	current_sensor = (sensors_queue*)malloc(sizeof(sensors_queue));
+	for(loop_counter2=0 ; loop_counter2 < 8 ; loop_counter2++){
+				current_sensor->sensor[loop_counter2] = fgetc(sensors_file);
+	}
+	fgetc(sensors_file);
+	current_sensor-> next = NULL;
+	sensors = current_sensor;
+
+	/* loop */
+ 	for(loop_counter1=1 ; loop_counter1 < *(a_number_of_sensor) ; loop_counter1++){
+ 		sensors_queue* new_sensor = (sensors_queue*)malloc(sizeof(sensors_queue));
+ 		for(loop_counter2=0 ; loop_counter2 < 8 ; loop_counter2++){
+			new_sensor->sensor[loop_counter2] = fgetc(sensors_file);
+		}
+ 		fgetc(sensors_file);
+ 		new_sensor->next = NULL;
+ 		current_sensor->next = new_sensor;
+		current_sensor = new_sensor;
+	}
+	return sensors;
+}
+

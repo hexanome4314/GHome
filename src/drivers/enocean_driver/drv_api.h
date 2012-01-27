@@ -87,7 +87,7 @@ Fonction appelée par le gestionnaire de drivers pour ajouter un capteur à éco
 \param	id_sensor	Identifiant unique du capteur qui doit être écouté
 \return 0 si tout est ok, > 0 si erreur
 */
-int drv_add_sensor( unsigned int id_sensor, unsigned char* mem_ptr );
+int drv_add_sensor( unsigned int id_sensor );
 
 /**
 Fonction appelée par le gestionnaire de drivers pour supprimer un capteur en cours d'écoute.

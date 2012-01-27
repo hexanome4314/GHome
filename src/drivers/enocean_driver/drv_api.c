@@ -229,7 +229,7 @@ void drv_stop( void );
 
 /**
 */
-int drv_add_sensor( unsigned int id_sensor, unsigned char* mem_ptr )
+int drv_add_sensor( unsigned int id_sensor)
 {
 	int place = 0; /* Place où mettre le capteur */
 	

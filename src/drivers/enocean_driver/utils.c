@@ -7,7 +7,6 @@
 #include <string.h>
 
 #include "utils.h"
-#include "config.h"
 
 void prepare_sock(int port, int addr, int * sock, struct sockaddr_in * saddr)
 {
@@ -48,30 +47,4 @@ int connect_to(int addr, int c_port, int proto)
 	 return -1;
   }
   return sock;
-}
-
-char** read_sensors_list_file(int* a_number_of_sensor){
-
-	FILE* sensors_file;
-	int loop_counter;
-	sensors_file = fopen(SENSORS_FILE,"rt");
-	fseek(sensors_file,0L,SEEK_END);
-	int size = ftell(sensors_file);
-	fseek(sensors_file,0L,SEEK_SET);
-	*(a_number_of_sensor) = size/9;
-
-	char** sensors = (char**)malloc(sizeof(char**)*(*(a_number_of_sensor)));
- 	for(loop_counter=0 ; loop_counter < *(a_number_of_sensor) ; loop_counter++){
- 		char* mem = (char*)malloc(sizeof(id_sensor));
- 		sensors[loop_counter] = (char*) mem;
- 	}
-
-	int sensor_num = 0;
-	while( !feof(sensors_file) && sensor_num != *(a_number_of_sensor) ){
-		for(loop_counter=0 ; loop_counter < 8 ; loop_counter++){
-			sensors[sensor_num][loop_counter] = fgetc(sensors_file);
-		}
-		sensor_num++;
-	}
-	return sensors;
 }

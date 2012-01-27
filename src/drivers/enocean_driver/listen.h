@@ -8,6 +8,8 @@
 #ifndef LISTEN_H_
 #define LISTEN_H_
 
+#define SIMULATION 1
+
 /************************************************** TYPES */
 
 /**
@@ -84,5 +86,9 @@ typedef char id_sensor[9];
 void parser(char* uneTrame, enocean_data_structure* unMessage);
 void interpretAndSend();
 
+/**
+ * return the list of sensors id
+ */
+sensors_queue* read_sensors_list_file(int* a_number_of_sensor);
 
 #endif /* LISTEN_H_ */
