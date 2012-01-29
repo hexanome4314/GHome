@@ -13,7 +13,7 @@ struct ios_device_descriptor
 {
 	int	id;	/* Identifiant unique du périphérique */
 	int	major;  /* Majeur du driver dont dépend le périphérique */
-	void (*handler)( int, char ); /* Handler à déclencher lorsque les données du périphérique sont modifiées */
+	void (*handler)( unsigned int, char ); /* Handler à déclencher lorsque les données du périphérique sont modifiées */
 } added_devices[DEV_MAX_COUNT];
 
 /**
@@ -74,12 +74,21 @@ Attache un handler à ce descripteur qui sera appelé à chaque mise à jour des
 \param	fd	Le descripteur concerné
 	handler	Le handler qui sera appelé
 */
-void ios_data_handler_attach( int fd, void (*handler)( int, char ) );
+void ios_data_handler_attach( int fd, void (*handler)( unsigned int, char ) );
 
 /**
 Détache un handler à ce descripteur
 \param	fd	Le descripteur concerné
 */
 void ios_data_handler_detach( int fd );
+
+/**
+Récupère une donnée de la matrice des données
+\param	fd	Le descripteur concerné
+	field	Le champ à récupérer
+	buffer	L'adresse du buffer qui recevra la données
+\return IOS_OK si tout est ok, IOS_UNKNOWN_DEVICE ou IOS_INVALID_FIELD sinon
+*/
+int ios_fetch_data( int fd, unsigned int field, char* buffer );
 
 #endif

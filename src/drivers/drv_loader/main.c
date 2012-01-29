@@ -6,13 +6,18 @@
 #include "ios_api.h"
 #include "drv_manager.h"
 
+void h1( unsigned int field, char val )
+{
+	printf( "Handler called ! [%d,%d]\n", field, val );
+}
+
 int main()
 {
 	int major;
 	int fd1, fd2, fd3;
 
-	char** buf;
-	size_t len;
+	char   value1, value2, value3;
+	size_t i;
 
 	ios_init();
 
@@ -27,10 +32,23 @@ int main()
 
 	fd3 = ios_add_device( major, 2 );
 
-	sleep( 1 );
+	/* ios_attach_handler( fd1, h1 ); */
+
+	for( i = 0; i < 5; i++ )
+	{
+		sleep( 2 );
+
+		ios_read( fd1, DRV_FIELD_TEMPERATURE, &value1 );
+		ios_read( fd2, DRV_FIELD_TEMPERATURE, &value2 );
+		ios_read( fd3, DRV_FIELD_TEMPERATURE, &value3 );
+
+		printf( "Temp1 : %d / Temp2 : %d / Temp3 : %d\n", value1, value2, value3 );
+	}
 
 	ios_remove_device( fd1 );
 	ios_remove_device( fd2 );
+
+	sleep( 1 );
 
 	ios_uninstall_driver( major );
 

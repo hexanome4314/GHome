@@ -12,7 +12,7 @@ extern struct drv_func_ptr drivers_func[DRV_MAX_COUNT];
 /**
 La boîte aux lettres utilisées pour les échanges entre les drivers et l'ios
 */
-int msgq_id;
+static int msgq_id;
 
 /**
 Handle du thread de la collecte de données
@@ -22,8 +22,9 @@ static pthread_t collect_thread;
 /**
 Mutex sur les données pour éviter les accès concurrents ainsi que sur la condition d'arrêt
 */
-static pthread_mutex_t data_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t stop_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t data_mutex  = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t stop_mutex  = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t table_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /**
 Condition d'arrêt de la collecte
@@ -36,12 +37,61 @@ Routine du thread collectant les données auprès des différents capteurs via l
 */
 void* ios_data_collector_callback( void* ptr )
 {
-	int stop = 0;
+	int stop, res;
+	struct msg_drv_notify buffer;
+	size_t buffer_len;
+
 	fprintf( drv_output, "%s::%s -> Collector Launched.\n", __FILE__, __FUNCTION__ );
+
+	/* Petit calcul de taille */
+	buffer_len = sizeof(buffer) - sizeof(long);
+
+	/* La boucle principale */
+	stop = 0;
 	while( stop == 0 )
 	{
-		usleep( 5 );
+		/* Réception des données des périphériques sans blocage */
+                memset( &buffer, 0, sizeof(struct msg_drv_notify) );
+                res = msgrcv( msgq_id, (void*) &buffer, buffer_len, DRV_MSG_TYPE, IPC_NOWAIT );
 
+
+		/* Si on a reçu un message, on raffraichit la table et on call le handler, sous condition que le flag est valide */
+		if( buffer.flag_value >= 0 && buffer.flag_value < DRV_LAST_VALUE && res > 0 )
+		{
+			size_t i;
+			int fd;
+			void (*handler)( unsigned int, char );
+
+			/* On se met en jambe avec une petite recherche du fd pour l'id passé */
+			fd = -1;
+
+			pthread_mutex_lock( &table_mutex );
+			for( i = 0; i < DEV_MAX_COUNT; i++ )
+			{
+				if( added_devices[i].id == buffer.id_sensor )
+				{
+					fd = i;
+					handler = added_devices[i].handler;
+
+					break;
+				}
+			}	
+			pthread_mutex_unlock( &table_mutex );
+
+			/* Si on a trouvé le périphérique, on procède */
+			if( fd >= 0 )
+			{
+				pthread_mutex_lock( &data_mutex );
+				device_data_matrix[fd][buffer.flag_value] = buffer.value;
+				pthread_mutex_unlock( &data_mutex ); 
+
+				/* On call le handler */
+				if( handler != NULL )
+					(*handler)( buffer.flag_value, buffer.value );
+			}
+		}
+
+		/* On regarde s'il faut s'arrêter */
 		pthread_mutex_lock( &stop_mutex );
 		stop = stop_collect;
 		pthread_mutex_unlock( &stop_mutex );
@@ -147,13 +197,16 @@ int ios_register_device( int major, int id )
 	{
 		fd = 0;
 
+		pthread_mutex_lock( &table_mutex );
 		added_devices[0].id	 = id;
 		added_devices[0].major	 = major;
 		added_devices[0].handler = NULL;
+		pthread_mutex_unlock( &table_mutex );
 	}
 	else
 	{
 		size_t i;
+		pthread_mutex_lock( &table_mutex );
 		for( i = 0; i < DRV_MAX_COUNT; i++ )
 		{
 			if( added_devices[i].id == 0 )
@@ -167,6 +220,7 @@ int ios_register_device( int major, int id )
 				break;
 			}
 		}
+		pthread_mutex_unlock( &table_mutex );
 	}
 
 
@@ -190,24 +244,30 @@ int ios_unregister_device( int fd )
 	size_t i;
 	int id, major;
 
-	/* On commence par vérifier que le fd est valide */
-	if( added_devices[fd].id == 0 )
-		return IOS_UNKNOWN_DEVICE;
-
+	/* On récupère les données pour éviter de prendre sans arrête le jeton */
+	pthread_mutex_lock( &table_mutex );
 	id    = added_devices[fd].id;
 	major = added_devices[fd].major;
+	pthread_mutex_unlock( &table_mutex );
+
+	/* On commence par vérifier que le fd est valide */
+	if( id == 0 )
+		return IOS_UNKNOWN_DEVICE;
 
 	/* On enlève le périphérique au sein du driver */
 	(*drivers_func[major].drv_remove_device)( id );
 
 	/* Puis de notre table */
+	pthread_mutex_lock( &table_mutex );
 	added_devices[fd].id      = 0;
 	added_devices[fd].major   = 0;
 	added_devices[fd].handler = 0;
+	pthread_mutex_unlock( &table_mutex );
 
 	/* Et enfin les données */
-	for( i = 0; i < DEV_MAX_COUNT; i++ )
-		memset( device_data_matrix[i], 0x00, DRV_LAST_VALUE );
+	pthread_mutex_lock( &data_mutex );
+	memset( device_data_matrix[fd], 0x00, DRV_LAST_VALUE );
+	pthread_mutex_unlock( &data_mutex );
 
 	added_devices_count--;
 
@@ -235,7 +295,13 @@ void ios_unregister_devices( int major )
 	/* On enlève tous les périphériques du major concerné */
 	for( i = 0; i < DEV_MAX_COUNT; i++ )
 	{
-		if( added_devices[i].major == major )
+		int current_major;
+
+		pthread_mutex_lock( &table_mutex );
+		current_major = added_devices[i].major;
+		pthread_mutex_unlock( &table_mutex );
+
+		if( current_major == major )
 			ios_unregister_device( i );
 	}
 
@@ -247,14 +313,22 @@ Attache un handler à ce descripteur qui sera appelé à chaque mise à jour des
 \param  fd      Le descripteur concerné
         handler Le handler qui sera appelé
 */
-void ios_data_handler_attach( int fd, void (*handler)( int, char ) )
+void ios_data_handler_attach( int fd, void (*handler)( unsigned int, char ) )
 {
+	int id;
+
+	pthread_mutex_lock( &table_mutex );
+	id = added_devices[fd].id;
+	pthread_mutex_unlock( &table_mutex );
+
 	/* Vérification que le fd est valide */
-	if( added_devices[fd].id == 0 )
+	if( id == 0 )
 		return;
 
 	/* Met en place le handler */
+	pthread_mutex_lock( &table_mutex );
 	added_devices[fd].handler = handler;
+	pthread_mutex_unlock( &table_mutex );
 }
 
 /**
@@ -263,6 +337,41 @@ Détache un handler à ce descripteur
 */
 void ios_data_handler_detach( int fd )
 {
+	pthread_mutex_lock( &table_mutex );
 	added_devices[fd].handler = NULL;
+	pthread_mutex_unlock( &table_mutex );
 }
 
+/**
+Récupère une donnée de la matrice des données
+\param  fd      Le descripteur concerné
+        field   Le champ à récupérer
+        buffer  L'adresse du buffer qui recevra la données
+\return IOS_OK si tout est ok, IOS_UNKNOWN_DEVICE ou IOS_INVALID_FIELD sinon
+*/
+int ios_fetch_data( int fd, unsigned int field, char* buffer )
+{
+	int id;
+
+	/* Vérification que le champ est valide car sinon... SEGFAULT ! */
+	if( field >= DRV_LAST_VALUE )
+		return IOS_INVALID_FIELD;
+
+	/* Vérficiation que le descripteur est valide */
+	pthread_mutex_lock( &table_mutex );
+	id = added_devices[fd].id;
+	pthread_mutex_unlock( &table_mutex );
+
+	if( id == 0 )
+		return IOS_UNKNOWN_DEVICE;
+
+	/* On continue que si le buffer est valide */
+	if( buffer != NULL )
+	{
+		pthread_mutex_lock( &data_mutex );
+		*buffer = device_data_matrix[fd][field];
+		pthread_mutex_unlock( &data_mutex );
+	}
+
+	return IOS_OK;
+}

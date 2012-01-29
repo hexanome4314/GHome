@@ -127,7 +127,7 @@ Attache un handler au périphérique dès qu'une donnée est mise à jour (s'il 
 \param  fd      Descripteur de fichier
         handler Foncteur sur la fonction à exécuter
 */
-void ios_attach_handler( int fd, void (*handler)( int, char ) )
+void ios_attach_handler( int fd, void (*handler)( unsigned int, char ) )
 {
 	ios_data_handler_attach( fd, handler );
 }
@@ -141,4 +141,26 @@ void ios_detach_handler( int fd )
 	ios_data_handler_detach( fd );
 }
 
+/**
+Lit une donne en particulier provenant d'un périphérique
+\param  fd              Descripteur de fichier
+        drv_field       Données à retourner
+        buffer          Buffer recevant les données
+\return IOS_OK si tout est ok, IOS_INVALID_FIELD si le champ est invalide, IOS_UNKNOWN_DEVICE si le descripteur est inconnu ou IOS_ERROR si l'erreur est critique
+*/
+int ios_read( int fd, unsigned int drv_field, char* buffer )
+{
+	return ios_fetch_data( fd, drv_field, buffer );
+}
+
+/**
+Envoie des données au périphérique
+\param  fd      Descripteur de fichier
+        data    Les données à envoyer
+\return IOS_OK si tout est ok, IOS_UNKNOWN_FD si le descripteur est inconnu, IOS_ERROR sinon
+*/
+int ios_write( int fd, char* data )
+{
+	return IOS_OK;
+}
 
