@@ -25,7 +25,7 @@ static short must_continue;
 int added_sensors[MAX_SENSOR];
 unsigned int sensor_count;
 
-void add_sensor( unsigned int id )
+int add_sensor( unsigned int id )
 {
 	int i = 0;
 
@@ -43,9 +43,9 @@ void add_sensor( unsigned int id )
 	pthread_mutex_unlock( &the_mutex );
 
 	if( i == MAX_SENSOR )
-		printf( "Cannot add new sensor : limit reached.\n" );
-	else
-		printf( "\tAdded at #%d\n", i );
+		return 1;
+
+	return 0;
 }
 
 unsigned int sensor_exists( unsigned int id )
@@ -131,7 +131,7 @@ int drv_init( const char* addr, int port )
 {
 	int i;
 
-	printf( "Connexion à %s:%d\n", addr, port );
+	printf( "%s::%s -> Connexion à %s:%d\n", __FILE__, __FUNCTION__, addr, port );
 
 	/* Initialise la liste des capteurs ajoutés */
 	for( i = 0; i < MAX_SENSOR; i++ )
@@ -154,29 +154,25 @@ int drv_run( int msgq_id )
 
 void drv_stop( void )
 {
-	printf( "Wait\n" );
-
 	pthread_mutex_lock( &the_mutex );
 	must_continue = 0;
 	pthread_mutex_unlock( &the_mutex );
 
 	pthread_join(the_thread, NULL);
 
-	printf( "Stop\n" );
+	printf( "%s::%s -> Stop\n", __FILE__, __FUNCTION__ );
 }
 
 int drv_add_sensor( unsigned int id_sensor )
 {
-	printf( "Adding sensor #%d\n", id_sensor );
+	printf( "%s::%s -> Adding sensor #%d\n", __FILE__, __FUNCTION__, id_sensor );
 
-	add_sensor( id_sensor );
-
-	return 0;
+	return add_sensor( id_sensor );
 }
 
 void drv_remove_sensor( unsigned int id_sensor )
 {
-	printf( "Removing sensor #%d\n", id_sensor );
+	printf( "%s::%s -> Removing sensor #%d\n", __FILE__, __FUNCTION__, id_sensor );
 
 	remove_sensor( id_sensor );
 }

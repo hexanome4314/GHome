@@ -5,7 +5,7 @@ L_FLAGS=-shared
 LIB=-lpthread
 
 OBJECT=driver.o
-OUTPUT=libdriver.so.1.0.1
+OUTPUT=../drivers/libdriver.so.1.0.1
 
 all: $(OUTPUT)
 
@@ -16,4 +16,4 @@ $(OUTPUT): $(OBJECT)
 	$(COMPILE) $(C_FLAGS) $< -o $@
 
 clean:
-	rm *.o $(OUTPUT)
+	rm *.o
