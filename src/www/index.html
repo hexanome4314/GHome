@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" >
+  <head>
+    <title>.:: GHome - Interface de gestion ::.</title>
+    <meta http-equiv="Content-Type" content="text/html; utf-8" />
+    <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+    <link rel="stylesheet" href="style/style.css" type="text/css" media="screen" />
+  </head>
+  <body>
+
+	<script type="text/javascript">
+		$(document).ready(
+			function() {
+				/* Clique sur les onglets */
+				$("a.tab").click(
+					function() {
+						/* Si l'élément est déjà actif, rien à faire */
+						if( $(this).hasClass( "active" ) )
+							return;
+
+						/* On change l'élément actif par celui en cours et on fait des effets jolis */
+						$(".active").removeClass( "active" );
+						$(this).addClass( "active" );
+						$(".content").slideUp();
+
+						var contenu_aff = $(this).attr( "alt" );
+						$("#" + contenu_aff).slideDown();
+					}
+				);
+			}
+		);
+	</script>
+
+	<div id="tabbed_box" class="tabbed_box">
+
+	<h4>GHome Project</h4>
+
+	<div class="tabbed_area">
+		<ul class="tabs">
+			<li><a href="#" alt="content_1" class="tab active">G&eacute;n&eacute;ral</a></li>
+			<li><a href="#" alt="content_2" class="tab">Configuration</a></li>
+			<li><a href="#" alt="content_3" class="tab">Aide</a></li>
+		</ul>
+
+		<div id="content_1" class="content">
+			<p>Le contenu g&eacute;n&eacute;ral</p>
+		</div>
+
+		<div id="content_2" class="content">
+			<p>Le contenu de configuration</p>
+		</div>
+
+		<div id="content_3" class="content">
+			<p>Getting some help</p>
+		</div>
+	</div>
+
+	<div id="foot_box">
+		<p>GHome Project by H4314</p>
+		<p>Cherche pas, tu peux pas test.</p>
+		<p>Copyleft 2012</p>
+	</div>
+
+	</div>
+
+
+  </body>
+</html>
