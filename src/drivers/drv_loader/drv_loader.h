@@ -17,8 +17,8 @@ struct drv_func_ptr
 	char filename[256];
 	void* handle;
 	int (*drv_init) (const char*, int);
-	int (*drv_add_sensor) (unsigned int);
-	int (*drv_remove_sensor) (unsigned int);
+	int (*drv_add_device) (unsigned int);
+	int (*drv_remove_device) (unsigned int);
 	int (*drv_run) (int);
 	void (*drv_stop) ();
 	void (*drv_get_info) (char*, int);

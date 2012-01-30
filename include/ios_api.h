@@ -17,9 +17,11 @@ void ios_release();
 /**
 Charge un nouveau driver afin d'exploiter ses fonctionnalités
 \param	driver_name	Le nom du fichier .so à charger
-\return	Le majeur si tout est ok ou une erreur (IOS_UNKNOWN_DRIVER, IOS_INVALID_DRIVER, IOS_TOO_MANY_DRIVER_PLUGGED)
+	ip_address	L'adresse IP du concentrateur/du capteur associé à cet id
+	port		Le port sur lequel se connecter au périphérique distant
+\return	Le majeur si tout est ok ou une erreur (IOS_UNKNOWN_DRIVER, IOS_INVALID_DRIVER, IOS_TOO_MANY_DRIVER_PLUGGED), ou IOS_INVALID_PORT si le port est douteux
 */
-int ios_install_driver( const char* driver_name );
+int ios_install_driver( const char* driver_name, const char* ip_address, unsigned int port );
 
 /**
 Désinstalle un driver chargé en mémoire en cloturant tous les fd si nécessaire
@@ -31,11 +33,9 @@ void ios_uninstall_driver( int major );
 Ajoute un nouveau périphérique rattaché à un driver  en lui associant un nom
 \param	major		Le majeur du driver
 	id		L'identifiant unique du périphérique
-	ip_address	L'adresse IP du concentrateur/du capteur associé à cet id
-	port		Le port sur lequel se connecter au périphérique distant
-\return Le descripteur si tout est ok, IOS_ID_ALREADY_ADDED si le device existe déjà, ou IOS_INVALID_PORT si le port est douteux
+\return Le descripteur si tout est ok, IOS_ID_ALREADY_ADDED si le device existe déjà
 */
-int ios_add_device( int major, int id, const char* ip_address, unsigned int port );
+int ios_add_device( int major, int id );
 
 /**
 Enlève un périphérique déjà ajouté grâce à son nom
@@ -65,9 +65,8 @@ int ios_write( int fd, char* data );
 Attache un handler au périphérique dès qu'une donnée est mise à jour (s'il y en a déjà un, il est détaché)
 \param	fd	Descripteur de fichier
 	handler	Foncteur sur la fonction à exécuter
-\return IOS_OK si tout est ok, IOS_UNKNOWN FD ou IOS_ERROR
 */
-int ios_attach_handler( int fd, void (*handler)( int, char ) );
+void ios_attach_handler( int fd, void (*handler)( int, char ) );
 
 /**
 Détache le handler du périphérique
