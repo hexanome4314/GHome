@@ -7,13 +7,13 @@
 *    _/ _/_/_/_/ _/_/_/ _/_/_/ _/ _/ _/_/ _/ _/ _/ _/_/_/
 *
 *
-* __ __ _ ___ _______ ____ _ ___
-* | | | || | | || | | | | | | |
-* | |_| || |_| ||___ | | | | |_| |
-* | || | ___| | | | | |
-* | ||___ ||___ | | | |___ |
-* | _ | | | ___| | | | | |
-* |__| |__| |___||_______| |___| |___|
+*  __   __   ___   _  _______   __   ___   _
+* |  | |  | |   | | ||       | |  | |   | | |
+* |  |_|  | |   |_| ||___    | |  | |   |_| |
+* |       | |       | ___|   | |  | |       |
+* |       | |    ___||___    | |  | |    ___|
+* |   _   | |   |     ___|   | |  | |   |
+* |__| |__| |___|    |_______| |__| |___|
 *
 * API implementee par les drivers et utilisee par le gestionnaire de drivers
 **********************************************************************************************************/
@@ -220,7 +220,7 @@ Fonction appelée par le gestionnaire de drivers pour activer l'écoute (après 
 \param mem_sem Semaphore protegeant les accès concurrents à la mémoire
 \return 0 si tout est ok, > 0 si erreur
 */
-//int drv_run( sem_t mem_sem );
+int drv_run( sem_t mem_sem );
 
 /**
 Fonction appelée par le gestionnaire de drivers juste avant de décharger la librairie de la mémoire. L'écoute se stoppe et les ressources sont libérées
@@ -287,4 +287,139 @@ Permet d'envoyer des données à un capteur (sans retour de sa part)
 id_trame Identifiant de la trame à envoyer
 \return 0 si tout est ok, > 0 si erreur
 */
-int drv_send_data( unsigned int id_sensor, unsigned int id_trame );
+int drv_send_data( unsigned int id_sensor, unsigned int id_trame )
+{
+	unsigned int id = 0;
+	char* idHexa = (char*)malloc(8);
+	char trame [28];
+	/* Fabrique les elements principaux de la tramme pour calculer le CheckSum */
+	unsigned int byte1 = 0xA5;
+	unsigned int byte2 = 0x5A;
+	unsigned int hSEQ_LEN= 0x6B;
+	unsigned int org = 0x05;
+	unsigned int dataByte3 = 0;
+	unsigned int dataByte2 = 0x00;
+	unsigned int dataByte1 = 0x00;
+	unsigned int dataByte0 = 0x00;
+	unsigned int ID3 = (id_sensor & 0xFF000000);
+	unsigned int ID2 = (id_sensor & 0x00FF0000);
+	unsigned int ID1 = (id_sensor & 0x0000FF00);
+	unsigned int ID0 = (id_sensor & 0x000000FF);
+	unsigned int status = 0x30;
+	unsigned int checkSum = 0;
+	ID3 = ID3>>24;
+	ID2 = ID2>>16;
+	ID1 = ID1>>8;
+
+	/* On verifie si on allume ou on eteint l'actionneur */
+	if (id_trame == 0)
+	{
+		/* Pour activer l'actionneur. */
+		dataByte3 = 0x50;
+	}
+	else
+	{
+		/* Pour désactiver l'actionneur */
+		dataByte3 = 0x70;
+	}
+
+	checkSum = (hSEQ_LEN + org + dataByte3 + dataByte2 + dataByte1 + dataByte0 + ID3 + ID2 + ID1 + ID0 + status) % 256;
+
+	printf("%X %X\nDataBytes : %X %X %X %X\nID : %X %X %X %X\nStatus : %X\nCheckSume : %X\n", hSEQ_LEN, org, dataByte3, dataByte2, dataByte1, dataByte0, ID3, ID2, ID1, ID0, status, checkSum);
+	
+	/* Fabrication de la tramme */
+	trame[0] = 'A';
+	trame[1] = '5';
+	trame[2] = '5';
+	trame[3] = 'A';
+	trame[4] = '6';
+	trame[5] = 'B';
+	trame[6] = '0';
+	trame[7] = '5';
+	if (id_trame == 0)
+	{
+		/* Pour activer l'actionneur. */
+		trame[8] = '5';
+	}
+	else
+	{
+		/* Pour désactiver l'actionneur */
+		trame[8] = '7';
+	}
+	trame[9] = '0';
+	trame[10] = '0';
+	trame[11] = '0';
+	trame[12] = '0'; 
+	trame[13] = '0';
+	trame[14] = '0';
+	trame[15] = '0';
+	id = ID3 & 0xF0;
+	id = id >> 4;
+	itoa(id, idHexa, 16);
+	trame[16] = *idHexa;
+	id = ID3 & 0x0F;
+	itoa(id, idHexa, 16);
+	trame[17] = *idHexa;
+	id = ID2 & 0xF0;
+	id = id >> 4;
+	itoa(id, idHexa, 16);
+	trame[18] = *idHexa;
+	id = ID2 & 0x0F;
+	itoa(id, idHexa, 16);
+	trame[19] = *idHexa;
+	id = ID1 & 0xF0;
+	id = id >> 4;
+	itoa(id, idHexa, 16);
+	trame[20] = *idHexa;
+	id = ID1 & 0x0F;
+	itoa(id, idHexa, 16);
+	trame[21] = *idHexa;
+	id = ID0 & 0xF0;
+	id = id >> 4;
+	itoa(id, idHexa, 16);
+	trame[22] = *idHexa;
+	id = ID0 & 0x0F;
+	itoa(id, idHexa, 16);
+	trame[23] = *idHexa;
+	trame[24] = '3';
+	trame[25] = '0';
+	id = checkSum & 0xF0;
+	id = id >> 4;
+	itoa(id, idHexa, 16);
+	trame[26] = *idHexa;
+	id = checkSum & 0x0F;
+	itoa(id, idHexa, 16);
+	trame[27] = *idHexa;
+	free(idHexa);
+	printf("\n");
+	printf(trame);
+	printf("\n");
+
+	/* Envoyer la trame */
+	/* Il faut voir comment qu'on fait pk il faut la socket ici ^^ */
+	/* ----------------	*/
+
+	/* Erreur d'envoie */
+	if (0)
+	{
+		return 1;
+	}
+	
+	return 0;
+}
+
+/* Test */
+/*
+int main()
+{
+	char* c = (char*)malloc(8);
+	itoa(32, c, 16);
+	printf(c);
+	drv_send_data(0xFF9F1E04, 0);
+	drv_send_data(0xFF9F1E04, 1);
+
+	getchar();
+
+}
+*/
+
