@@ -9,27 +9,56 @@
   <body>
 
 	<script type="text/javascript">
+		function update_fields() {
+			/* On raffraichit les données */
+			$.ajax( {
+				dataType: "json",
+				url: "data/raw_data.json",
+				success: function( data ) {
+					$("#val_temp").html( data.raw_data.temperature );
+					$("#val_humi").html( data.raw_data.humidity );
+					$("#val_light").html( data.raw_data.lightness );
+				}
+			} );
+
+			$("#notifier_box").html( "<img src=\"img/refresh.png\"> <span>Donn&eacute;es actualis&eacute;es.</span>" );
+			$("#notifier_box").slideDown().delay(2000).slideUp();
+		}
+
 		$(document).ready(
+
 			function() {
+
+				update_fields();
+				setInterval( update_fields, 30000 );
+
 				/* Clique sur les onglets */
 				$("a.tab").click(
 					function() {
-						/* Si l'élément est déjà actif, rien à faire */
-						if( $(this).hasClass( "active" ) )
-							return;
+						/* Si l'élément courant n'est pas déjà actif */
+						if( ! $(this).hasClass( "active" ) )
+						{
+							/* On change l'élément actif par celui en cours et on fait des effets jolis */
+							$(".active").removeClass( "active" );
+							$(this).addClass( "active" );
+							$(".content").slideUp();
 
-						/* On change l'élément actif par celui en cours et on fait des effets jolis */
-						$(".active").removeClass( "active" );
-						$(this).addClass( "active" );
-						$(".content").slideUp();
+							var contenu_aff = $(this).attr( "alt" );
+							$("#" + contenu_aff).slideDown();
+						}
 
-						var contenu_aff = $(this).attr( "alt" );
-						$("#" + contenu_aff).slideDown();
+						update_fields();
+
+						return;
 					}
 				);
 			}
 		);
 	</script>
+
+	<div id="notifier_box">
+		<span>&nbsp;</span>
+	</div>
 
 	<div id="tabbed_box" class="tabbed_box">
 
@@ -43,7 +72,27 @@
 		</ul>
 
 		<div id="content_1" class="content">
-			<p>Le contenu g&eacute;n&eacute;ral</p>
+			<h3>G&eacute;n&eacute;ral</h3>
+			<div class="table">
+				<div class="row">
+					<img src="img/temp.jpg"/>
+					<span>Temp&eacute;rature : </span>
+					<span class="val"><i id="val_temp">##</i>&deg;C</span>
+				</div>
+			
+
+				<div class="row">
+				<img src="img/humidity.gif" />
+					<span>Humidit&eacute; : </span>
+					<span class="val"><i id="val_humi">##</i>%</span>
+				</div>
+
+				<div class="row">
+				<img src="img/light.jpg" />
+					<span>Luminosit&eacute; : </span>
+					<span class="val"><i id="val_light">##</i>%</span>
+				</div>
+			</div>
 		</div>
 
 		<div id="content_2" class="content">

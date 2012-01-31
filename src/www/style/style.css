@@ -1,6 +1,25 @@
 body {
 	background-color: #657077;
-	margin: 40px;
+}
+
+img {
+	vertical-align: middle;
+	margin-right: 20px;
+}
+
+#notifier_box {
+	background-color: #FFFFFF;
+	padding: 10px 50px 10px 50px;
+	border: 1px solid #464C54; 
+	margin: -10px auto 0px auto;
+	text-align: center;
+
+	display: none;
+}
+
+#notifier_box img {
+	width: 32px;
+	height: 32px;
 }
 
 #tabbed_box {
@@ -62,8 +81,52 @@ ul.tabs li a.active {
 
 .content {
 	background-color: #FFFFFF;
-	padding: 10px;
+	padding: 20px 50px 40px 50px;
 	border: 1px solid #464C54; 
+}
+
+.content h3 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 20px;
+	letter-spacing: -1px;
+	text-align: center;
+
+	border-top: 1px solid #DDDDDD;
+	border-bottom: 1px solid #DDDDDD;
+
+	margin-bottom: 40px;
+}
+
+.content .table {
+	
+	display: table;
+	width: 100%;
+	border-collapse: collapse;
+	text-align: left;
+
+	margin: 0px;
+}
+
+.content .row {
+	display: table-row;
+}
+
+.content img {
+	display: table-cell;
+}
+
+.content .table span {
+
+	display: table-cell;
+	border-bottom: 1px solid #DDDDDD;
+}
+
+.content .val {
+	
+	width: 450px;
+	text-align: right;
+	border-bottom: 1px solid #DDDDDD;
 }
 
 #content_2, #content_3 {
@@ -73,6 +136,11 @@ ul.tabs li a.active {
 .content ul {
 	margin: 0px;
 	padding: 0px 20px 0px 20px;
+}
+
+.content img {
+	width: 32px;
+	height: 32px;
 }
 
 #foot_box {
@@ -93,4 +161,4 @@ ul.tabs li a.active {
 	padding: 0px;
 	margin: 0px;
 }
-}
+
