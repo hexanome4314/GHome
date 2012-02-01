@@ -60,11 +60,10 @@ void _interpretAndSend4BS(enocean_data_structure* a_RPS_message){
 
 /********************************************* PUBLICS FUNCTIONS */
 
-int initialisation_for_listener(){
+void initialisation_for_listener(){
 
 	sem_init(&to_send,0,0);
 	sem_init(&to_send_receive,0,1); /* 1 as the init value in order not to block in the first loop */
-
 }
 /**
  * First thread: Receive the flow filter frame we are interested in

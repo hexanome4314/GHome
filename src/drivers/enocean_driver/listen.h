@@ -83,6 +83,7 @@ typedef char id_sensor[9];
 
 /********************************************** FUNCTIONS */
 
+void initialisation_for_listener();
 int listenAndFilter(int a_sock, sensors_queue* sensors);
 void interpretAndSend();
 
