@@ -9,62 +9,89 @@
 #include <pthread.h>
 #include <semaphore.h>
 
+#include "sys/msg.h"
 #include "listen.h"
 #include "utils.h"
 #include "drv_api.h"
 
-/********************************************* Thread communication */
-
-pthread_t filter_thread;
-pthread_t interprets_and_sends_thread;
+/* Thread's communication */
 
 sem_t to_send;
 sem_t to_send_receive;
 
 char* interesting_frame;
 
-int main()
-{
+/********************************************* PRIVATES FUNCTIONS */
 
-	/* init the communication with the sensors base */
-	int sock;
-	sock = connect_to(inet_addr(IP_BORNE_ENOCEAN), PORT_BORNE_ENOCEAN, 0);
-	if(sock == -1){
-		perror("listen - Start driver fail due to socket connection");
-		return -1;
-	}else{ /* politeness */
-		send(sock,"Hi from Hx4314's driver!",25,0);
-	}
+/**
+ * Change a "A55A0B051000000043141337306E" char* as
+ * we get from EnOcean Sensors into a enocean_data_structure
+ * \param the frame
+ * \param a enocean_data_structure where to put the information
+ */
+void parser(char* aFrame, enocean_data_structure* aMessage){
+	sscanf(&aFrame[0],"%02X",(unsigned int*) &(aMessage->SYNC_BYTE1));
+	sscanf(&aFrame[2],"%02X",(unsigned int*) &(aMessage->SYNC_BYTE2));
+	sscanf(&aFrame[4],"%02X",(unsigned int*) &(aMessage->H_SEQ_LENGTH));
+	sscanf(&aFrame[6],"%02X",(unsigned int*) &(aMessage->ORG));
+	sscanf(&aFrame[8],"%02X",(unsigned int*) &(aMessage->DATA_BYTE3));
+	sscanf(&aFrame[10],"%02X",(unsigned int*) &(aMessage->DATA_BYTE2));
+	sscanf(&aFrame[12],"%02X",(unsigned int*) &(aMessage->DATA_BYTE1));
+	sscanf(&aFrame[14],"%02X",(unsigned int*) &(aMessage->DATA_BYTE0));
+	sscanf(&aFrame[16],"%02X",(unsigned int*) &(aMessage->ID_BYTE3));
+	sscanf(&aFrame[18],"%02X",(unsigned int*) &(aMessage->ID_BYTE2));
+	sscanf(&aFrame[20],"%02X",(unsigned int*) &(aMessage->ID_BYTE1));
+	sscanf(&aFrame[22],"%02X",(unsigned int*) &(aMessage->ID_BYTE0));
+	sscanf(&aFrame[24],"%02X",(unsigned int*) &(aMessage->STATUS));
+	sscanf(&aFrame[26],"%02X",(unsigned int*) &(aMessage->CHECKSUM));
+}
 
-    /* get the sensors_id from "sensors_file"*/
-	int number_of_sensors;
-	sensors_queue* sensors = read_sensors_list_file(&number_of_sensors);
+void _interpretAndSendRPS(enocean_data_structure* a_RPS_message){
 
-	/* creation of a thread for the interpretation and message sending stuff */
+}
+
+void _interpretAndSend1BS(enocean_data_structure* a_RPS_message){
+
+}
+
+void _interpretAndSend4BS(enocean_data_structure* a_RPS_message){
+
+}
+
+/********************************************* PUBLICS FUNCTIONS */
+
+int initialisation_for_listener(){
+
 	sem_init(&to_send,0,0);
 	sem_init(&to_send_receive,0,1); /* 1 as the init value in order not to block in the first loop */
-	void (*p_function_to_interpret_and_send);
-	p_function_to_interpret_and_send = &interpretAndSend;
-	pthread_create(&interprets_and_sends_thread,NULL,p_function_to_interpret_and_send,NULL);
+
+}
+/**
+ * First thread: Receive the flow filter frame we are interested in
+ * and give them to second thread
+ * \param socket from which arrive the flow of frame
+ */
+
+int listenAndFilter(int a_sock, sensors_queue* sensors)
+{
 
 	/* useful stuffs for the main loop */
-	int loop_counter1;
 	char* char_buffer;
 	char_buffer = (char*)malloc(28);
 	printf( "malloc 0x%x \n", char_buffer );
 	memset(char_buffer,0,sizeof(char_buffer));
 
-	for(loop_counter1=0 ; loop_counter1<10 ; loop_counter1++){ /* begin RECEIVE&FILTER THREAD LOOP */
+	for(;;){ /* begin RECEIVE&FILTER THREAD LOOP */
 
 		//printf("listen ---------------- I'm listening\n");
 
 		/* LOOP get a new frame */
-		if(recv(sock, char_buffer, 28,MSG_WAITALL)==-1)
+		if(recv(a_sock, char_buffer, 28,MSG_WAITALL)==-1)
 			perror("listen - recv fail \n");
 		printf("listen - recv: %s \n",char_buffer);
 		if(SIMULATION){
 			char backslash_n;
-			recv(sock, &backslash_n,1,MSG_WAITALL);
+			recv(a_sock, &backslash_n,1,MSG_WAITALL);
 			printf("listen - backslash_n %c \n",backslash_n);
 		}
 
@@ -117,23 +144,11 @@ int main()
 		}
 		printf("FIN FILTRE \n");
 	} /* end RECEIVE&FILTER THREAD LOOP */
-	shutdown(sock,2);
-	return 1;
 }
-
-void _interpretAndSendRPS(enocean_data_structure* a_RPS_message){
-
-}
-
-void _interpretAndSend1BS(enocean_data_structure* a_RPS_message){
-
-}
-
-void _interpretAndSend4BS(enocean_data_structure* a_RPS_message){
-
-}
-
-
+/**
+ * Second thread: interpret the frame and sem post
+ * \param the semaphore where to put
+ */
 void interpretAndSend(){
 
 	enocean_data_structure* message;
@@ -188,61 +203,4 @@ void interpretAndSend(){
 	}/* end INTERPRET&SEND THREAD LOOP */
 }
 
-/**
- * change a "A55A0B051000000043141337306E" char* as
- * we get from EnOcean Sensors into a enocean_data_structure
- */
-void parser(char* aFrame, enocean_data_structure* aMessage){
-	sscanf(&aFrame[0],"%02X",(unsigned int*) &(aMessage->SYNC_BYTE1));
-	sscanf(&aFrame[2],"%02X",(unsigned int*) &(aMessage->SYNC_BYTE2));
-	sscanf(&aFrame[4],"%02X",(unsigned int*) &(aMessage->H_SEQ_LENGTH));
-	sscanf(&aFrame[6],"%02X",(unsigned int*) &(aMessage->ORG));
-	sscanf(&aFrame[8],"%02X",(unsigned int*) &(aMessage->DATA_BYTE3));
-	sscanf(&aFrame[10],"%02X",(unsigned int*) &(aMessage->DATA_BYTE2));
-	sscanf(&aFrame[12],"%02X",(unsigned int*) &(aMessage->DATA_BYTE1));
-	sscanf(&aFrame[14],"%02X",(unsigned int*) &(aMessage->DATA_BYTE0));
-	sscanf(&aFrame[16],"%02X",(unsigned int*) &(aMessage->ID_BYTE3));
-	sscanf(&aFrame[18],"%02X",(unsigned int*) &(aMessage->ID_BYTE2));
-	sscanf(&aFrame[20],"%02X",(unsigned int*) &(aMessage->ID_BYTE1));
-	sscanf(&aFrame[22],"%02X",(unsigned int*) &(aMessage->ID_BYTE0));
-	sscanf(&aFrame[24],"%02X",(unsigned int*) &(aMessage->STATUS));
-	sscanf(&aFrame[26],"%02X",(unsigned int*) &(aMessage->CHECKSUM));
-}
-
-sensors_queue* read_sensors_list_file(int* a_number_of_sensor){
-
-	FILE* sensors_file;
-	int loop_counter1;
-	int loop_counter2;
-	sensors_file = fopen(SENSORS_FILE,"rt");
-	fseek(sensors_file,0L,SEEK_END);
-	int size = ftell(sensors_file);
-	fseek(sensors_file,0L,SEEK_SET);
-	*(a_number_of_sensor) = size/9;
-
-	sensors_queue* sensors;
-	sensors_queue* current_sensor;
-
-	/* init for loop */
-	current_sensor = (sensors_queue*)malloc(sizeof(sensors_queue));
-	for(loop_counter2=0 ; loop_counter2 < 8 ; loop_counter2++){
-				current_sensor->sensor[loop_counter2] = fgetc(sensors_file);
-	}
-	fgetc(sensors_file);
-	current_sensor-> next = NULL;
-	sensors = current_sensor;
-
-	/* loop */
- 	for(loop_counter1=1 ; loop_counter1 < *(a_number_of_sensor) ; loop_counter1++){
- 		sensors_queue* new_sensor = (sensors_queue*)malloc(sizeof(sensors_queue));
- 		for(loop_counter2=0 ; loop_counter2 < 8 ; loop_counter2++){
-			new_sensor->sensor[loop_counter2] = fgetc(sensors_file);
-		}
- 		fgetc(sensors_file);
- 		new_sensor->next = NULL;
- 		current_sensor->next = new_sensor;
-		current_sensor = new_sensor;
-	}
-	return sensors;
-}
 

@@ -17,10 +17,16 @@
 *
 * API implementee par les drivers et utilisee par le gestionnaire de drivers
 **********************************************************************************************************/
-
-#include "drv_api.h"
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <pthread.h>
+#include <semaphore.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "drv_api.h"
+#include "listen.h"
+#include "utils.h"
 
 #define NB_DEV_MAX 256
 #define NB_DATA_BYTES 4
@@ -37,8 +43,14 @@ unsigned int idDev; /* id physique du capteur */
 } devData;
 
 /* ---------- Variable du pilote ---------- */
+
 devData tabDevData[NB_DEV_MAX]; /* Tableau des donnees des capteurs installes */
-int nbDev; /* Nombre de capteur installes */
+sensors_queue* sensors; /* liste chainée des capteurs */
+int nbDev; /* Nombre de capteurs installes */
+int sock;
+pthread_t filter_thread;
+pthread_t interprets_and_sends_thread;
+
 
 /* ---------- Main pour les tests du pilote ---------- */
 int test()
@@ -50,7 +62,7 @@ int test()
 	printf("Test OK pour init driver\n");
 	
 	
-	erreur = drv_add_sensor(0x12, mem);
+	//erreur = drv_add_sensor(0x12, mem);
 	
 	if (erreur == 0)
 	{
@@ -173,6 +185,51 @@ int drv_add_data(unsigned int idCapteur, unsigned char* dataBytes)
 		return ERROR;
 	}
 }
+
+/**
+Lit le fichier sensors_file pour y récuperer automatiquement la *
+liste de nos capteurs
+/param un pointeur vers l'entier dans lequel ecrire le nombre de capteur lu
+ */
+
+sensors_queue* read_sensors_list_file(int* a_number_of_sensor){
+
+	FILE* sensors_file;
+	int loop_counter1;
+	int loop_counter2;
+	sensors_file = fopen(SENSORS_FILE,"rt");
+	fseek(sensors_file,0L,SEEK_END);
+	int size = ftell(sensors_file);
+	fseek(sensors_file,0L,SEEK_SET);
+	*(a_number_of_sensor) = size/9;
+
+	sensors_queue* sensors;
+	sensors_queue* current_sensor;
+
+	/* init for loop */
+	current_sensor = (sensors_queue*)malloc(sizeof(sensors_queue));
+	for(loop_counter2=0 ; loop_counter2 < 8 ; loop_counter2++){
+				current_sensor->sensor[loop_counter2] = fgetc(sensors_file);
+	}
+	fgetc(sensors_file);
+	current_sensor-> next = NULL;
+	sensors = current_sensor;
+
+	/* loop */
+ 	for(loop_counter1=1 ; loop_counter1 < *(a_number_of_sensor) ; loop_counter1++){
+ 		sensors_queue* new_sensor = (sensors_queue*)malloc(sizeof(sensors_queue));
+ 		for(loop_counter2=0 ; loop_counter2 < 8 ; loop_counter2++){
+			new_sensor->sensor[loop_counter2] = fgetc(sensors_file);
+		}
+ 		fgetc(sensors_file);
+ 		new_sensor->next = NULL;
+ 		current_sensor->next = new_sensor;
+		current_sensor = new_sensor;
+	}
+	return sensors;
+}
+
+
 /* ---------- Methodes public du pilote ---------- */
 
 
@@ -191,41 +248,54 @@ int drv_init( const char* remote_addr, int remote_port )
 	}
 	nbDev = 0;
 	
-	/* Lancer la connexion */
-	/* Connexion pas bonne */
-	/*
-	if ()
-	{
-		return 1;
-	}int place = 0;
-place = drv_rechercheCapteur(id_sensor);
-if (place < 0)
-{
-	return ERROR;
-}
-else
-{
-	libererPlace(place);
-	nbDev--;
-	
-	return OK;
-}
-	*/
-	return 0;
+	/* init the communication with the sensors base */
+	sock = connect_to(inet_addr(remote_addr), remote_port, 0);
+	if(sock == -1){
+		perror("listen - Start driver fail due to socket connection");
+		return -1;
+	}else{ /* politeness */
+		send(sock,"Hi from Hx4314's driver!",25,0);
+	}
+
+	/* get the sensors_id from "sensors_file"*/
+	sensors = read_sensors_list_file(&nbDev);
 }
 
 
 /**
 Fonction appelée par le gestionnaire de drivers pour activer l'écoute (après l'initialisation)
-\param mem_sem Semaphore protegeant les accès concurrents à la mémoire
 \return 0 si tout est ok, > 0 si erreur
 */
-int drv_run( sem_t mem_sem );
+int drv_run(){
+
+	/* start first thread */
+	void (*p_function_to_receive_and_filter);
+	p_function_to_receive_and_filter = &listenAndFilter;
+	pthread_create(&filter_thread,NULL,p_function_to_receive_and_filter,NULL);
+
+	/* start second thread */
+    void (*p_function_to_interpret_and_send);
+	p_function_to_interpret_and_send = &interpretAndSend;
+	pthread_create(&interprets_and_sends_thread,NULL,p_function_to_interpret_and_send,NULL);
+}
 
 /**
 Fonction appelée par le gestionnaire de drivers juste avant de décharger la librairie de la mémoire. L'écoute se stoppe et les ressources sont libérées
 */
-void drv_stop( void );
+void drv_stop( void ){
+
+	/* stop the two thread */
+	pthread_cancel(filter_thread);
+	pthread_cancel(interprets_and_sends_thread);
+
+	/* free the allocated memory */
+	sensors_queue* last_sensors = sensors;
+	while(last_sensors != NULL){
+		last_sensors = sensors->next;
+		free(sensors);
+		sensors = last_sensors;
+	}
+}
 
 /**
 */
@@ -242,7 +312,7 @@ int drv_add_sensor( unsigned int id_sensor)
 	else
 	{
 		tabDevData[place].idDev = id_sensor;
-		tabDevData[place].dataBytes = mem_ptr;
+		//tabDevData[place].dataBytes = mem_ptr;
 		nbDev++;
 		
 		return place;

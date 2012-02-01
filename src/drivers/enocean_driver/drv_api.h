@@ -75,7 +75,7 @@ Fonction appelée par le gestionnaire de drivers pour activer l'écoute (après 
 \param	msgq_id		Identifiant de la boîte aux lettres à utiliser pour notifier le manager du changement de valeur
 \return 0 si tout est ok, > 0 si erreur
 */
-//int drv_run( sem_t mem_sem );
+int drv_run();
 
 /**
 Fonction appelée par le gestionnaire de drivers juste avant de décharger la librairie de la mémoire. L'écoute se stoppe et les ressources sont libérées

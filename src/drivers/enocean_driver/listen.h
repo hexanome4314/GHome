@@ -83,7 +83,7 @@ typedef char id_sensor[9];
 
 /********************************************** FUNCTIONS */
 
-void parser(char* uneTrame, enocean_data_structure* unMessage);
+int listenAndFilter(int a_sock, sensors_queue* sensors);
 void interpretAndSend();
 
 /**
