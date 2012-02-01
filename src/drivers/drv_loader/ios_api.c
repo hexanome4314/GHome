@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "ios_api.h"
-
+#include "ios_data_mgr.h"
 #include "ios_error.h"
 #include "drv_manager.h"
 

@@ -1,11 +1,12 @@
+include $(TOPDIR)/Makefile.inc
 COMPILE=gcc
-C_FLAGS=-c -fPIC
+C_FLAGS += -fPIC
 LINKER=gcc
 L_FLAGS=-shared
 LIB=-lpthread
 
 OBJECT=driver.o
-OUTPUT=../drivers/libdriver.so.1.0.1
+OUTPUT=$(LIBDIR)/mon_driver.so.1.0.1
 
 all: $(OUTPUT)
 
@@ -16,4 +17,4 @@ $(OUTPUT): $(OBJECT)
 	$(COMPILE) $(C_FLAGS) $< -o $@
 
 clean:
-	rm *.o
+	rm -f *.o

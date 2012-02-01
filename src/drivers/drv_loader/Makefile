@@ -1,34 +1,18 @@
-COMPILE=gcc
-C_FLAGS=-c -I../../../include
-LINKER=gcc
-L_FLAGS=-L../../../lib
-LIB=-lios -lpthread -ldl
-AR=ar
-AR_FLAGS=r
+TOPDIR ?= $$(pwd)
+include $(TOPDIR)/Makefile.inc
 
-SUBDIRS=mon_driver/
-MAKE=make
+SUBDIRS= mon_driver/
 
-OBJECT=main.o
-OUTPUT=drv_loader
+OBJECTS=$(addprefix $(OBJDIR)/, ios_api.o ios_data_mgr.o drv_verbose.o drv_manager.o drv_loader.o)
 
-AR_OBJ=ios_api.o ios_data_mgr.o drv_verbose.o drv_manager.o drv_loader.o
-AR_OUT=../../../lib/libios.a
-
-all: 
-	$(MAKE) $(AR_OUT)
-	$(MAKE) $(OUTPUT)
-
-$(OUTPUT): $(OBJECT)
+all: $(OBJECTS)
 	for i in $(SUBDIRS); do (cd $$i ; $(MAKE) all); done
-	$(LINKER) -o $@ $^ $(L_FLAGS) $(LIB)
 
-$(AR_OUT): $(AR_OBJ)
-	$(AR) $(AR_FLAGS) $@ $^
+#	$(LINKER) -o $@ $^ $(L_FLAGS) $(LIB)
 
-%.o: %.c
+$(OBJDIR)/%.o: %.c
 	$(COMPILE) $(C_FLAGS) $< -o $@
 
 clean:
 	for i in $(SUBDIRS); do (cd $$i ; $(MAKE) clean); done
-	rm *.o
+	rm -f $(OBJECTS)

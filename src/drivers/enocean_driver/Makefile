@@ -1,25 +1,22 @@
+include $(TOPDIR)/Makefile.inc
 #Variables utilisées :
-CC=gcc #Compilateur
-EDL=gcc #Linker
-CCFLAGS=-Wall -m32 #Options de compilations
-EDLFLAGS=-Wall -m32
-EXE= ../enocean_driver #Nom du binaire à construire
+C_FLAGS=-I$(INCDIR) -Wall -m32 #Options de compilations
+EDLFLAGS=-L$(LIBDIR) -Wall -m32
+OUTPUT=$(LIBDIR)/libenocean.so #EXE= ../enocean_driver #Nom du binaire à construire
 
 OBJ=drv_api.o utils.o listen.o 
 LIBS=-lpthread
 
-
-
-$(EXE): $(OBJ)
+$(OUTPUT): $(OBJ)
 	@echo building $<
-	$(EDL)  -o $(EXE) $(EDLFLAGS) $(OBJ) $(LIBS)
+	$(EDL)  -o $(OUTPUT) $(EDLFLAGS) $(OBJ) $(LIBS)
 	@echo done
 
 %.o : %.c 
 	@echo building $< ...
-	$(CC) $(CCFLAGS) -c $<
+	$(COMPILE) $(C_FLAGS) $<
 	@echo done
-	
+
 clean: 
 	@echo -n cleaning repository... 
 	@rm -f *.o
