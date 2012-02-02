@@ -26,7 +26,7 @@
 #include <errno.h>
 #include <unistd.h>
 
-#include "drv_api.h"
+#include "../drv_api.h"
 #include "listen.h"
 #include "utils.h"
 
@@ -244,7 +244,7 @@ Permet d'envoyer des données à un capteur (sans retour de sa part)
 id_trame Identifiant de la trame à envoyer
 \return 0 si tout est ok, > 0 si erreur
 */
-int drv_send_data( unsigned int id_sensor, unsigned int id_trame )
+int drv_send_data( unsigned int id_sensor, char commande )
 {
 	unsigned int id = 0;
 	char* idHexa = (char*)malloc(8);

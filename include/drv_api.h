@@ -55,7 +55,7 @@ struct msg_drv_notify
 	long msg_type;
 	unsigned int id_sensor;
 	unsigned int flag_value;
-	char value;
+	float value;
 };
 
 #ifndef __DRVLOADER
