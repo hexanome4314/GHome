@@ -1,6 +1,7 @@
 #include "memory.h"
-// Taille minimum à demander à sbrk()
+/* Taille minimum à demander à sbrk() */
 #define MIN_SIZE 1024
+#define ALIGNMENT 8
 
 #include <stdio.h>
 /*
@@ -12,6 +13,7 @@ struct Slot {
 	Slot* next; // pointeur vers slot suivant
 	size_t size; // en octets
 	char free; // 1 si la zone est libre, 0 sinon
+	char stoupid[4];
 };
 
 static Slot* slotlist = NULL;
@@ -31,39 +33,75 @@ static void print_memory()
 	}
 	printf("\n");
 }
+#else
+#define print_memory()
 #endif /* MEMORY_DEBUG */
 
 /*
-Découpe un slot en deux de manière à ce que la taille
-du premier soit "size"
-Retourne le premier argument (slot)
+Affiche une erreur si un slot n'est pas valide d'un point de vue de l'alignement
 */
+#ifdef ALIGNMENT_DEBUG
+static void check_align(Slot* slot, char* caller)
+{
+//	printf("%s", caller);
+	if((unsigned long)slot%ALIGNMENT != 0)
+		printf("Alignment error (%s) : slot 0x%x is at wrong place\n", caller, (int)slot);
+	if(slot->size%ALIGNMENT != 0)
+		printf("Alignment error (%s) : slot 0x%x has a wrong size (%d)\n", caller, (int)slot, slot->size);
+}
+#else
+#define check_align(...)
+#endif /* ALIGNMENT_DEBUG */
+
+
+/** 
+ * 
+ * Découpe un slot en deux de manière à ce que la taille
+ * du premier soit "size"
+ * 
+ * @param slot Le slot à découper
+ * @param size La nouvelle taille du premier slot
+ * 
+ * @return slot, le premier argument
+ */
 static Slot* slice_slot(Slot* slot, size_t size)
 {
 	// Slot suivant (situé après le header et les données du slot courant)
-	Slot* newslot = (Slot*)(sizeof(Slot)+(int)slot+size);
+	Slot* newslot;
+//	size = size+size%ALIGNMENT;
+	check_align(slot, "slice_slot demande");
+	newslot= (Slot*)(sizeof(Slot)+(int)slot+size);
 	newslot->next = slot->next;
 	newslot->size = slot->size - size - sizeof(Slot);
 	newslot->free = 1;
 
 	slot->next = newslot;
 	slot->size = size;
-
+	check_align(slot, "slice_slot first");
+	check_align(slot->next, "slice_slot second");
 	return slot;
 }
 
-/*
-Fusionne le slot en paramêtre avec le suivant
+
+/** 
+ * Fusionne deux slot
+ * 
+ * @param slot le slot qui sera mergé avec le suivant
  */
 static void merge_slots(Slot* slot)
 {
 	slot->size = slot->size + slot->next->size + sizeof(Slot);
 	slot->next = slot->next->next;
+	check_align(slot, "merge_slot");
 }
 
-/*
-Trouve une place pouvant contenir "size" octets
-*/
+/** 
+ * Trouve une place pouvant contenir une certaine taille
+ * 
+ * @param size la taille requise (sans header)
+ * 
+ * @return Un pointeur vers un slot suffisamment grand
+ */
 static Slot* find_place(size_t size)
 {
 	// First fit
@@ -71,26 +109,33 @@ static Slot* find_place(size_t size)
 	while(slot != NULL)
 	{
 		if(slot->free && slot->size >= size)
+		{
+			check_align(slot, "find_place");
 			return slot;
+		}
 		slot = slot->next;
 	}
 	return NULL; // Non trouvé
 }
 
-/*
-Demande au système de plus d'espace
-Retourne un slot ayant au moins size octets
-*/
+
+/** 
+ * Demande au système plus d'espace
+ * 
+ * @param size La taille minimale à demander
+ * 
+ * @return Le slot contenant l'espace requis
+ */
 static Slot* enlarge_space(size_t size)
 {
 	size_t new_size = (size < MIN_SIZE) ? MIN_SIZE : size;
-
 	if(slotlist == NULL) /* Premier appel)*/
 	{
 		slotlist = (Slot*)sbrk(new_size + sizeof(Slot));
 		slotlist->next = NULL;
 		slotlist->free = 1;
 		slotlist->size = new_size;
+		check_align(slotlist, "first enlarge");
 		return slotlist;
 	}
 	else                 /* Ajout à la fin de la liste */
@@ -105,17 +150,26 @@ static Slot* enlarge_space(size_t size)
 		if (lastslot->free) // merge avec le precedent s'il est libre
 		{
 			merge_slots(lastslot);
+			check_align(lastslot, "enlarge with merge");
 			return lastslot;
 		}
 		else
+		{
+			check_align(lastslot->next, "enlarge without merge");
 			return lastslot->next;
+		}
 	}
 }
 
 void* gmalloc(size_t size)
 {
-	Slot* slot = find_place(size);
+	Slot* slot;
+	if (size%ALIGNMENT != 0)
+		size = size + ALIGNMENT - size%ALIGNMENT;
+
+	slot = find_place(size);
 #ifdef MEMORY_DEBUG
+	printf("slot size %d\n", sizeof(Slot));
 	printf("allocation of %lu\n",(unsigned long)size);
 #endif
 	if (size == 0)
@@ -127,12 +181,20 @@ void* gmalloc(size_t size)
 			return NULL;
 	}
 	if (slot->size > size + sizeof(Slot)) // find_place et enlarge_space ne découpent pas
+	{
+		check_align(slot, "gmalloc slice");
 		slice_slot(slot, size);
+	}
 	slot->free = 0;
 #ifdef MEMORY_DEBUG
 	printf("allocation of %lu to 0x%x\n", (unsigned long)size, slot+1);
 	print_memory();
 #endif /* MEMORY_DEBUG */
+#ifdef ALIGNMENT_DEBUG
+	if(((unsigned long)(slot+1))%ALIGNMENT != 0)
+		printf("Alignment error at address %d\n", slot+1);
+#endif
+	check_align(slot, "malloc");
 	return slot+1;
 }
 
@@ -176,6 +238,8 @@ void* grealloc(void* ptr, size_t size)
 	char* old_area = ptr;
 	int i;
 	int cpy_size;
+	if (size%ALIGNMENT != 0)
+		size = size + ALIGNMENT - size%ALIGNMENT;
 	if (ptr == NULL)
 		return gmalloc(size);
 	if (size == 0)
@@ -205,13 +269,13 @@ void* grealloc(void* ptr, size_t size)
 		return(slot+1);
 		}*/
 	// Test si il n'y a pas besoin de le déplacer (bug?)
-	if (slot->next && slot->next->free && slot->next->size+sizeof(Slot) >= size - slot->size)
+/*	if (slot->next && slot->next->free && slot->next->size+sizeof(Slot) >= size - slot->size)
 	{
 		merge_slots(slot);
 		if(slot->size > size+sizeof(Slot))
 			slice_slot(slot, size);
 		return slot+1;
-	}
+		}*/
 	new_area = gmalloc(size);
 	cpy_size = size < slot->size ? size : slot->size;
 	for(i=0; i<cpy_size; i++)

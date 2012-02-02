@@ -1,7 +1,7 @@
 TOPDIR ?= $$(pwd)
 include $(TOPDIR)/Makefile.inc
 
-SUBDIRS=system/ drivers/
+SUBDIRS=system/ drivers/ ia/
 
 OBJS=$(OBJDIR)/main.o
 OUTPUT=$(BINDIR)/ghome

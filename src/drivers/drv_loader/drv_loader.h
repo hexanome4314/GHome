@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 #define __DRVLOADER	/* Permet d'éviter la déclaration des fonctions et d'avoir des erreurs */
-#include "../drv_api.h"
+#include "drv_api.h"
 
 #include "drv_error.h"
 

@@ -4,7 +4,7 @@ OBJDIR=$(TOPDIR)/obj
 INCDIR=$(TOPDIR)/include
 
 COMPILE=gcc
-C_FLAGS=-c -I$(INCDIR) -I. -Wall
+C_FLAGS=-c -I$(INCDIR) -Wall
 LINKER=gcc
 L_FLAGS=-L$(LIBDIR)
 LIB= -lpthread -ldl
