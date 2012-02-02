@@ -11,7 +11,7 @@ L_FLAGS=-L$(LIBDIR)
 LIB=-lios -lpthread -ldl
 MAKE=make
 
-SUBDIRS=drv_loader/ mon_driver/ #enocean_driver/
+SUBDIRS=drv_loader/ mon_driver/ enocean_driver/
 
 all: 
 	for i in $(SUBDIRS); do ($(MAKE) -C $$i TOPDIR=$(TOPDIR)); done
