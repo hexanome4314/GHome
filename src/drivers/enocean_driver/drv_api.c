@@ -49,9 +49,9 @@ unsigned int idDev; /* id physique du capteur */
 sensors_queue* sensors; /* liste chainée des capteurs */
 int nbDev; /* Nombre de capteurs installes */
 int sock;
+int message_box;
 pthread_t filter_thread;
 pthread_t interprets_and_sends_thread;
-
 
 /* ---------- Methodes privees du pilote ---------- */
 
@@ -102,14 +102,25 @@ sensors_queue* read_sensors_list_file(int* a_number_of_sensor){
 /* ---------- Methodes public du pilote ---------- */
 
 /*int main(){
+	// false application
+	int msgq_id;
+	msgq_id = msgget(IPC_PRIVATE, 0600 | IPC_CREAT | IPC_EXCL );
+
+	// run the driver code
 	printf("MAIN drv_init\n");
 	drv_init("127.0.0.1",1338);
 	sleep(5);
 	printf("MAIN drv_run\n");
-	drv_run();
-	sleep(120);
+	drv_run(msgq_id);
+	sleep(60);
 	printf("MAIN drv_stop\n");
 	drv_stop();
+
+	// check for the result
+	msg_drv_notify buffer;
+	msgrcv( msgq_id, (void*) &buffer, sizeof(buffer) - sizeof(long), DRV_MSG_TYPE, 0 );
+	printf( "#message  [%d,%d,%d]\t[%d]\n", buffer.id_sensor, buffer.flag_value, buffer.value, msgq_id );
+
 	return 42;
 }*/
 
@@ -142,8 +153,9 @@ int drv_init( const char* remote_addr, int remote_port )
 Fonction appelée par le gestionnaire de drivers pour activer l'écoute (après l'initialisation)
 \return 0 si tout est ok, > 0 si erreur
 */
-int drv_run(){
+int drv_run(int msgq_id){
 
+	message_box = msgq_id;
 	/* start first thread */
 	void (*p_function_to_receive_and_filter);
 	p_function_to_receive_and_filter = &listenAndFilter;
@@ -153,9 +165,11 @@ int drv_run(){
 	pthread_create(&filter_thread,NULL,p_function_to_receive_and_filter,params);
 
 	/* start second thread */
+	int* msgid = (int*)malloc(sizeof(int));
+	*(msgid) = msgq_id;
     void (*p_function_to_interpret_and_send);
 	p_function_to_interpret_and_send = &interpretAndSend;
-	pthread_create(&interprets_and_sends_thread,NULL,p_function_to_interpret_and_send,NULL);
+	pthread_create(&interprets_and_sends_thread,NULL,p_function_to_interpret_and_send,&message_box);
 
 	return 0;
 }

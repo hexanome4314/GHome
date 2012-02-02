@@ -91,7 +91,7 @@ typedef char id_sensor[9];
 
 void initialisation_for_listener();
 int listenAndFilter(listen_and_filter_params* params);
-void interpretAndSend();
+void interpretAndSend(int* msgq_id);
 
 /**
  * return the list of sensors id

@@ -46,16 +46,20 @@ void parser(char* aFrame, enocean_data_structure* aMessage){
 	sscanf(&aFrame[26],"%02X",(unsigned int*) &(aMessage->CHECKSUM));
 }
 
-void _interpretAndSendRPS(enocean_data_structure* a_RPS_message){
+void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 	msg_drv_notify msg;
+	msg.flag_value = 1;
+	msg.id_sensor = 1337;
+	msg.msg_type = 9000;
+	msg.value = 'O';
+	msgsnd(*(msgq_id),&msg,sizeof(msg),0);
+}
+
+void _interpretAndSend1BS(enocean_data_structure* a_RPS_message, int* msgq_id){
 
 }
 
-void _interpretAndSend1BS(enocean_data_structure* a_RPS_message){
-
-}
-
-void _interpretAndSend4BS(enocean_data_structure* a_RPS_message){
+void _interpretAndSend4BS(enocean_data_structure* a_RPS_message, int* msgq_id){
 
 }
 
@@ -151,7 +155,7 @@ int listenAndFilter(listen_and_filter_params* params)
  * Second thread: interpret the frame and sem post
  * \param the semaphore where to put
  */
-void interpretAndSend(){
+void interpretAndSend(int* msgq_id){
 
 	enocean_data_structure* message;
 
@@ -185,13 +189,13 @@ void interpretAndSend(){
 		if (message!=NULL){
 			switch (message->ORG){
 			case 0x05: if(LOG) printf("interpret&send - It's an RPS!\n");
-					   _interpretAndSendRPS(message);
+					   _interpretAndSendRPS(message, msgq_id);
 					   break;
 			case 0x06: if(LOG) printf("interpret&send - It's an 1BS!\n");
-					   _interpretAndSend1BS(message);
+					   _interpretAndSend1BS(message, msgq_id);
 					   break;
 			case 0x07: if(LOG) printf("interpret&send - It's an 4BS!\n");
-			           _interpretAndSend4BS(message);
+			           _interpretAndSend4BS(message, msgq_id);
 					   break;
 			default: if(LOG) printf("interpret&send - Don't know what this f42king message is about\n");
 			}
