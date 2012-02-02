@@ -41,7 +41,7 @@ typedef struct enocean_data_structure {
 
 /**
  * The default linked lists structure for EnOcean received messages
- *
+ * UNUSED
  **/
 typedef struct _enocean_data_structure_queue _enocean_data_structure_queue;
 struct _enocean_data_structure_queue{
@@ -59,6 +59,12 @@ struct _sensors_queue{
 	struct _sensors_queue* next;
 };
 typedef _sensors_queue sensors_queue;
+
+typedef struct{
+	int sock;
+	sensors_queue* sensors;
+} listen_and_filter_params;
+
 /************************************************ GLOBALS */
 
 /*---------------- sensors */
@@ -84,7 +90,7 @@ typedef char id_sensor[9];
 /********************************************** FUNCTIONS */
 
 void initialisation_for_listener();
-int listenAndFilter(int a_sock, sensors_queue* sensors);
+int listenAndFilter(listen_and_filter_params* params);
 void interpretAndSend();
 
 /**

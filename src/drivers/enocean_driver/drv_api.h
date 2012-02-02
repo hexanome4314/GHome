@@ -50,13 +50,14 @@ Types des messages de la boîte aux lettres
 /**
 Structure des messages contenus dans la boîte aux lettres
 */
-struct msg_drv_notify
+typedef struct
 {
 	long msg_type;
 	unsigned int id_sensor;
 	unsigned int flag_value;
 	char value;
-};
+} msg_drv_notify;
+
 
 #ifndef __DRVLOADER
 

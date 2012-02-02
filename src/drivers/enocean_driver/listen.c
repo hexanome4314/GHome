@@ -47,6 +47,7 @@ void parser(char* aFrame, enocean_data_structure* aMessage){
 }
 
 void _interpretAndSendRPS(enocean_data_structure* a_RPS_message){
+	msg_drv_notify msg;
 
 }
 
@@ -71,13 +72,16 @@ void initialisation_for_listener(){
  * \param socket from which arrive the flow of frame
  */
 
-int listenAndFilter(int a_sock, sensors_queue* sensors)
+int listenAndFilter(listen_and_filter_params* params)
 {
+	/* make the params local */
+	int sock = params->sock;
+	sensors_queue* sensors = params->sensors;
+	free(params);
 
 	/* useful stuffs for the main loop */
 	char* char_buffer;
 	char_buffer = (char*)malloc(28);
-	printf( "malloc 0x%x \n", char_buffer );
 	memset(char_buffer,0,sizeof(char_buffer));
 
 	for(;;){ /* begin RECEIVE&FILTER THREAD LOOP */
@@ -85,13 +89,13 @@ int listenAndFilter(int a_sock, sensors_queue* sensors)
 		//printf("listen ---------------- I'm listening\n");
 
 		/* LOOP get a new frame */
-		if(recv(a_sock, char_buffer, 28,MSG_WAITALL)==-1)
-			perror("listen - recv fail \n");
+		if(recv(sock, char_buffer, 28,MSG_WAITALL)==-1)
+			perror("listen - recv fail");
 		printf("listen - recv: %s \n",char_buffer);
 		if(SIMULATION){
 			char backslash_n;
-			recv(a_sock, &backslash_n,1,MSG_WAITALL);
-			printf("listen - backslash_n %c \n",backslash_n);
+			recv(sock, &backslash_n,1,MSG_WAITALL);
+			printf("listen - SIMULATION backslash_n %c ",backslash_n);
 		}
 
 		/* LOOP filter */
@@ -125,7 +129,6 @@ int listenAndFilter(int a_sock, sensors_queue* sensors)
 				interesting_frame = char_buffer;
 				sem_post(&to_send);
 				char_buffer = (char*)malloc(28);
-				printf( "malloc 0x%x \n", char_buffer );
 				memset(char_buffer,0,sizeof(char_buffer));
 
 				/*if(sem_post(&to_send) == 0){
@@ -176,7 +179,6 @@ void interpretAndSend(){
 			printf("error during SEM PUT to_send_receive %d",errno);
 		}*/
 		parser(buffer,message);
-		printf( "free 0x%x \n", buffer );
 		free(buffer);
 
 		/* send the message */

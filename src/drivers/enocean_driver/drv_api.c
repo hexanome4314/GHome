@@ -23,6 +23,8 @@
 #include <semaphore.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <unistd.h>
 
 #include "drv_api.h"
 #include "listen.h"
@@ -56,7 +58,7 @@ pthread_t interprets_and_sends_thread;
 /**
 Lit le fichier sensors_file pour y récuperer automatiquement la *
 liste de nos capteurs
-/param un pointeur vers l'entier dans lequel ecrire le nombre de capteur lu
+/param a_number_of_sensor un pointeur vers l'entier dans lequel ecrire le nombre de capteur lu
  */
 
 sensors_queue* read_sensors_list_file(int* a_number_of_sensor){
@@ -99,10 +101,22 @@ sensors_queue* read_sensors_list_file(int* a_number_of_sensor){
 
 /* ---------- Methodes public du pilote ---------- */
 
+/*int main(){
+	printf("MAIN drv_init\n");
+	drv_init("127.0.0.1",1338);
+	sleep(5);
+	printf("MAIN drv_run\n");
+	drv_run();
+	sleep(120);
+	printf("MAIN drv_stop\n");
+	drv_stop();
+	return 42;
+}*/
+
 /**
  * Met en place le context pour le lancement des deux threads du driver
- * \param ip de la base
- * \param port de la base
+ * \param remote_addr ip de la base
+ * \param remote_port port de la base
  */
 int drv_init( const char* remote_addr, int remote_port )
 {
@@ -133,7 +147,10 @@ int drv_run(){
 	/* start first thread */
 	void (*p_function_to_receive_and_filter);
 	p_function_to_receive_and_filter = &listenAndFilter;
-	pthread_create(&filter_thread,NULL,p_function_to_receive_and_filter,NULL);
+	listen_and_filter_params* params = (listen_and_filter_params*) malloc(sizeof(listen_and_filter_params));
+	params->sock= sock;
+	params->sensors = sensors;
+	pthread_create(&filter_thread,NULL,p_function_to_receive_and_filter,params);
 
 	/* start second thread */
     void (*p_function_to_interpret_and_send);
@@ -162,7 +179,7 @@ void drv_stop( void ){
 }
 
 /**
- * \param l'id du capteur qui doit correspondre avec l'id réel
+ * \param id_sensor l'id du capteur qui doit correspondre avec l'id réel
 */
 int drv_add_sensor( unsigned int id_sensor){
 	sensors_queue* new_sensor = malloc(sizeof(sensors_queue));
@@ -176,6 +193,7 @@ Fonction appelée par le gestionnaire de drivers pour supprimer un capteur en co
 \param id_sensor Identifiant unique du capteur qui ne doit plus être écouté
 */
 int drv_remove_sensor( unsigned int id_sensor ){
+
 	sensors_queue* current_sensor = sensors;
 	char* char_id_sensor = "00000000";
 	sprintf(char_id_sensor, "%u",id_sensor);
@@ -216,10 +234,10 @@ int drv_send_data( unsigned int id_sensor, unsigned int id_trame )
 {
 	unsigned int id = 0;
 	char* idHexa = (char*)malloc(8);
-	char trame [28];
+	char trame [29];
 	/* Fabrique les elements principaux de la tramme pour calculer le CheckSum */
-	unsigned int byte1 = 0xA5;
-	unsigned int byte2 = 0x5A;
+	//unsigned int byte1 = 0xA5;
+	//unsigned int byte2 = 0x5A;
 	unsigned int hSEQ_LEN= 0x6B;
 	unsigned int org = 0x05;
 	unsigned int dataByte3 = 0;
@@ -280,56 +298,63 @@ int drv_send_data( unsigned int id_sensor, unsigned int id_trame )
 	trame[15] = '0';
 	id = ID3 & 0xF0;
 	id = id >> 4;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[16] = *idHexa;
 	id = ID3 & 0x0F;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[17] = *idHexa;
 	id = ID2 & 0xF0;
 	id = id >> 4;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[18] = *idHexa;
 	id = ID2 & 0x0F;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[19] = *idHexa;
 	id = ID1 & 0xF0;
 	id = id >> 4;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[20] = *idHexa;
 	id = ID1 & 0x0F;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[21] = *idHexa;
 	id = ID0 & 0xF0;
 	id = id >> 4;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[22] = *idHexa;
 	id = ID0 & 0x0F;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[23] = *idHexa;
 	trame[24] = '3';
 	trame[25] = '0';
 	id = checkSum & 0xF0;
 	id = id >> 4;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[26] = *idHexa;
 	id = checkSum & 0x0F;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[27] = *idHexa;
 	free(idHexa);
 	printf("\n");
-	printf(trame);
+	trame[28]='\0';
+	printf("drv_api - trame envoyé: %s\n", trame);
 	printf("\n");
 
 	/* Envoyer la trame */
-	/* Il faut voir comment qu'on fait pk il faut la socket ici ^^ */
-	/* ----------------	*/
-
-	/* Erreur d'envoie */
-	if (0)
-	{
-		return 1;
+	if(send(sock,trame,28,0)<0){
+		int send_error = errno;
+		perror("error sending frame to enocean base");
+		return(send_error);
 	}
-	
 	return 0;
 }
 
