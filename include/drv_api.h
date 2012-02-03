@@ -98,10 +98,10 @@ void drv_remove_sensor( unsigned int id_sensor );
 /**
 Permet d'envoyer des données à un capteur (sans retour de sa part)
 \param	id_sensor	Identifiant unique du capteur à contacter
-	trame		Trame à envoyer
+	commande	Information/action à envoyer au capteur
 \return 0 si tout est ok, > 0 si erreur
 */
-int drv_send_data( unsigned int id_sensor, char trame );
+int drv_send_data( unsigned int id_sensor, char commande );
 
 /**
 Retourne les informations concernant le driver (nom, version, ...)

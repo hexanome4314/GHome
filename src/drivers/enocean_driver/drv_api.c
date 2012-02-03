@@ -26,7 +26,7 @@
 #include <errno.h>
 #include <unistd.h>
 
-#include "drv_api.h"
+#include "../drv_api.h"
 #include "listen.h"
 #include "utils.h"
 
@@ -206,7 +206,7 @@ int drv_add_sensor( unsigned int id_sensor){
 Fonction appelée par le gestionnaire de drivers pour supprimer un capteur en cours d'écoute.
 \param id_sensor Identifiant unique du capteur qui ne doit plus être écouté
 */
-int drv_remove_sensor( unsigned int id_sensor ){
+void drv_remove_sensor( unsigned int id_sensor ){
 
 	sensors_queue* current_sensor = sensors;
 	char* char_id_sensor = "00000000";
@@ -224,7 +224,7 @@ int drv_remove_sensor( unsigned int id_sensor ){
 			free(to_free);
 		}
 	}
-	return 0;
+	return;
 }
 
 /**
@@ -244,14 +244,12 @@ Permet d'envoyer des données à un capteur (sans retour de sa part)
 id_trame Identifiant de la trame à envoyer
 \return 0 si tout est ok, > 0 si erreur
 */
-int drv_send_data( unsigned int id_sensor, unsigned int id_trame )
+int drv_send_data( unsigned int id_sensor, char commande )
 {
 	unsigned int id = 0;
 	char* idHexa = (char*)malloc(8);
 	char trame [29];
-	/* Fabrique les elements principaux de la tramme pour calculer le CheckSum */
-	//unsigned int byte1 = 0xA5;
-	//unsigned int byte2 = 0x5A;
+	/* Fabrique les elements principaux de la trame pour calculer le CheckSum */
 	unsigned int hSEQ_LEN= 0x6B;
 	unsigned int org = 0x05;
 	unsigned int dataByte3 = 0;
@@ -269,7 +267,7 @@ int drv_send_data( unsigned int id_sensor, unsigned int id_trame )
 	ID1 = ID1>>8;
 
 	/* On verifie si on allume ou on eteint l'actionneur */
-	if (id_trame == 0)
+	if (commande  == 0)
 	{
 		/* Pour activer l'actionneur. */
 		dataByte3 = 0x50;
@@ -293,7 +291,7 @@ int drv_send_data( unsigned int id_sensor, unsigned int id_trame )
 	trame[5] = 'B';
 	trame[6] = '0';
 	trame[7] = '5';
-	if (id_trame == 0)
+	if (commande == 0)
 	{
 		/* Pour activer l'actionneur. */
 		trame[8] = '5';
@@ -313,49 +311,39 @@ int drv_send_data( unsigned int id_sensor, unsigned int id_trame )
 	id = ID3 & 0xF0;
 	id = id >> 4;
 	snprintf(idHexa,2,"%X", id);
-	//itoa(id, idHexa, 16);
 	trame[16] = *idHexa;
 	id = ID3 & 0x0F;
 	snprintf(idHexa,2,"%X", id);
-	//itoa(id, idHexa, 16);
 	trame[17] = *idHexa;
 	id = ID2 & 0xF0;
 	id = id >> 4;
 	snprintf(idHexa,2,"%X", id);
-	//itoa(id, idHexa, 16);
 	trame[18] = *idHexa;
 	id = ID2 & 0x0F;
 	snprintf(idHexa,2,"%X", id);
-	//itoa(id, idHexa, 16);
 	trame[19] = *idHexa;
 	id = ID1 & 0xF0;
 	id = id >> 4;
 	snprintf(idHexa,2,"%X", id);
-	//itoa(id, idHexa, 16);
 	trame[20] = *idHexa;
 	id = ID1 & 0x0F;
 	snprintf(idHexa,2,"%X", id);
-	//itoa(id, idHexa, 16);
 	trame[21] = *idHexa;
 	id = ID0 & 0xF0;
 	id = id >> 4;
 	snprintf(idHexa,2,"%X", id);
-	//itoa(id, idHexa, 16);
 	trame[22] = *idHexa;
 	id = ID0 & 0x0F;
 	snprintf(idHexa,2,"%X", id);
-	//itoa(id, idHexa, 16);
 	trame[23] = *idHexa;
 	trame[24] = '3';
 	trame[25] = '0';
 	id = checkSum & 0xF0;
 	id = id >> 4;
 	snprintf(idHexa,2,"%X", id);
-	//itoa(id, idHexa, 16);
 	trame[26] = *idHexa;
 	id = checkSum & 0x0F;
 	snprintf(idHexa,2,"%X", id);
-	//itoa(id, idHexa, 16);
 	trame[27] = *idHexa;
 	free(idHexa);
 	printf("\n");

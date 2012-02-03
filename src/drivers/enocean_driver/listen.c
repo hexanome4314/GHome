@@ -47,12 +47,20 @@ void parser(char* aFrame, enocean_data_structure* aMessage){
 }
 
 void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
-	msg_drv_notify msg;
-	msg.flag_value = 1;
-	msg.id_sensor = 1337;
-	msg.msg_type = 9000;
-	msg.value = 'O';
-	msgsnd(*(msgq_id),&msg,sizeof(msg),0);
+
+	struct msg_drv_notify msg;
+	msg.msg_type = DRV_MSG_TYPE;
+	unsigned int id;
+	msg.id_sensor = id;
+
+	if(a_RPS_message->DATA_BYTE3 && 0x10){
+		msg.flag_value;
+		msg.value ;
+	}
+
+
+	int resp;
+	resp = msgsnd( the_msgq, (const void*) &buf, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
 }
 
 void _interpretAndSend1BS(enocean_data_structure* a_RPS_message, int* msgq_id){
