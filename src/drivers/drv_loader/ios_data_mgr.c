@@ -60,7 +60,7 @@ void* ios_data_collector_callback( void* ptr )
 		{
 			size_t i;
 			int fd;
-			void (*handler)( unsigned int, char );
+			void (*handler)( unsigned int, float );
 
 			/* On se met en jambe avec une petite recherche du fd pour l'id passé */
 			fd = -1;
@@ -119,7 +119,7 @@ int ios_data_init()
 	/* Initialise la matrice des données ainsi que la table de correspondance */
 	for( i = 0; i < DRV_MAX_COUNT; i++ )
 	{
-		memset( device_data_matrix[i], 0x00, DRV_LAST_VALUE );
+		memset( device_data_matrix[i], 0x00, DRV_LAST_VALUE*sizeof(float) );
 
 		memset( &added_devices[i], 0x00, sizeof(struct ios_device_descriptor) );
 	} 
@@ -266,7 +266,7 @@ int ios_unregister_device( int fd )
 
 	/* Et enfin les données */
 	pthread_mutex_lock( &data_mutex );
-	memset( device_data_matrix[fd], 0x00, DRV_LAST_VALUE );
+	memset( device_data_matrix[fd], 0x00, DRV_LAST_VALUE*sizeof(float) );
 	pthread_mutex_unlock( &data_mutex );
 
 	added_devices_count--;
@@ -313,7 +313,7 @@ Attache un handler à ce descripteur qui sera appelé à chaque mise à jour des
 \param  fd      Le descripteur concerné
         handler Le handler qui sera appelé
 */
-void ios_data_handler_attach( int fd, void (*handler)( unsigned int, char ) )
+void ios_data_handler_attach( int fd, void (*handler)( unsigned int, float ) )
 {
 	int id;
 
@@ -349,7 +349,7 @@ Récupère une donnée de la matrice des données
         buffer  L'adresse du buffer qui recevra la données
 \return IOS_OK si tout est ok, IOS_UNKNOWN_DEVICE ou IOS_INVALID_FIELD sinon
 */
-int ios_fetch_data( int fd, unsigned int field, char* buffer )
+int ios_fetch_data( int fd, unsigned int field, float* buffer )
 {
 	int id;
 
@@ -372,6 +372,35 @@ int ios_fetch_data( int fd, unsigned int field, char* buffer )
 		*buffer = device_data_matrix[fd][field];
 		pthread_mutex_unlock( &data_mutex );
 	}
+
+	return IOS_OK;
+}
+
+/**
+Envoie une donnée à un périphérique
+\param  fd      Le descripteur du périphérique concerné
+        data    La donnée à envoyer
+\return IOS_OK si tout est ok, IOS_UNKNOWN_DEVICE ou IOS_ERROR
+*/
+int ios_push_data( int fd, char data )
+{
+	int res;
+	int major;
+	int id;
+
+	/* Vérification que le descripteur est valide */
+	pthread_mutex_lock( &table_mutex );
+	id = added_devices[fd].id;
+	major = added_devices[fd].major;
+	pthread_mutex_unlock( &table_mutex );
+
+	if( id == 0 )
+		return IOS_UNKNOWN_DEVICE;
+
+	/* On s'embête pas et on appelle la fonction du driver ! */
+	res = (*drivers_func[major].drv_send_data)( id, data );	
+	if( res > 0 )
+		return IOS_ERROR;
 
 	return IOS_OK;
 }

@@ -1,16 +1,22 @@
-include $(TOPDIR)/Makefile.inc
+COMPILE=gcc
+C_FLAGS=-c
+
+LINKER=gcc
+L_FLAGS=
+
+INCLUDE=-I../../../include/
+LIB=-lpthread -ldl
 
 SUBDIRS=
 
-OBJECTS=$(addprefix $(OBJDIR)/, ios_api.o ios_data_mgr.o drv_verbose.o drv_manager.o drv_loader.o)
+OBJECTS=ios_api.o ios_data_mgr.o drv_verbose.o drv_manager.o drv_loader.o main.o
+OUTPUT=drv_loader
 
 all: $(OBJECTS)
-	for i in $(SUBDIRS); do (cd $$i ; $(MAKE) all); done
+	$(LINKER) -o $(OUTPUT) $^ $(L_FLAGS) $(LIB)
 
-#	$(LINKER) -o $@ $^ $(L_FLAGS) $(LIB)
-
-$(OBJDIR)/%.o: %.c
-	$(COMPILE) $(C_FLAGS) $< -o $@
+%.o: %.c
+	$(COMPILE) $(C_FLAGS) $(INCLUDE) $< -o $@
 
 clean:
 	for i in $(SUBDIRS); do (cd $$i ; $(MAKE) clean); done

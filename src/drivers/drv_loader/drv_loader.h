@@ -22,6 +22,7 @@ struct drv_func_ptr
 	int (*drv_run) (int);
 	void (*drv_stop) ();
 	void (*drv_get_info) (char*, int);
+	int (*drv_send_data) (unsigned int, char);
 };
 
 /**

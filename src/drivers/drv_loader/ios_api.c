@@ -4,6 +4,8 @@
 #include "ios_error.h"
 #include "drv_manager.h"
 
+#include "drv_verbose.h"
+
 
 /**
 Initialise l'ios avant utilisation
@@ -127,7 +129,7 @@ Attache un handler au périphérique dès qu'une donnée est mise à jour (s'il 
 \param  fd      Descripteur de fichier
         handler Foncteur sur la fonction à exécuter
 */
-void ios_attach_handler( int fd, void (*handler)( unsigned int, char ) )
+void ios_attach_handler( int fd, void (*handler)( unsigned int, float ) )
 {
 	ios_data_handler_attach( fd, handler );
 }
@@ -148,7 +150,7 @@ Lit une donne en particulier provenant d'un périphérique
         buffer          Buffer recevant les données
 \return IOS_OK si tout est ok, IOS_INVALID_FIELD si le champ est invalide, IOS_UNKNOWN_DEVICE si le descripteur est inconnu ou IOS_ERROR si l'erreur est critique
 */
-int ios_read( int fd, unsigned int drv_field, char* buffer )
+int ios_read( int fd, unsigned int drv_field, float* buffer )
 {
 	return ios_fetch_data( fd, drv_field, buffer );
 }
@@ -159,8 +161,8 @@ Envoie des données au périphérique
         data    Les données à envoyer
 \return IOS_OK si tout est ok, IOS_UNKNOWN_FD si le descripteur est inconnu, IOS_ERROR sinon
 */
-int ios_write( int fd, char* data )
+int ios_write( int fd, char data )
 {
-	return IOS_OK;
+	return ios_push_data( fd, data );
 }
 
