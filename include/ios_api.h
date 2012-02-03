@@ -51,7 +51,7 @@ Lit une donne en particulier provenant d'un périphérique
 	buffer		Buffer recevant les données
 \return IOS_OK si tout est ok, IOS_INVALID_FIELD si le champ est invalide, IOS_UNKNOWN_FD si le descripteur est inconnu ou IOS_ERROR si l'erreur est critique
 */
-int ios_read( int fd, unsigned int drv_field, char* buffer );
+int ios_read( int fd, unsigned int drv_field, float* buffer );
 
 /**
 Envoie des données au périphérique
@@ -66,7 +66,7 @@ Attache un handler au périphérique dès qu'une donnée est mise à jour (s'il 
 \param	fd	Descripteur de fichier
 	handler	Foncteur sur la fonction à exécuter
 */
-void ios_attach_handler( int fd, void (*handler)( unsigned int, char ) );
+void ios_attach_handler( int fd, void (*handler)( unsigned int, float ) );
 
 /**
 Détache le handler du périphérique

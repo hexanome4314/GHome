@@ -96,17 +96,6 @@ Fonction appelée par le gestionnaire de drivers pour supprimer un capteur en co
 void drv_remove_sensor( unsigned int id_sensor );
 
 /**
-Permet de demander des informations à un capteur
-\param	id_sensor	Identifiant unique du capteur à interroger
-	id_trame	Identifiant de la trame à envoyer
-	buffer		Buffer qui va recevoir les données de retour
-	max_length	Taille maximale du buffer
-\return 0 si erreur, ou la taille des données lues
-*/
-int drv_fetch_data( unsigned int id_sensor, unsigned int id_trame, char* buffer, int max_length );
-
-
-/**
 Permet d'envoyer des données à un capteur (sans retour de sa part)
 \param	id_sensor	Identifiant unique du capteur à contacter
 	commande	Information/action à envoyer au capteur
