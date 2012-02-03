@@ -2,7 +2,8 @@
 #define __ENGINE_H_
 
 #include <stdio.h>
-#include "../../include/ios_api.h"
+#include "memory.h"
+#include "ios_api.h"
 
 enum Condition_type
 {
@@ -15,7 +16,7 @@ typedef struct Action Action;
 struct Action
 {
 	int device;
-//	int field;
+	int field;
 	char state;
 	Action* next;
 };
@@ -34,13 +35,13 @@ struct Condition
 	int device; // id capteur
 	int field;  // id sonde
 	enum Condition_type type;
-	char value;
+	float value;
 	Condition* next;
 };
 
 typedef struct Rule Rule;
 struct Rule {
-	char* nom;
+	char* name;
 	Action* actions;
 	Alert*  alerts;
 	Condition*  conditions;
@@ -49,4 +50,6 @@ struct Rule {
 
 Rule* rules;
 
+void load_xml();
+void apply_actions(unsigned int device, unsigned int field, float val);
 #endif
