@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--<!DOCTYPE rules SYSTEM "rules.dtd">-->
+
+<rules>
+	<rule name="Chauffage chambre">
+		<actions>
+			<activate device="alim_chauffage">false</activate>
+			<alert recipient="web">Chauffage mis hors tension pour éviter le gaspillage d’énergie.</alert>
+		</actions>
+		<conditions>
+			<condition device="temp_12" field="TEMPERA" type="sup">1.2</condition>
+			<condition device="button_05" field="BUTTON1" type="equ">true</condition>
+			<condition device="button_05" field="BUTTON2" type="equ">true</condition>
+		</conditions>
+	</rule>
+</rules>

@@ -1,0 +1,18 @@
+<!DOCTYPE rules [
+
+<!ELEMENT rules (rule+)>
+<!ELEMENT rule (actions,conditions)>
+<!ELEMENT actions (activate,alert)>
+<!ELEMENT conditions (condition)>
+<!ELEMENT activate (#PCDATA)>
+<!ELEMENT alert (#PCDATA)>
+<!ELEMENT condition (#PCDATA)>
+
+<!ATTLIST rule name CDATA #REQUIRED>
+<!ATTLIST activate devide CDATA #REQUIRED>
+<!ATTLIST alert recipient CDATA #REQUIRED>
+<!ATTLIST condition device CDATA #REQUIRED>
+<!ATTLIST condition field CDATA #REQUIRED>
+<!ATTLIST condition type CDATA #REQUIRED>
+
+]> 
