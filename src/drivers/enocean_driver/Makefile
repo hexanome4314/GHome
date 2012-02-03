@@ -1,17 +1,21 @@
-ifdef TOPDIR
-include $(TOPDIR)/Makefile.inc
-else
-BINDIR=.
-INCDIR=..
-endif
+INC_DIR=../../../include
+LIB_DIR=
+
+MAKE=make
+
 COMPILE=gcc
-C_FLAGS=-c -I$(INCDIR) -fPIC -Wall -m32 #Options de compilations
+C_FLAGS=-c -I$(INC_DIR) -fPIC -Wall -m32 #Options de compilations
+
 LINKER=gcc
 L_FLAGS=-shared -Wall -m32
+
 LIB=-lpthread
 
 OBJ= drv_api.o utils.o listen.o 
-OUTPUT=$(BINDIR)/libenocean.so #EXE= ../enocean_driver #Nom du binaire à construire
+OUTPUT=libenocean.so #EXE= ../enocean_driver #Nom du binaire à construire
+
+all:
+	$(MAKE) $(OUTPUT)
 
 $(OUTPUT): $(OBJ)
 	@echo building $<

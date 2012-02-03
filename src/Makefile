@@ -1,21 +1,9 @@
-TOPDIR ?= $$(pwd)
-include $(TOPDIR)/Makefile.inc
+MAKE=make
 
-SUBDIRS=system/ drivers/ ia/
-
-OBJS=$(OBJDIR)/main.o
-OUTPUT=$(BINDIR)/ghome
+SUBDIRS=system/ drivers/ ia/ remote-control/
 
 all: 
-	$(MAKE) $(OUTPUT)
-
-$(OUTPUT): $(OBJS)
-	for i in $(SUBDIRS); do ($(MAKE) -C $$i TOPDIR=$(TOPDIR)); done
-	$(LINKER) -o $(OUTPUT) $(L_FLAGS) $(LIB) $(OBJDIR)/*.o
-
-$(OBJDIR)/%.o: %.c
-	$(COMPILE) $(C_FLAGS) $< -o $@
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) all); done	
 
 clean:
-	for i in $(SUBDIRS); do ($(MAKE) clean -C $$i TOPDIR=$(TOPDIR)); done
-	rm -f $(OBJS)
+	for i in $(SUBDIRS); do (cd $$i; $(MAKE) clean); done

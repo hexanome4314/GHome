@@ -1,17 +1,21 @@
-ifdef TOPDIR
-include $(TOPDIR)/Makefile.inc
-else
-BINDIR=.
-INCDIR=../../../include/
-endif
+INC_DIR=../../../include/
+LIB_DIR=
+
+MAKE=make
+
 COMPILE=gcc
-C_FLAGS = -c -I$(INCDIR) -fPIC
+C_FLAGS = -c -I$(INC_DIR) -fPIC
+
 LINKER=gcc
 L_FLAGS=-shared
+
 LIB=-lpthread
 
 OBJECT=driver.o
-OUTPUT=$(BINDIR)/mon_driver.so.1.0.1
+OUTPUT=mon_driver.so.1.0.1
+
+all:
+	$(MAKE) $(OUTPUT)
 
 $(OUTPUT): $(OBJECT)
 	$(LINKER) -o $@ $^ $(LIB) $(L_FLAGS)
@@ -23,4 +27,5 @@ $(OUTPUT): $(OBJECT)
 	$(LINKER) -o $@ $^ $(LIB) $(L_FLAGS)
 
 clean:
-	rm -f $(OBJECT)
+	rm -f *.o
+	rm -f $(OUTPUT)
