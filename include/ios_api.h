@@ -59,7 +59,7 @@ Envoie des données au périphérique
 	data	Les données à envoyer
 \return IOS_OK si tout est ok, IOS_UNKNOWN_FD si le descripteur est inconnu, IOS_ERROR sinon
 */
-int ios_write( int fd, char* data );
+int ios_write( int fd, char data );
 
 /**
 Attache un handler au périphérique dès qu'une donnée est mise à jour (s'il y en a déjà un, il est détaché)
