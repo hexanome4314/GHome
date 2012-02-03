@@ -3,9 +3,12 @@
 
 #include <stdlib.h>
 #include <unistd.h>
-#ifdef PRINT_MEMORY
+#ifdef MEMORY_DEBUG
 #include <stdio.h>
-#endif /* PRINT_MEMORY */
+#endif /* MEMORY_DEBUG */
+#ifdef ALIGNMENT_DEBUG
+#include <stdio.h>
+#endif /* ALIGNMENT_DEBUG */
 
 /**
 Allocation mémoire

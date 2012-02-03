@@ -14,13 +14,16 @@ int main()
 	int* pd;
 	int* pe;
 	int* pf;
+	pa = gmalloc(1000);
 	pb = gmalloc(1000);
 	pc = gmalloc(1000);
 	pd = gmalloc(100);
 	pe = gmalloc(100);
 	pf = gmalloc(100);
-	gfree(pa);
 	gfree(pb);
+	pa = grealloc(pa, 1500);
+	gfree(pa);
+//	gfree(pb);
 	gfree(pc);
 	gfree(pd);
 	gfree(pe);

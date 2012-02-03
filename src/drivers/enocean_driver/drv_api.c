@@ -17,10 +17,18 @@
 *
 * API implementee par les drivers et utilisee par le gestionnaire de drivers
 **********************************************************************************************************/
-
-#include "drv_api.h"
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <pthread.h>
+#include <semaphore.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <unistd.h>
+
+#include "drv_api.h"
+#include "listen.h"
+#include "utils.h"
 
 #define NB_DEV_MAX 256
 #define NB_DATA_BYTES 4
@@ -37,237 +45,186 @@ unsigned int idDev; /* id physique du capteur */
 } devData;
 
 /* ---------- Variable du pilote ---------- */
-devData tabDevData[NB_DEV_MAX]; /* Tableau des donnees des capteurs installes */
-int nbDev; /* Nombre de capteur installes */
 
-/* ---------- Main pour les tests du pilote ---------- */
-int test()
-{
-	unsigned char* mem = 0;
-	int erreur = 0;
-	
-	drv_init(0,0);
-	printf("Test OK pour init driver\n");
-	
-	
-	erreur = drv_add_sensor(0x12, mem);
-	
-	if (erreur == 0)
-	{
-		printf("Test ajout d'un capteur\n");
-	}
-	else
-	{
-		printf("Erreur d'ajout de capteur !!!!\n");
-	}
-	
-	printf("Id Capteur : %i\n", tabDevData[0].idDev);
-	
-	erreur = drv_remove_sensor(0x12);
-	
-	if (erreur > -1)
-	{
-		printf("Capteur retire !!!!\n");
-	/*
-		if (drv_rechercheCapteur(0x12) == -1)
-		{
-			printf("Capteur bien supprime !!!!\n");
-		}
-		else
-		{
-			printf("Retrait capteur ne marche pas !!!!\n");
-		}
-	*/
-	}
-	else
-	{
-		printf("Erreur de retrait de capteur !!!!\n");
-	}
-	
-	getchar();
-	
-	return 0;
-}
+sensors_queue* sensors; /* liste chainée des capteurs */
+int nbDev; /* Nombre de capteurs installes */
+int sock;
+int message_box;
+pthread_t filter_thread;
+pthread_t interprets_and_sends_thread;
 
 /* ---------- Methodes privees du pilote ---------- */
 
 /**
-Recherche la premiere place libre dans le tableau des donnees des capteurs
-\return valeur de la place pour une place libre trouvee, -1 sinon.
-*/
-int recherchePlace()
-{
-	int i = 0;
-	for (i = 0; i < NB_DEV_MAX; i++)
-	{
-		if (tabDevData[i].dataBytes == 0)
-		{
-			return i;
+Lit le fichier sensors_file pour y récuperer automatiquement la *
+liste de nos capteurs
+/param a_number_of_sensor un pointeur vers l'entier dans lequel ecrire le nombre de capteur lu
+ */
+
+sensors_queue* read_sensors_list_file(int* a_number_of_sensor){
+
+	FILE* sensors_file;
+	int loop_counter1;
+	int loop_counter2;
+	sensors_file = fopen(SENSORS_FILE,"rt");
+	fseek(sensors_file,0L,SEEK_END);
+	int size = ftell(sensors_file);
+	fseek(sensors_file,0L,SEEK_SET);
+	*(a_number_of_sensor) = size/9;
+
+	sensors_queue* sensors;
+	sensors_queue* current_sensor;
+
+	/* init for loop */
+	current_sensor = (sensors_queue*)malloc(sizeof(sensors_queue));
+	for(loop_counter2=0 ; loop_counter2 < 8 ; loop_counter2++){
+				current_sensor->sensor[loop_counter2] = fgetc(sensors_file);
+	}
+	fgetc(sensors_file);
+	current_sensor-> next = NULL;
+	sensors = current_sensor;
+
+	/* loop */
+ 	for(loop_counter1=1 ; loop_counter1 < *(a_number_of_sensor) ; loop_counter1++){
+ 		sensors_queue* new_sensor = (sensors_queue*)malloc(sizeof(sensors_queue));
+ 		for(loop_counter2=0 ; loop_counter2 < 8 ; loop_counter2++){
+			new_sensor->sensor[loop_counter2] = fgetc(sensors_file);
 		}
+ 		fgetc(sensors_file);
+ 		new_sensor->next = NULL;
+ 		current_sensor->next = new_sensor;
+		current_sensor = new_sensor;
 	}
-	
-	return -1;
+	return sensors;
 }
 
-/**
-Recherche la premiere place libre dans le tableau des donnees des capteurs
-\param idCapteur
-\return valeur de la place du capteur recherche, -1 si le capteur n'a pas été trouve.
-*/
-int drv_rechercheCapteur(unsigned int idCapteur)
-{
-	/* On parcourt tout le tableau des capteurs */
-	int i = 0;
-	for (i = 0; i < NB_DEV_MAX; i++)
-	{
-		// On prend un capteur qui est installe */
-		if (tabDevData[i].dataBytes != 0)
-		{
-		/* On verifie si le capteur recherche est et on retourne la position trouve */
-			if (tabDevData[i].idDev == idCapteur)
-			{
-				return i;
-			}
-		}
-	}
-	
-	return -1;
-}
 
-/**
-Libere la place du tableau des donnees des capteurs donnee en parametre
-\param idCapteur : id du capteur a enlever (indice du tableau a enlever).
-\return OK si la place a ete liberee, ERROR sinon (place non trouvee ou < 0 ou > NB_DEV_MAX.
-*/
-int libererPlace(unsigned int idCapteur)
-{
-	if ( (idCapteur < NB_DEV_MAX) && (idCapteur >= 0) )
-	{
-		tabDevData[idCapteur].dataBytes = 0;
-		tabDevData[idCapteur].idDev = 0;
-		
-		return OK;
-	}
-	else
-	{
-		return ERROR;
-	}
-}
-
-/**
-Ajoute les donnees à un capteur deja installe dans tabDevData
-\param idCapteur: id physique du capteur en hexadecimal
-\return OK si la donnee a ete ajout, -1 si le capteur n'a pas été trouve.
-*/
-int drv_add_data(unsigned int idCapteur, unsigned char* dataBytes)
-{
-	int place = 0;
-	place = drv_rechercheCapteur(idCapteur);
-	if (place > -1)
-	{
-
-		return OK;
-	}
-	else
-	{
-		return ERROR;
-	}
-}
 /* ---------- Methodes public du pilote ---------- */
 
+/*int main(){
+	// false application
+	int msgq_id;
+	msgq_id = msgget(IPC_PRIVATE, 0600 | IPC_CREAT | IPC_EXCL );
+
+	// run the driver code
+	printf("MAIN drv_init\n");
+	drv_init("127.0.0.1",1338);
+	sleep(5);
+	printf("MAIN drv_run\n");
+	drv_run(msgq_id);
+	sleep(60);
+	printf("MAIN drv_stop\n");
+	drv_stop();
+
+	// check for the result
+	msg_drv_notify buffer;
+	msgrcv( msgq_id, (void*) &buffer, sizeof(buffer) - sizeof(long), DRV_MSG_TYPE, 0 );
+	printf( "#message  [%d,%d,%d]\t[%d]\n", buffer.id_sensor, buffer.flag_value, buffer.value, msgq_id );
+
+	return 42;
+}*/
 
 /**
-*/
-
-
+ * Met en place le context pour le lancement des deux threads du driver
+ * \param remote_addr ip de la base
+ * \param remote_port port de la base
+ */
 int drv_init( const char* remote_addr, int remote_port )
 {
-	/* Initialisation des données des capteur */
-	int i;
-	for (i = 0; i < NB_DEV_MAX; i++)
-	{
-		tabDevData[i].dataBytes = 0;
-		tabDevData[i].idDev = 0;
+
+	/* init the communication with the sensors base */
+	sock = connect_to(inet_addr(remote_addr), remote_port, 0);
+	if(sock == -1){
+		perror("listen - Start driver fail due to socket connection");
+		return -1;
+	}else{ /* politeness */
+		send(sock,"Hi from Hx4314's driver!",25,0);
 	}
-	nbDev = 0;
-	
-	/* Lancer la connexion */
-	/* Connexion pas bonne */
-	/*
-	if ()
-	{
-		return 1;
-	}int place = 0;
-place = drv_rechercheCapteur(id_sensor);
-if (place < 0)
-{
-	return ERROR;
-}
-else
-{
-	libererPlace(place);
-	nbDev--;
-	
-	return OK;
-}
-	*/
+
+	/* get the sensors_id from "sensors_file"*/
+	sensors = read_sensors_list_file(&nbDev);
+	/* Initialization of semaphores used to synchronize the two threads */
+	initialisation_for_listener();
 	return 0;
 }
 
 
 /**
 Fonction appelée par le gestionnaire de drivers pour activer l'écoute (après l'initialisation)
-\param mem_sem Semaphore protegeant les accès concurrents à la mémoire
 \return 0 si tout est ok, > 0 si erreur
 */
-int drv_run( sem_t mem_sem );
+int drv_run(int msgq_id){
+
+	message_box = msgq_id;
+	/* start first thread */
+	void (*p_function_to_receive_and_filter);
+	p_function_to_receive_and_filter = &listenAndFilter;
+	listen_and_filter_params* params = (listen_and_filter_params*) malloc(sizeof(listen_and_filter_params));
+	params->sock= sock;
+	params->sensors = sensors;
+	pthread_create(&filter_thread,NULL,p_function_to_receive_and_filter,params);
+
+	/* start second thread */
+	int* msgid = (int*)malloc(sizeof(int));
+	*(msgid) = msgq_id;
+    void (*p_function_to_interpret_and_send);
+	p_function_to_interpret_and_send = &interpretAndSend;
+	pthread_create(&interprets_and_sends_thread,NULL,p_function_to_interpret_and_send,&message_box);
+
+	return 0;
+}
 
 /**
 Fonction appelée par le gestionnaire de drivers juste avant de décharger la librairie de la mémoire. L'écoute se stoppe et les ressources sont libérées
 */
-void drv_stop( void );
+void drv_stop( void ){
+
+	/* stop the two thread */
+	pthread_cancel(filter_thread);
+	pthread_cancel(interprets_and_sends_thread);
+
+	/* free the allocated memory */
+	sensors_queue* last_sensors = sensors;
+	while(last_sensors != NULL){
+		last_sensors = sensors->next;
+		free(sensors);
+		sensors = last_sensors;
+	}
+}
 
 /**
+ * \param id_sensor l'id du capteur qui doit correspondre avec l'id réel
 */
-int drv_add_sensor( unsigned int id_sensor, unsigned char* mem_ptr )
-{
-	int place = 0; /* Place où mettre le capteur */
-	
-	/* Recherche place libre dans le tableau des donnees des capteurs */
-	place = recherchePlace();
-	if (place < 0)
-	{
-		return ERROR;
-	}
-	else
-	{
-		tabDevData[place].idDev = id_sensor;
-		tabDevData[place].dataBytes = mem_ptr;
-		nbDev++;
-		
-		return place;
-	}
+int drv_add_sensor( unsigned int id_sensor){
+	sensors_queue* new_sensor = malloc(sizeof(sensors_queue));
+	new_sensor->next = sensors;
+	sensors = new_sensor;
+	return 0;
 }
 
 /**
 Fonction appelée par le gestionnaire de drivers pour supprimer un capteur en cours d'écoute.
 \param id_sensor Identifiant unique du capteur qui ne doit plus être écouté
 */
-int drv_remove_sensor( unsigned int id_sensor )
-{
-	int place = 0;
-	place = drv_rechercheCapteur(id_sensor);
-	if (place < 0)
-	{
-		return ERROR;
+int drv_remove_sensor( unsigned int id_sensor ){
+
+	sensors_queue* current_sensor = sensors;
+	char* char_id_sensor = "00000000";
+	sprintf(char_id_sensor, "%u",id_sensor);
+	/* initialisation case */
+	if(current_sensor->sensor == char_id_sensor){
+		sensors = sensors->next;
+		free(sensors);
 	}
-	else
-	{
-		libererPlace(place);
-		nbDev--;
-		
-		return OK;
+	/* regular case */
+	while(current_sensor != NULL && current_sensor->next != NULL){
+		if(current_sensor->next->sensor == char_id_sensor){
+			sensors_queue* to_free = current_sensor->next;
+			current_sensor->next = current_sensor->next->next;
+			free(to_free);
+		}
 	}
+	return 0;
 }
 
 /**
@@ -291,10 +248,10 @@ int drv_send_data( unsigned int id_sensor, unsigned int id_trame )
 {
 	unsigned int id = 0;
 	char* idHexa = (char*)malloc(8);
-	char trame [28];
+	char trame [29];
 	/* Fabrique les elements principaux de la tramme pour calculer le CheckSum */
-	unsigned int byte1 = 0xA5;
-	unsigned int byte2 = 0x5A;
+	//unsigned int byte1 = 0xA5;
+	//unsigned int byte2 = 0x5A;
 	unsigned int hSEQ_LEN= 0x6B;
 	unsigned int org = 0x05;
 	unsigned int dataByte3 = 0;
@@ -355,71 +312,63 @@ int drv_send_data( unsigned int id_sensor, unsigned int id_trame )
 	trame[15] = '0';
 	id = ID3 & 0xF0;
 	id = id >> 4;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[16] = *idHexa;
 	id = ID3 & 0x0F;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[17] = *idHexa;
 	id = ID2 & 0xF0;
 	id = id >> 4;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[18] = *idHexa;
 	id = ID2 & 0x0F;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[19] = *idHexa;
 	id = ID1 & 0xF0;
 	id = id >> 4;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[20] = *idHexa;
 	id = ID1 & 0x0F;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[21] = *idHexa;
 	id = ID0 & 0xF0;
 	id = id >> 4;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[22] = *idHexa;
 	id = ID0 & 0x0F;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[23] = *idHexa;
 	trame[24] = '3';
 	trame[25] = '0';
 	id = checkSum & 0xF0;
 	id = id >> 4;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[26] = *idHexa;
 	id = checkSum & 0x0F;
-	itoa(id, idHexa, 16);
+	snprintf(idHexa,2,"%X", id);
+	//itoa(id, idHexa, 16);
 	trame[27] = *idHexa;
 	free(idHexa);
 	printf("\n");
-	printf(trame);
+	trame[28]='\0';
+	printf("drv_api - trame envoyé: %s\n", trame);
 	printf("\n");
 
 	/* Envoyer la trame */
-	/* Il faut voir comment qu'on fait pk il faut la socket ici ^^ */
-	/* ----------------	*/
-
-	/* Erreur d'envoie */
-	if (0)
-	{
-		return 1;
+	if(send(sock,trame,28,0)<0){
+		int send_error = errno;
+		perror("error sending frame to enocean base");
+		return(send_error);
 	}
-	
 	return 0;
 }
-
-/* Test */
-/*
-int main()
-{
-	char* c = (char*)malloc(8);
-	itoa(32, c, 16);
-	printf(c);
-	drv_send_data(0xFF9F1E04, 0);
-	drv_send_data(0xFF9F1E04, 1);
-
-	getchar();
-
-}
-*/
 

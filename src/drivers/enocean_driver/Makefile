@@ -1,25 +1,28 @@
-#Variables utilisées :
-CC=gcc #Compilateur
-EDL=gcc #Linker
-CCFLAGS=-Wall -m32 #Options de compilations
-EDLFLAGS=-Wall -m32
-EXE= ../enocean_driver #Nom du binaire à construire
+ifdef TOPDIR
+include $(TOPDIR)/Makefile.inc
+else
+BINDIR=.
+INCDIR=..
+endif
+COMPILE=gcc
+C_FLAGS=-c -I$(INCDIR) -fPIC -Wall -m32 #Options de compilations
+LINKER=gcc
+L_FLAGS=-shared -Wall -m32
+LIB=-lpthread
 
-OBJ=drv_api.o utils.o listen.o 
-LIBS=-lpthread
+OBJ= drv_api.o utils.o listen.o 
+OUTPUT=$(BINDIR)/libenocean.so #EXE= ../enocean_driver #Nom du binaire à construire
 
-
-
-$(EXE): $(OBJ)
+$(OUTPUT): $(OBJ)
 	@echo building $<
-	$(EDL)  -o $(EXE) $(EDLFLAGS) $(OBJ) $(LIBS)
+	$(LINKER)  -o $(OUTPUT) $(L_FLAGS) $(OBJ) $(LIB)
 	@echo done
 
 %.o : %.c 
 	@echo building $< ...
-	$(CC) $(CCFLAGS) -c $<
+	$(COMPILE) $(C_FLAGS) $< -o $@
 	@echo done
-	
+
 clean: 
 	@echo -n cleaning repository... 
 	@rm -f *.o
@@ -28,6 +31,7 @@ clean:
 	@rm -f *.log
 	@rm -f *.pid
 	@rm -f *.out
+	@rm -f *.so
 	@echo cleaned.
 
 coffee : clean

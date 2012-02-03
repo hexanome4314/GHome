@@ -2,12 +2,10 @@ include $(TOPDIR)/Makefile.inc
 
 SUBDIRS=
 
-OBJECTS=$(addprefix $(OBJDIR)/, ios_api.o ios_data_mgr.o drv_verbose.o drv_manager.o drv_loader.o)
+OBJECTS=$(OBJDIR)/engine.o
 
 all: $(OBJECTS)
 	for i in $(SUBDIRS); do (cd $$i ; $(MAKE) all); done
-
-#	$(LINKER) -o $@ $^ $(L_FLAGS) $(LIB)
 
 $(OBJDIR)/%.o: %.c
 	$(COMPILE) $(C_FLAGS) $< -o $@
@@ -15,4 +13,3 @@ $(OBJDIR)/%.o: %.c
 clean:
 	for i in $(SUBDIRS); do (cd $$i ; $(MAKE) clean); done
 	rm -f $(OBJECTS)
-	rm -f *.o

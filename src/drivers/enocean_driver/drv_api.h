@@ -50,13 +50,14 @@ Types des messages de la boîte aux lettres
 /**
 Structure des messages contenus dans la boîte aux lettres
 */
-struct msg_drv_notify
+typedef struct
 {
 	long msg_type;
 	unsigned int id_sensor;
 	unsigned int flag_value;
 	char value;
-};
+} msg_drv_notify;
+
 
 #ifndef __DRVLOADER
 
@@ -72,10 +73,10 @@ int drv_init( const char* remote_addr, int remote_port );
 
 /**
 Fonction appelée par le gestionnaire de drivers pour activer l'écoute (après l'initialisation)
-\param	msgq_id		Identifiant de la boîte aux lettres à utiliser pour notifier le manager du changement de valeur
+\param	msgq_id		Identifiant de la boîte aux lettres où envoyer toutes les infos
 \return 0 si tout est ok, > 0 si erreur
 */
-//int drv_run( sem_t mem_sem );
+int drv_run(int msgq_id);
 
 /**
 Fonction appelée par le gestionnaire de drivers juste avant de décharger la librairie de la mémoire. L'écoute se stoppe et les ressources sont libérées
@@ -87,7 +88,7 @@ Fonction appelée par le gestionnaire de drivers pour ajouter un capteur à éco
 \param	id_sensor	Identifiant unique du capteur qui doit être écouté
 \return 0 si tout est ok, > 0 si erreur
 */
-int drv_add_sensor( unsigned int id_sensor, unsigned char* mem_ptr );
+int drv_add_sensor( unsigned int id_sensor );
 
 /**
 Fonction appelée par le gestionnaire de drivers pour supprimer un capteur en cours d'écoute.
