@@ -117,7 +117,7 @@ sensors_queue* read_sensors_list_file(int* a_number_of_sensor){
 	drv_stop();
 
 	// check for the result
-	msg_drv_notify buffer;
+	struct msg_drv_notify buffer;
 	msgrcv( msgq_id, (void*) &buffer, sizeof(buffer) - sizeof(long), DRV_MSG_TYPE, 0 );
 	printf( "#message  [%d,%d,%d]\t[%d]\n", buffer.id_sensor, buffer.flag_value, buffer.value, msgq_id );
 

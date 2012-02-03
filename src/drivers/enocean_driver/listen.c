@@ -4,7 +4,6 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <arpa/inet.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <semaphore.h>
@@ -12,7 +11,7 @@
 #include "sys/msg.h"
 #include "listen.h"
 #include "utils.h"
-#include "drv_api.h"
+#include "../drv_api.h"
 
 /* Thread's communication */
 
@@ -47,7 +46,7 @@ void parser(char* aFrame, enocean_data_structure* aMessage){
 }
 
 void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
-
+/*
 	struct msg_drv_notify msg;
 	msg.msg_type = DRV_MSG_TYPE;
 	unsigned int id;
@@ -61,6 +60,7 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 
 	int resp;
 	resp = msgsnd( the_msgq, (const void*) &buf, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+*/
 }
 
 void _interpretAndSend1BS(enocean_data_structure* a_RPS_message, int* msgq_id){
