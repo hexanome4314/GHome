@@ -1,4 +1,4 @@
-/***********************************
+/**********************************
 * Driver de test
 * Pulse chaque seconde un nouveau message
 * Author : Sébastien M.
@@ -111,7 +111,7 @@ void* callback( void* ptr )
 			buf.msg_type = DRV_MSG_TYPE;
 			buf.id_sensor = id;
 			buf.flag_value = (rand() % DRV_LAST_VALUE);
-			buf.value = rand()%255;
+			buf.value = (float) (rand()%1024);
 
 			res = msgsnd( the_msgq, (const void*) &buf, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
 		}
@@ -177,14 +177,10 @@ void drv_remove_sensor( unsigned int id_sensor )
 	remove_sensor( id_sensor );
 }
 
-int drv_fetch_data( unsigned int id_sensor, unsigned int id_trame, char* buffer, int max_length )
+int drv_send_data( unsigned int id_sensor, char trame )
 {
-	return 0;
-}
+	printf( "%s::%s -> Send data 0x%x to #%d\n", __FILE__, __FUNCTION__, trame, id_sensor );
 
-
-int drv_send_data( unsigned int id_sensor, unsigned int id_trame )
-{
 	return 0;
 }
 
