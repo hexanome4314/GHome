@@ -2,7 +2,7 @@ ifdef TOPDIR
 include $(TOPDIR)/Makefile.inc
 else
 BINDIR=.
-INCDIR=..
+INCDIR=../../../include/
 endif
 COMPILE=gcc
 C_FLAGS = -c -I$(INCDIR) -fPIC
