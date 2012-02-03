@@ -55,7 +55,7 @@ struct msg_drv_notify
 	long msg_type;
 	unsigned int id_sensor;
 	unsigned int flag_value;
-	char value;
+	float value;
 };
 
 #ifndef __DRVLOADER
@@ -96,23 +96,12 @@ Fonction appelée par le gestionnaire de drivers pour supprimer un capteur en co
 void drv_remove_sensor( unsigned int id_sensor );
 
 /**
-Permet de demander des informations à un capteur
-\param	id_sensor	Identifiant unique du capteur à interroger
-	id_trame	Identifiant de la trame à envoyer
-	buffer		Buffer qui va recevoir les données de retour
-	max_length	Taille maximale du buffer
-\return 0 si erreur, ou la taille des données lues
-*/
-int drv_fetch_data( unsigned int id_sensor, unsigned int id_trame, char* buffer, int max_length );
-
-
-/**
 Permet d'envoyer des données à un capteur (sans retour de sa part)
 \param	id_sensor	Identifiant unique du capteur à contacter
-	id_trame	Identifiant de la trame à envoyer
+	trame		Trame à envoyer
 \return 0 si tout est ok, > 0 si erreur
 */
-int drv_send_data( unsigned int id_sensor, unsigned int id_trame );
+int drv_send_data( unsigned int id_sensor, char trame );
 
 /**
 Retourne les informations concernant le driver (nom, version, ...)
