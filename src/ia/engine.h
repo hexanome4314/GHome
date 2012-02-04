@@ -15,7 +15,7 @@ typedef struct Action Action;
 struct Action
 {
 	int device;
-//	int field;
+	int field;
 	char state;
 	Action* next;
 };
