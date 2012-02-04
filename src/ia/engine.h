@@ -40,7 +40,7 @@ struct Condition
 
 typedef struct Rule Rule;
 struct Rule {
-	char* nom;
+	char* name;
 	Action* actions;
 	Alert*  alerts;
 	Condition*  conditions;
