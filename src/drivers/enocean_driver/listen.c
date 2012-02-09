@@ -46,6 +46,294 @@ void parser(char* aFrame, enocean_data_structure* aMessage){
 }
 
 void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
+
+	/* Un message pour chaque etat de bouton a mettre a jour */
+	struct msg_drv_notify msg;
+	struct msg_drv_notify msg2;
+	struct msg_drv_notify msg3;
+	struct msg_drv_notify msg4;
+
+	/* Une reponse pour chaque envoie des messages */
+	int resp;
+	int resp2;
+	int resp3;
+	int resp4;
+
+	unsigned int id; /* Id du capteur */
+	
+	/* Reconstruction de l'id du capteur a partir des ID_BYTE */
+	id = a_RPS_message->ID_BYTE3;
+	id = id << 8;
+	id += a_RPS_message->ID_BYTE2;
+	id = id << 8;
+	id += a_RPS_message->ID_BYTE1;
+	id = id << 8;
+	id += a_RPS_message->ID_BYTE0;
+
+	msg.msg_type = DRV_MSG_TYPE;
+	msg.id_sensor = id;
+
+	msg2.msg_type = DRV_MSG_TYPE;
+	msg2.id_sensor = id;
+
+	msg3.msg_type = DRV_MSG_TYPE;
+	msg3.id_sensor = id;
+
+	msg4.msg_type = DRV_MSG_TYPE;
+	msg4.id_sensor = id;
+
+	switch (a_RPS_message->DATA_BYTE3)
+	{
+		/* Bouton gauche en bas */
+		case 0x10 :
+		{
+			if (LOG)
+			{
+				printf("Capteur : %X Bouton gauche en bas !!!!\n", id);
+			}
+			msg.flag_value = DRV_FIELD_BUTTON1;
+			msg.value = 1;
+
+			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.value = 0;
+
+			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.value = 0;
+
+			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.value = 0;
+		} break;
+
+		/* Bouton gauche en haut */
+		case 0x30 :
+		{
+			if (LOG)
+			{
+				printf("Capteur : %X Bouton gauche en haut !!!!\n", id);
+			}
+
+			msg.flag_value = DRV_FIELD_BUTTON1;
+			msg.value = 0;
+
+			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.value = 1;
+
+			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.value = 0;
+
+			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.value = 0;
+		} break;
+
+		/* Bouton droite en bas */
+		case 0x50 :
+		{
+			if (LOG)
+			{
+				printf("Capteur : %X Bouton droite en bas !!!!\n", id);
+			}
+
+			msg.flag_value = DRV_FIELD_BUTTON1;
+			msg.value = 0;
+
+			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.value = 0;
+
+			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.value = 1;
+
+			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.value = 0;
+		} break;
+
+		/* Bouton gauche en haut */
+		case 0x70 :
+		{
+			if (LOG)
+			{
+				printf("Capteur : %X Bouton gauche en haut !!!!\n", id);
+			}
+
+			msg.flag_value = DRV_FIELD_BUTTON1;
+			msg.value = 0;
+
+			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.value = 0;
+
+			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.value = 0;
+
+			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.value = 1;
+		} break;
+
+		/* Bouton gauche et droite en haut */
+		case 0x37 :
+		{
+			if (LOG)
+			{
+				printf("Capteur : %X Bouton gauche et droite en haut !!!!\n", id);
+			}
+
+			msg.flag_value = DRV_FIELD_BUTTON1;
+			msg.value = 0;
+
+			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.value = 1;
+
+			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.value = 0;
+
+			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.value = 1;
+		} break;
+
+		/* Bouton gauche et droite en bas */
+		case 0x15 :
+		{
+			if (LOG)
+			{
+				printf("Capteur : %X Bouton gauche et droite en bas !!!!\n", id);
+			}
+
+			msg.flag_value = DRV_FIELD_BUTTON1;
+			msg.value = 1;
+
+			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.value = 0;
+
+			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.value = 1;
+
+			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.value = 0;
+		} break;
+
+		/* Bouton gauche en bas et droite en haut */
+		case 0x17 :
+		{
+			if (LOG)
+			{
+				printf("Capteur : %X Bouton gauche en bas et droite en haut !!!!\n", id);
+			}
+
+			msg.flag_value = DRV_FIELD_BUTTON1;
+			msg.value = 1;
+
+			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.value = 0;
+
+			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.value = 0;
+
+			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.value = 1;
+		} break;
+
+		/* Bouton gauche en haut et droite en bas */
+		case 0x35 :
+		{
+			if (LOG)
+			{
+				printf("Capteur : %X Bouton gauche en haut et droite en bas !!!!\n", id);
+			}
+
+			msg.flag_value = DRV_FIELD_BUTTON1;
+			msg.value = 0;
+
+			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.value = 1;
+
+			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.value = 1;
+
+			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.value = 0;
+		} break;
+
+		/* Bouton gauche et droite non appuyes */
+		case 0x00 :
+		{
+			if (LOG)
+			{
+				printf("Capteur : %X Bouton gauche et droite non appuyes !!!!\n", id);
+			}
+
+			msg.flag_value = DRV_FIELD_BUTTON1;
+			msg.value = 0;
+
+			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.value = 0;
+
+			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.value = 0;
+
+			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.value = 0;
+		} break;
+
+		default :
+		{
+			return;
+		}
+	}
+
+	resp = msgsnd( the_msgq, (const void*) &msg, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+	resp2 = msgsnd( the_msgq, (const void*) &msg2, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+	resp3 = msgsnd( the_msgq, (const void*) &msg3, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+	resp4 = msgsnd( the_msgq, (const void*) &msg4, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+}
+
+void _interpretAndSend1BS(enocean_data_structure* a_RPS_message, int* msgq_id){
+
+	struct msg_drv_notify msg; /* Message pour l'etat du capteur */
+	unsigned int id; /* Id du capteur */
+	int resp; /* Reponse pour l'envoie du message */
+
+	/* Reconstruction de l'id du capteur a partir des ID_BYTE */
+	id = a_RPS_message->ID_BYTE3;
+	id = id << 8;
+	id += a_RPS_message->ID_BYTE2;
+	id = id << 8;
+	id += a_RPS_message->ID_BYTE1;
+	id = id << 8;
+	id += a_RPS_message->ID_BYTE0;
+
+	switch (a_RPS_message->DATA_BYTE0)
+	{
+		/* Contact ouvert */
+		case 0x08 :
+		{
+			if (LOG)
+			{
+				printf("Capteur : %X Contact ouvert !!!!\n", id);
+			}
+
+			msg.flag_value = DRV_FIELD_BUTTON1;
+			msg.value = 0;
+		} break;
+
+		case 0x09 :
+		{
+			if (LOG)
+			{
+				printf("Capteur : %X Contact ferme !!!!\n", id);
+			}
+
+			msg.flag_value = DRV_FIELD_BUTTON1;
+			msg.value = 1;
+		} break;
+
+		default :
+		{
+			return;
+		}
+	}
+
+	resp = msgsnd( the_msgq, (const void*) &msg, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+}
+
+void _interpretAndSend4BS(enocean_data_structure* a_RPS_message, int* msgq_id){
 /*
 	struct msg_drv_notify msg;
 	msg.msg_type = DRV_MSG_TYPE;
@@ -61,14 +349,6 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 	int resp;
 	resp = msgsnd( the_msgq, (const void*) &buf, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
 */
-}
-
-void _interpretAndSend1BS(enocean_data_structure* a_RPS_message, int* msgq_id){
-
-}
-
-void _interpretAndSend4BS(enocean_data_structure* a_RPS_message, int* msgq_id){
-
 }
 
 /********************************************* PUBLICS FUNCTIONS */
@@ -205,6 +485,12 @@ void interpretAndSend(int* msgq_id){
 			case 0x07: if(LOG) printf("interpret&send - It's an 4BS!\n");
 			           _interpretAndSend4BS(message, msgq_id);
 					   break;
+			case 0x58: if(LOG) printf("interpret&send - It's an acquitment!\n");
+			if (message->H_SEQ_LENGTH == 0x8B)
+			{
+				printf("interpret&send - Acquitement recu !\n");
+			}
+			break;
 			default: if(LOG) printf("interpret&send - Don't know what this f42king message is about\n");
 			}
 			free(message);
