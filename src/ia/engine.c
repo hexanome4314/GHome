@@ -64,6 +64,16 @@ char check_conditions(Condition* condition, unsigned int device, unsigned int fi
 }
 
 /**
+ * Lancer la gestion des règles à partir d'un fichier de règles
+ * \param file Le fichier de règle
+ * \return 0 si tout va bien, négatif sinon
+ */
+int launch_engine(const char *file)
+{
+	return 0;
+}
+
+/**
  * Lit un fichier xml et rempli la structure de règle
  * \return -1 si il y a un problème
  */
