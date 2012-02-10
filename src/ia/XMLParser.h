@@ -1,3 +1,6 @@
+#ifndef __XMLPARSER_H
+#define __XMLPARSER_H
+
 #include <libxml2/libxml/tree.h>
 #include <libxml2/libxml/parser.h>
 #include <string.h>
@@ -18,3 +21,5 @@ enum {
 };
 
 int DTDValidation(xmlDocPtr doc, const char *fichier_dtd, int afficher_erreurs);
+
+#endif /*__XMLPARSER_H */

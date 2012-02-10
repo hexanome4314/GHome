@@ -1,9 +1,12 @@
 #include "engine.h"
 #include "engine-types.h"
-#include "parser.h"
+#include "rulesParser.h"
 #define OVERRIDE_STDLIB
+#define MAX_FILENAME_SIZE 64
 
 Rule* rules;
+char rulefile[64];
+
 /**
  * Execute une action passée en paramêtre (écrit la valeur
  * correspondante sur le capteur)
@@ -67,26 +70,6 @@ char check_conditions(Condition* condition, unsigned int device, unsigned int fi
 }
 
 /**
- * Lancer la gestion des règles à partir d'un fichier de règles
- * \param file Le fichier de règle
- * \return 0 si tout va bien, négatif sinon
- */
-int launch_engine(const char *file)
-{
-	rules = get_rules(file);
-	return 0;
-}
-
-/**
- * Relit les règles à partir du fichier xml
- * \return 0 si tout va bien, négatif sinon
- */
-int reload_rules()
-{
-	return 0;
-}
-
-/**
  * Lit un fichier xml et rempli la structure de règle
  * \return -1 si il y a un problème
  */
@@ -128,7 +111,7 @@ void load_xml()
  * \param field le champ modifié
  * \param val la nouvelle valeur
  */
-void apply_actions(unsigned int device, unsigned int field, float val)
+void apply_actions(int device, unsigned int field, float val)
 {
 	Rule* rule = rules;
 	while(rule)
@@ -150,4 +133,39 @@ void apply_actions(unsigned int device, unsigned int field, float val)
 		}
 		rule = rule->next;
 	}
+}
+
+/**
+ * Lancer la gestion des règles à partir d'un fichier de règles
+ * \param file Le fichier de règle
+ * \return 0 si tout va bien, négatif sinon
+ */
+int launch_engine(const char *file)
+{
+	rules = get_rules(file);
+	strcpy(file, rulefile);
+	ios_attach_global_handler(apply_actions);
+	return 0;
+}
+
+/**
+ * Relit les règles à partir du fichier xml
+ * \return 0 si tout va bien, négatif sinon
+ */
+int reload_rules()
+{
+	Rule *rule = rules;
+	Rule *newrule;
+	ios_detach_global_handler();
+	while(rule)
+	{
+		
+		
+		newrule = rule->next;
+		free(rule);
+		rule = newrule;
+	}
+	rules = get_rules(rulefile);
+	ios_attach_global_handler(apply_actions);
+	return 0;
 }

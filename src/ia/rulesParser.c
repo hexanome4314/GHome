@@ -1,4 +1,4 @@
-#include "../parser.h"
+#include "rulesParser.h"
 
 #define PATH_ALERT "/rules/rule/actions/alert"
 #define PATH_COND "/rules/rule/conditions/condition"
@@ -391,10 +391,12 @@ Rule * get_rules(char *filename) {
 
     return rules->next;
 }
-
+/*
 int main() {
     Rule *rules;
     rules = get_rules("../rules.xml");
     traceRules(rules);
     return 0;
 }
+*/
+

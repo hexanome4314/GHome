@@ -3,19 +3,12 @@
 #include "memory.h"
 #include "ios_api.h"
 
-void handler0(unsigned int field, float val)
+void handler0(int device, unsigned int field, float val)
 {
-	if(field == 2)
-		printf ("Something happened (field %d, val %f)\n", field, val);
-	apply_actions(0, field, val);
+	printf ("Something happened (field %d, val %f)\n", field, val);
+	apply_actions(device, field, val);
 }
 
-void handler1(unsigned int field, float val)
-{
-	if(field == 2)
-		printf("The second one is noisy\n");
-	apply_actions(1, field, val);
-}
 int main(int argc, char *argv[])
 {
 	int major;
@@ -32,12 +25,7 @@ int main(int argc, char *argv[])
 	printf("Major : %d\n", major);
 	fd1 = ios_add_device(major, 1);
 	printf ("Fd : %d\n", fd1);
-	ios_attach_handler(fd1, handler0);
-	sleep(5);
-
-	fd2 = ios_add_device(major, 2);
-	printf("Fd2 : %d\n", fd2);
-	ios_attach_handler(fd2, handler1);
+	ios_attach_global_handler(handler0);
 	sleep(5);
 
 	ios_remove_device(fd1);

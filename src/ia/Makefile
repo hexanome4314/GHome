@@ -14,7 +14,7 @@ MAKE=make
 
 LIB=`xml2-config --libs` -lios -ldl -lpthread
 
-BIN_OBJ= engine.o parser.o engine-test.o
+BIN_OBJ= engine.o XMLParser.o rulesParser.o engine-test.o
 BIN_OUT= engine-test
 
 LIB_OBJ=
