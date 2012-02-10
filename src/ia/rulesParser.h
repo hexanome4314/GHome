@@ -7,6 +7,8 @@
 #include "engine-types.h"
 
 
-Rule * get_rules(char *filename);
+Rule * get_rules(const char *filename);
+
+void free_rules(Rule *rules);
 
 #endif /* RULESPARSER_H */

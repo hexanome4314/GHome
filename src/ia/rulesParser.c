@@ -200,7 +200,7 @@ void addAlert(char *recipient, char *message)
 
 void addCondition(char *device, char *field, char *type, char *value)
 {
-    Condition *condition = malloc(50*sizeof(Condition));
+    Condition *condition = malloc(sizeof(Condition));
     condition->device = getDeviceIndex(device);
     condition->field = getFieldIndex(field);
     condition->type = getConditionTypeIndex(type);
@@ -261,8 +261,12 @@ void fillRules(xmlNodePtr node) {
             xmlChar *device = xmlNodeGetContent(devicePtr->children);
             xmlChar *field = xmlNodeGetContent(fieldPtr->children);
             addAction((char *) device, (char *) state, (char *) field);
+	    xmlFree(state);
+	    xmlFree(device);
+	    xmlFree(field);
         }
     }
+    free(cheminAction);
 
     // Ajout d'une alerte
     int chAlSize=strlen(PATH_ALERT);
@@ -279,8 +283,10 @@ void fillRules(xmlNodePtr node) {
             xmlChar *message = xmlNodeGetContent(node);
             xmlChar *recipient = xmlNodeGetContent(attr->children);
             addAlert((char *)recipient, (char *) message);
+	    xmlFree(recipient);
         }
     }
+    free(cheminAlert);
 
     // Ajout d'une condition
     int chCdSize = strlen(PATH_COND);
@@ -304,7 +310,12 @@ void fillRules(xmlNodePtr node) {
             xmlChar *field = xmlNodeGetContent(fieldPtr->children);
             xmlChar *type = xmlNodeGetContent(typePtr->children);
             addCondition((char *)device, (char *) field, (char *) type, (char *) value);
+	    xmlFree(value);
+	    xmlFree(device);
+	    xmlFree(field);
+	    xmlFree(type);
         }
+	free(cheminCond);
     }
 
     xmlFree(chemin);
@@ -369,7 +380,7 @@ void traceRules(Rule *rules)
     }
 }
 
-Rule * get_rules(char *filename) {
+Rule * get_rules(const char *filename) {
     xmlDocPtr doc;
     xmlNodePtr racine;
     Rule *rules = malloc(sizeof(Rule));
@@ -400,12 +411,52 @@ Rule * get_rules(char *filename) {
 
     return rules->next;
 }
+
+void free_rules(Rule* rules)
+{
+	Rule *rule, *new_rule;
+	Action *action, *new_action;
+	Alert *alert, *new_alert;
+	Condition *condition, *new_condition;
+	rule = rules;
+	while(rules)
+	{
+		free(rule->name);
+		action = rule->actions;
+		while(action)
+		{
+			new_action = action->next;
+			free(action);
+			action = new_action;
+		}
+		alert = rule->alerts;
+		while(alert)
+		{
+			xmlFree(alert->message);
+			new_alert = alert->next;
+			free(alert);
+			alert = new_alert;
+		}
+		condition = rule->conditions;
+		while(condition)
+		{
+			new_condition = condition->next;
+			free(condition);
+			condition = new_condition;
+		}
+		new_rule = rule->next;
+		free(rule->name);
+		free(rule);
+		rule = new_rule;
+	}
+}
 /*
 int main() {
     Rule *rules;
-    rules = get_rules("../rules.xml");
+    rules = get_rules("rules.xml");
+    traceRules(rules);
+    free_rules(rules);
     traceRules(rules);
     return 0;
 }
 */
-

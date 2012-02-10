@@ -154,17 +154,8 @@ int launch_engine(const char *file)
  */
 int reload_rules()
 {
-	Rule *rule = rules;
-	Rule *newrule;
 	ios_detach_global_handler();
-	while(rule)
-	{
-		
-		
-		newrule = rule->next;
-		free(rule);
-		rule = newrule;
-	}
+	free_rules(rules);
 	rules = get_rules(rulefile);
 	ios_attach_global_handler(apply_actions);
 	return 0;
