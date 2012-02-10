@@ -2,7 +2,8 @@
 #define __ENGINE_H_
 
 #include <stdio.h>
-#include "../../include/ios_api.h"
+#include "memory.h"
+#include "ios_api.h"
 
 enum Condition_type
 {
@@ -15,7 +16,7 @@ typedef struct Action Action;
 struct Action
 {
 	int device;
-//	int field;
+	int field;
 	char state;
 	Action* next;
 };
@@ -34,13 +35,13 @@ struct Condition
 	int device; // id capteur
 	int field;  // id sonde
 	enum Condition_type type;
-	char value;
+	float value;
 	Condition* next;
 };
 
 typedef struct Rule Rule;
 struct Rule {
-	char* nom;
+	char* name;
 	Action* actions;
 	Alert*  alerts;
 	Condition*  conditions;
@@ -48,5 +49,18 @@ struct Rule {
 };
 
 Rule* rules;
+
+/**
+ * Lancer la gestion des règles à partir d'un fichier de règles
+ * \param file Le fichier de règle
+ * \return 0 si tout va bien, négatif sinon
+ */
+int launch_engine(const char *file);
+
+/**
+ * Relit les règles à partir du fichier xml
+ * \return 0 si tout va bien, négatif sinon
+ */
+int reload_rules();
 
 #endif

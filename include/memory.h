@@ -11,37 +11,34 @@
 #endif /* ALIGNMENT_DEBUG */
 
 /**
-Allocation mémoire
-\param: size	Taille à allouer
-\return Emplacement alloué
-\see malloc
-*/
+ * Allocation mémoire
+ * \param size Taille à allouer
+ * \see malloc
+ */
 void* gmalloc(size_t size);
 
 /**
-Libération de mémoire
-\param: ptr	Emplacement de la mémoire allouée avec gmalloc
-\see free
-*/
+ * Libération de mémoire
+ * \param ptr Emplacement de la mémoire allouée avec gmalloc
+ * \see free
+ */
 void gfree(void* ptr);
 
 /**
-Allocation de nmemb membre de taille size, et initialisation à 0
-\param: nmemb	Nombre de membre
-        size	Taille de chaque membre
-\return Emplacement alloué
-\see gcalloc
-*/
+ * Allocation de nmemb membre de taille size, et initialisation à 0
+ * \param nmemb Nombre de membres
+ * \param size Taille de chaque membre
+ * \see gcalloc
+ */
 void* gcalloc(size_t nmemb, size_t size);
 
 /**
-Reallocation d'une zone à une taille différente avec copie des
-anciennes valeurs
-\param: ptr	pointeur de l'ancienne zone
-        size	nouvelle taille
-\return Nouvel emplacement
-\see realloc
-*/
+ * Reallocation d'une zone à une taille différente avec copie des
+ * anciennes valeurs
+ * \param ptr pointeur de l'ancienne zone
+ * \param size Nouvelle taille souhaitée
+ * \see realloc
+ */
 void* grealloc(void *ptr, size_t size);
 
 #ifdef OVERRIDE_STDLIB

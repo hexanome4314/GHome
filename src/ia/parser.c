@@ -44,7 +44,7 @@ xmlAttrPtr getAttrByName(xmlNodePtr node, char *attrName)
 }
 
 
-char *  getConditionType(Condition_type type)
+char *  getConditionType(enum Condition_type type)
 {
     return "TYPE";
 }

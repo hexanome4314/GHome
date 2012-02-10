@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include "ios_api.h"
 #include "memory.h"
 
 int main(int argc, char **argv)
