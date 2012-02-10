@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE capteurs SYSTEM "capteurs.dtd">
+
+<capteurs>
+	<capteur name="boutonChambre" id="43141330" type="BOUTON" etat="ON">enocean</capteur>
+	<capteur name="boutonCuisine" id="42424242" type="BOUTON" etat="ON">enocean</capteur>
+</capteurs>

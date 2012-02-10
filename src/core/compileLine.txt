@@ -1,0 +1,2 @@
+gcc -g -Wall -I../../include demon.c -o demon.o `xml2-config --cflags` `xml2-config --libs` -L../../lib/ -lpthread -lios
+
