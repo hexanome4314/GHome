@@ -278,10 +278,10 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 		}
 	}
 
-	resp = msgsnd( the_msgq, (const void*) &msg, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
-	resp2 = msgsnd( the_msgq, (const void*) &msg2, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
-	resp3 = msgsnd( the_msgq, (const void*) &msg3, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
-	resp4 = msgsnd( the_msgq, (const void*) &msg4, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+	resp = msgsnd( msgq_id, (const void*) &msg, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+	resp2 = msgsnd( msgq_id, (const void*) &msg2, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+	resp3 = msgsnd( msgq_id, (const void*) &msg3, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+	resp4 = msgsnd( msgq_id, (const void*) &msg4, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
 }
 
 void _interpretAndSend1BS(enocean_data_structure* a_RPS_message, int* msgq_id){
@@ -330,7 +330,7 @@ void _interpretAndSend1BS(enocean_data_structure* a_RPS_message, int* msgq_id){
 		}
 	}
 
-	resp = msgsnd( the_msgq, (const void*) &msg, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+	resp = msgsnd( msgq_id, (const void*) &msg, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
 }
 
 void _interpretAndSend4BS(enocean_data_structure* a_RPS_message, int* msgq_id){
