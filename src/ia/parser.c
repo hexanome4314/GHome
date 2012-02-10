@@ -1,9 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <libxml/tree.h>
-#include <libxml/parser.h>
-#include <string.h>
-#include "engine.h"
+#include "parser.h"
 
 #define PATH_ALERT "/rules/rule/actions/alert"
 #define PATH_COND "/rules/rule/conditions/condition"
