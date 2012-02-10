@@ -1,6 +1,9 @@
 #include "engine.h"
+#include "engine-types.h"
+#include "parser.h"
 #define OVERRIDE_STDLIB
 
+Rule* rules;
 /**
  * Execute une action passée en paramêtre (écrit la valeur
  * correspondante sur le capteur)
@@ -69,6 +72,16 @@ char check_conditions(Condition* condition, unsigned int device, unsigned int fi
  * \return 0 si tout va bien, négatif sinon
  */
 int launch_engine(const char *file)
+{
+	rules = get_rules(file);
+	return 0;
+}
+
+/**
+ * Relit les règles à partir du fichier xml
+ * \return 0 si tout va bien, négatif sinon
+ */
+int reload_rules()
 {
 	return 0;
 }
