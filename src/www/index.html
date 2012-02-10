@@ -47,10 +47,30 @@
 							$("#" + contenu_aff).slideDown();
 						}
 
-						update_fields();
+						//update_fields();
 
 						return;
 					}
+				);
+
+				$("a.under_tab").click(
+					function() {
+                                                /* Si l'élément courant n'est pas déjà actif */
+                                                if( ! $(this).hasClass( "active" ) )
+                                                {
+                                                        /* On change l'élément actif par celui en cours et on fait des effets jolis */
+                                                        $(".active").removeClass( "active" );
+                                                        $(this).addClass( "active" );
+                                                        $(".under_content").slideUp();
+
+                                                        var contenu_aff = $(this).attr( "alt" );
+                                                        $("#" + contenu_aff).slideDown();
+                                                }
+
+                                                //update_fields();
+
+                                                return;
+                                        }
 				);
 			}
 		);
@@ -96,7 +116,27 @@
 		</div>
 
 		<div id="content_2" class="content">
-			<p>Le contenu de configuration</p>
+
+			<div class="under_tabbed_area">
+				<ul class="under_tabs">
+					<li><a href="#" alt="drivers" class="under_tab active">Pilotes</a></li>
+					<li><a href="#" alt="rules" class="under_tab">R&egrave;gles</a></li>
+					<li><a href="#" alt="remote" class="under_tab">Acc&eacute;s distant</a></li>
+				</ul>
+
+				<div id="drivers" class="under_content">
+					<p>C'est les pilotes !</p>
+				</div>
+
+				<div id="rules" class="under_content">
+					<p>R&egrave;gle du moteur d'inf&eacute;rence</p>
+				</div>
+
+				<div id="remote" class="under_content">
+					<p>Controle &agrave; distance</p>
+				</div>
+			</div>	
+
 		</div>
 
 		<div id="content_3" class="content">
