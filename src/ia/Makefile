@@ -17,12 +17,12 @@ LIB=`xml2-config --libs` -lios -ldl -lpthread
 BIN_OBJ= engine.o XMLParser.o rulesParser.o engine-test.o
 BIN_OUT= engine-test
 
-LIB_OBJ=
+LIB_OBJ= engine.o XMLParser.o rulesParser.o
 LIB_OUT=../../lib/libia.a
 
 all:
 	$(MAKE) bin
-#	$(MAKE) lib
+	$(MAKE) lib
 
 bin:
 	$(MAKE) $(BIN_OUT)
