@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <pthread.h>
 #include <string.h>
 
@@ -8,6 +9,16 @@
 Défini dans drv_manager.c
 */
 extern struct drv_func_ptr drivers_func[DRV_MAX_COUNT];
+  
+/**
+Compteur sur le nombre de périphériques ajoutés
+*/
+static unsigned int added_devices_count;
+
+/**
+Représente la matrice des données. Chaque périphérique possède DRV_LAST_VALUE types de valeur possibles.
+*/
+static float device_data_matrix[DEV_MAX_COUNT][DRV_LAST_VALUE];
 
 /**
 La boîte aux lettres utilisées pour les échanges entre les drivers et l'ios
@@ -51,9 +62,13 @@ void* ios_data_handler_evt( void* ptr )
 {
 	struct ios_data_handler_value* values = (struct ios_data_handler_value*) ptr;
 
+	/* Appel du handler global en le protégeant */
 	pthread_mutex_lock( &hdler_mutex );
 	(*global_handler)( values->fd, values->flag_value, values->value );
 	pthread_mutex_unlock( &hdler_mutex );
+
+	/* Ne pas oublier ! */
+	free( values );
 }
 
 /**

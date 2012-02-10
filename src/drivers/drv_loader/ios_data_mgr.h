@@ -16,16 +16,6 @@ struct ios_device_descriptor
 	void (*handler)( unsigned int, float ); /* Handler à déclencher lorsque les données du périphérique sont modifiées */
 } added_devices[DEV_MAX_COUNT];
 
-/**
-Compteur sur le nombre de périphériques ajoutés
-*/
-unsigned int added_devices_count;
-
-/**
-Représente la matrice des données. Chaque périphérique possède DRV_LAST_VALUE types de valeur possibles.
-*/
-float device_data_matrix[DEV_MAX_COUNT][DRV_LAST_VALUE];
-
 
 
 
