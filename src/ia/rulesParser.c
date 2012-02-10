@@ -1,52 +1,39 @@
-#include "parser.h"
+#include "rulesParser.h"
 
 #define PATH_ALERT "/rules/rule/actions/alert"
 #define PATH_COND "/rules/rule/conditions/condition"
 #define PATH_ACTION "/rules/rule/actions/activate"
 
-typedef void (*fct_parcours_t)(xmlNodePtr);
+#define FIELDS_SIZE 13
+char* Fields[FIELDS_SIZE] = {"Button_1", "Button_2", "Button_3", "Button_4", "Button_5", "Button_6", "Button_7", "Button_8", "Temperature", "Humidity", "Lighting", "Voltage", "Unknown_Field"};
+
+#define RECIPIENTS_SIZE 2
+char* Recipients[RECIPIENTS_SIZE] = {"Web", "Unknown_Recipient"};
+
+#define COMPARISONS_SIZE 4
+char* Comparisons[COMPARISONS_SIZE] = {"Equ", "Sup", "Inf", "Unknown_Comparison"};
+
 Rule* lastRule = NULL;
 
-void nodeBrowser(xmlNodePtr noeud, fct_parcours_t f) {
-    xmlNodePtr n;
-
-    for (n = noeud; n != NULL; n = n->next) {
-        f(n);
-        if ((n->type == XML_ELEMENT_NODE) && (n->children != NULL)) {
-            nodeBrowser(n->children, f);
-        }
-    }
-}
-
-xmlAttrPtr getAttrByName(xmlNodePtr node, char *attrName)
+char * getConditionType(enum Condition_type type)
 {
-    xmlAttrPtr a;
-
-    if(node->properties != NULL)
+    if(type < COMPARISONS_SIZE)
     {
-        for(a = node->properties; a != NULL; a = a->next)
-        {
-            if(a->type == XML_ATTRIBUTE_NODE && a->children != NULL)
-            {
-                if(strcmp((char *)a->name, attrName) == 0)
-                {
-                    return a;
-                }
-            }
-        }
+        return Comparisons[type];
     }
-    return NULL;
-}
-
-
-char *  getConditionType(enum Condition_type type)
-{
-    return "TYPE";
+    else
+    {
+        return Comparisons[COMPARISONS_SIZE-1];
+    }
 }
 
 int getConditionTypeIndex(char *type)
 {
-    return 0;
+    int i = 0;
+
+    for(; i < COMPARISONS_SIZE && compare(Comparisons[i], type) == -1; i++);
+
+    return i;
 }
 
 int getDeviceIndex(char *device) {
@@ -58,36 +45,72 @@ char * getDeviceName(int device)
     return "DEVICE";
 }
 
-char * getRecipientName(int recipient) {
-    return "RECIPIENT";
-}
-
-
 char getState(char *state) {
-    return 0;
+    if(compare("True", state) == 0)
+    {
+        return 't';
+    }
+    else
+    {
+        return 'f';
+    }
 }
 
 char * getStateName(char state)
 {
-    return "STATE";
+    if(state == 't')
+    {
+        return "True";
+    }
+    else
+    {
+        return "False";
+    }
+}
+
+char * getRecipientName(int recipient) {
+    if(recipient < RECIPIENTS_SIZE)
+    {
+        return Recipients[recipient];
+    }
+    else
+    {
+        return Recipients[RECIPIENTS_SIZE-1];
+    }
 }
 
 int getRecipientIndex(char *recipient) {
-    return 0;
+    int i = 0;
+
+    for(; i < RECIPIENTS_SIZE && compare(Recipients[i], recipient) == -1; i++);
+
+    return i;
 }
 
+
 int getFieldIndex(char *field) {
-    return 0;
+    int i = 0;
+
+    for(; i < FIELDS_SIZE && compare(Fields[i], field) == -1; i++);
+
+    return i;
 }
 
 char * getFieldName(int field)
 {
-    return "FIELD";
+    if(field < FIELDS_SIZE)
+    {
+        return Fields[field];
+    }
+    else
+    {
+        return Fields[FIELDS_SIZE-1];
+    }
 }
 
 Action * getLastAction(Rule *rule)
 {
-    Action *a, *res;
+    Action *a, *res = rule->actions;
 
     for(a = rule->actions; a != NULL; a = a->next)
     {
@@ -99,7 +122,7 @@ Action * getLastAction(Rule *rule)
 
 Alert * getLastAlert(Rule *rule)
 {
-    Alert *a, *res;
+    Alert *a, *res = rule->alerts;
 
     for(a = rule->alerts; a != NULL; a = a->next)
     {
@@ -111,7 +134,7 @@ Alert * getLastAlert(Rule *rule)
 
 Condition * getLastCondition(Rule *rule)
 {
-    Condition *c, *res;
+    Condition *c, *res = rule->conditions;
 
     for(c = rule->conditions; c!= NULL; c = c->next)
     {
@@ -134,10 +157,11 @@ void addRule(char *name)
     printf("New rule added : %s\n", name);
 }
 
-void addAction(char *device, char *state) {
+void addAction(char *device, char *state, char *field) {
     Action *action = malloc(sizeof(Action));
     action->device = getDeviceIndex(device);
     action->state = getState(state);
+    action->field = getFieldIndex(field);
     action->next = NULL;
     
     Action *lastAction = getLastAction(lastRule);
@@ -151,7 +175,7 @@ void addAction(char *device, char *state) {
         lastAction->next = action;
     }
 
-    printf("New action added : %s -> %s\n", device, state);
+    printf("New action added : %s -> %s\n", device, getStateName(getState(state)));
 }
 
 void addAlert(char *recipient, char *message)
@@ -180,9 +204,17 @@ void addCondition(char *device, char *field, char *type, char *value)
     condition->device = getDeviceIndex(device);
     condition->field = getFieldIndex(field);
     condition->type = getConditionTypeIndex(type);
-    condition->value = *value;
     condition->next = NULL;
-
+    
+    if(compare("true", value) == 0)
+    {
+        condition->value = 1.f;
+    }
+    else
+    {
+        condition->value = atof(value);
+    }
+    
     Condition *lastCondition = getLastCondition(lastRule);
 
     if(lastCondition == NULL)
@@ -193,7 +225,7 @@ void addCondition(char *device, char *field, char *type, char *value)
     {
         lastCondition->next = condition;
     }
-    printf("New condition added : %s->%s %s %s\n", device, field, type, value);
+    printf("New condition added : %s->%s %s %f\n", device, field, type, condition->value);
 }
 
 void fillRules(xmlNodePtr node) {
@@ -218,15 +250,23 @@ void fillRules(xmlNodePtr node) {
     strncpy(cheminAction, (char *)chemin, chAcSize);
     if(strcmp((char *)cheminAction, PATH_ACTION) == 0)
     {
-        xmlAttrPtr attr = getAttrByName(node, "device");
+        xmlAttrPtr devicePtr = getAttrByName(node, "device");
+        xmlAttrPtr fieldPtr = getAttrByName(node, "field");
 
-        if(attr != NULL && attr->children != NULL && node->children != NULL && node->children->type == XML_TEXT_NODE)
+        if(node->children != NULL && node->children->type == XML_TEXT_NODE
+                && devicePtr != NULL && devicePtr->children != NULL
+                && fieldPtr !=NULL && fieldPtr->children != NULL)
         {
             xmlChar *state = xmlNodeGetContent(node);
-            xmlChar *device = xmlNodeGetContent(attr->children);
-            addAction((char *)device, (char *) state);
+            xmlChar *device = xmlNodeGetContent(devicePtr->children);
+            xmlChar *field = xmlNodeGetContent(fieldPtr->children);
+            addAction((char *) device, (char *) state, (char *) field);
+	    xmlFree(state);
+	    xmlFree(device);
+	    xmlFree(field);
         }
     }
+    free(cheminAction);
 
     // Ajout d'une alerte
     int chAlSize=strlen(PATH_ALERT);
@@ -243,8 +283,10 @@ void fillRules(xmlNodePtr node) {
             xmlChar *message = xmlNodeGetContent(node);
             xmlChar *recipient = xmlNodeGetContent(attr->children);
             addAlert((char *)recipient, (char *) message);
+	    xmlFree(recipient);
         }
     }
+    free(cheminAlert);
 
     // Ajout d'une condition
     int chCdSize = strlen(PATH_COND);
@@ -268,7 +310,12 @@ void fillRules(xmlNodePtr node) {
             xmlChar *field = xmlNodeGetContent(fieldPtr->children);
             xmlChar *type = xmlNodeGetContent(typePtr->children);
             addCondition((char *)device, (char *) field, (char *) type, (char *) value);
+	    xmlFree(value);
+	    xmlFree(device);
+	    xmlFree(field);
+	    xmlFree(type);
         }
+	free(cheminCond);
     }
 
     xmlFree(chemin);
@@ -323,17 +370,17 @@ void traceRules(Rule *rules)
         {
             if(cd->next == NULL)
             {
-                printf("\t└── \033[33mCondition n°%d : \033[34mWhen\033[00m %s\033[34m->\033[00m%s %s %c\n", ++j, getDeviceName(cd->device), getFieldName(cd->field), getConditionType(cd->type), cd->value);
+                printf("\t└── \033[33mCondition n°%d : \033[34mWhen\033[00m %s\033[34m->\033[00m%s %s %f\n", ++j, getDeviceName(cd->device), getFieldName(cd->field), getConditionType(cd->type), cd->value);
             }
             else
             {
-                printf("\t├── \033[33mCondition n°%d : \033[34mWhen\033[00m %s\033[34m->\033[00m%s %s %c \033[34mAnd\033[00m\n", ++j, getDeviceName(cd->device), getFieldName(cd->field), getConditionType(cd->type), cd->value);
+                printf("\t├── \033[33mCondition n°%d : \033[34mWhen\033[00m %s\033[34m->\033[00m%s %s %f \033[34mAnd\033[00m\n", ++j, getDeviceName(cd->device), getFieldName(cd->field), getConditionType(cd->type), cd->value);
             }
         }
     }
 }
 
-Rule * get_rules(char *filename) {
+Rule * get_rules(const char *filename) {
     xmlDocPtr doc;
     xmlNodePtr racine;
     Rule *rules = malloc(sizeof(Rule));
@@ -341,7 +388,8 @@ Rule * get_rules(char *filename) {
     // Ouverture du document
     xmlKeepBlanksDefault(0); // Ignore les noeuds texte composant la mise en forme
     doc = xmlParseFile(filename);
-    if (doc == NULL) {
+    
+    if(doc == NULL || !DTDValidation(doc, "../rules.dtd", 0)) {
         fprintf(stderr, "Document XML invalide\n");
         return NULL;
     }
@@ -363,10 +411,52 @@ Rule * get_rules(char *filename) {
 
     return rules->next;
 }
+
+void free_rules(Rule* rules)
+{
+	Rule *rule, *new_rule;
+	Action *action, *new_action;
+	Alert *alert, *new_alert;
+	Condition *condition, *new_condition;
+	rule = rules;
+	while(rules)
+	{
+		free(rule->name);
+		action = rule->actions;
+		while(action)
+		{
+			new_action = action->next;
+			free(action);
+			action = new_action;
+		}
+		alert = rule->alerts;
+		while(alert)
+		{
+			xmlFree(alert->message);
+			new_alert = alert->next;
+			free(alert);
+			alert = new_alert;
+		}
+		condition = rule->conditions;
+		while(condition)
+		{
+			new_condition = condition->next;
+			free(condition);
+			condition = new_condition;
+		}
+		new_rule = rule->next;
+		free(rule->name);
+		free(rule);
+		rule = new_rule;
+	}
+}
 /*
 int main() {
     Rule *rules;
-    rules = getRules("rules.xml");
+    rules = get_rules("rules.xml");
+    traceRules(rules);
+    free_rules(rules);
     traceRules(rules);
     return 0;
-}*/
+}
+*/

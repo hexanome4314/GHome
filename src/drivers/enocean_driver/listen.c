@@ -334,21 +334,46 @@ void _interpretAndSend1BS(enocean_data_structure* a_RPS_message, int* msgq_id){
 }
 
 void _interpretAndSend4BS(enocean_data_structure* a_RPS_message, int* msgq_id){
-/*
-	struct msg_drv_notify msg;
-	msg.msg_type = DRV_MSG_TYPE;
-	unsigned int id;
-	msg.id_sensor = id;
+	struct msg_drv_notify msgTemp; /* Message pour la temperature. */
+	struct msg_drv_notify msg2;/* Message pour la luminosite. */
+	struct msg_drv_notify msg3;/* Message pour le voltage. */
+	unsigned int id; /* Id du capteur */
+	int resp; /* Reponse pour l'envoie du message */
 
-	if(a_RPS_message->DATA_BYTE3 && 0x10){
-		msg.flag_value;
-		msg.value ;
+	/* Reconstruction de l'id du capteur a partir des ID_BYTE */
+	id = a_RPS_message->ID_BYTE3;
+	id = id << 8;
+	id += a_RPS_message->ID_BYTE2;
+	id = id << 8;
+	id += a_RPS_message->ID_BYTE1;
+	id = id << 8;
+	id += a_RPS_message->ID_BYTE0;
+
+	// Info du capteur de type temperature.
+	msgTemp.flag_value = DRV_FIELD_TEMPERATURE;
+	msg2.flag_value = DRV_FIELD_LIGHTING;
+	msg3.flag_value = DRV_FIELD_VOLTAGE;
+
+	// On calcule la temperature du capteur.
+	msgTemp.value = a_RPS_message->DATA_BYTE1 * 40/255;
+	msgTemp.id_sensor = id;
+
+	msg2.value = a_RPS_message->DATA_BYTE2 * 510/255;
+	msg2.id_sensor = id;
+
+	msg3.value = a_RPS_message->DATA_BYTE3 * 5.1/255;
+	msg3.id_sensor = id;
+
+	if (LOG)
+	{
+		printf("Capteur : %X Temperature : %f !!!!\n", id, msgTemp.value);
+		printf("Capteur : %X Luminosite : %f !!!!\n", id, msg2.value);
+		printf("Capteur : %X Voltage : %f !!!!\n", id, msg3.value);
 	}
 
-
-	int resp;
-	resp = msgsnd( the_msgq, (const void*) &buf, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
-*/
+	resp = msgsnd( (msgqnum_t)msgq_id, (const void*) &msgTemp, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+	resp = msgsnd( (msgqnum_t)msgq_id, (const void*) &msg2, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+	resp = msgsnd( (msgqnum_t)msgq_id, (const void*) &msg3, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
 }
 
 /********************************************* PUBLICS FUNCTIONS */
