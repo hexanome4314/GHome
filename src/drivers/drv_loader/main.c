@@ -6,6 +6,11 @@
 #include "ios_api.h"
 #include "drv_manager.h"
 
+void h( int fd, unsigned int field, float val )
+{
+	printf( "GH called :: [%d, %d, %f]\n", fd, field, val );
+}
+
 void h1( unsigned int field, float val )
 {
 	printf( "Handler called ! [%d,%f]\n", field, val );
@@ -38,7 +43,9 @@ int main()
 
 	fd3 = ios_add_device( major, 2 );
 
-	/* ios_attach_handler( fd1, h1 ); */
+	ios_attach_global_handler( h );
+
+	ios_attach_handler( fd1, h1 );
 
 	for( i = 0; i < 5; i++ )
 	{

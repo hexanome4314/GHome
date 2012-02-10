@@ -15,6 +15,11 @@ La boîte aux lettres utilisées pour les échanges entre les drivers et l'ios
 static int msgq_id;
 
 /**
+Handler déclenché à chaque réception de message
+*/
+static void (*global_handler)( int, unsigned int, float );
+
+/**
 Handle du thread de la collecte de données
 */
 static pthread_t collect_thread;
@@ -25,12 +30,31 @@ Mutex sur les données pour éviter les accès concurrents ainsi que sur la cond
 static pthread_mutex_t data_mutex  = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t stop_mutex  = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t table_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t hdler_mutex = PTHREAD_MUTEX_INITIALIZER; 
 
 /**
 Condition d'arrêt de la collecte
 */
 static int stop_collect;
 
+struct ios_data_handler_value
+{
+	int fd;
+	unsigned int flag_value;
+	float value;
+};
+
+/**
+Routine des threads d'évènements lorsqu'une donnée est modifiée
+*/
+void* ios_data_handler_evt( void* ptr )
+{
+	struct ios_data_handler_value* values = (struct ios_data_handler_value*) ptr;
+
+	pthread_mutex_lock( &hdler_mutex );
+	(*global_handler)( values->fd, values->flag_value, values->value );
+	pthread_mutex_unlock( &hdler_mutex );
+}
 
 /**
 Routine du thread collectant les données auprès des différents capteurs via la message queue
@@ -61,6 +85,7 @@ void* ios_data_collector_callback( void* ptr )
 			size_t i;
 			int fd;
 			void (*handler)( unsigned int, float );
+			void (*g_handler)( int, unsigned int, float );
 
 			/* On se met en jambe avec une petite recherche du fd pour l'id passé */
 			fd = -1;
@@ -85,9 +110,26 @@ void* ios_data_collector_callback( void* ptr )
 				device_data_matrix[fd][buffer.flag_value] = buffer.value;
 				pthread_mutex_unlock( &data_mutex ); 
 
+				pthread_mutex_lock( &hdler_mutex );
+				g_handler = global_handler;
+				pthread_mutex_unlock( &hdler_mutex );
+
 				/* On call le handler */
 				if( handler != NULL )
 					(*handler)( buffer.flag_value, buffer.value );
+				if( g_handler != NULL )
+				{
+					pthread_t new_thread;
+					struct ios_data_handler_value* values;
+
+					values = (struct ios_data_handler_value*) malloc( sizeof(struct ios_data_handler_value) );
+
+					values->fd = fd;
+					values->flag_value = buffer.flag_value;
+					values->value = buffer.value;
+
+					pthread_create( &new_thread, NULL, ios_data_handler_evt, values );
+				}
 			}
 		}
 
@@ -125,6 +167,9 @@ int ios_data_init()
 	} 
 
 	added_devices_count = 0;
+
+	/* On initialise le handler global */
+	global_handler = NULL;
 
 	/* Lance le thread de collecte des données */
 	stop_collect = 0;
@@ -340,6 +385,27 @@ void ios_data_handler_detach( int fd )
 	pthread_mutex_lock( &table_mutex );
 	added_devices[fd].handler = NULL;
 	pthread_mutex_unlock( &table_mutex );
+}
+
+/**
+Attache un handler activé dès qu'une donnée est mise à jour (s'il y en a déjà un, il est détaché)
+\param  handler Foncteur sur la fonction à exécuter
+*/
+void ios_data_global_handler_attach( void (*handler)( int, unsigned int, float ) )
+{
+	pthread_mutex_lock( &hdler_mutex );
+	global_handler = handler;
+	pthread_mutex_unlock( &hdler_mutex );
+}
+
+/**
+Détache le handler général
+*/
+void ios_data_global_handler_detach()
+{
+	pthread_mutex_lock( &hdler_mutex );
+	global_handler = NULL;
+	pthread_mutex_unlock( &hdler_mutex );
 }
 
 /**

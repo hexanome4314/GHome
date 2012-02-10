@@ -166,3 +166,19 @@ int ios_write( int fd, char data )
 	return ios_push_data( fd, data );
 }
 
+/**
+Attache un handler activé dès qu'une donnée est mise à jour (s'il y en a déjà un, il est détaché)
+\param  handler Foncteur sur la fonction à exécuter
+*/
+void ios_attach_global_handler( void (*handler)( int, unsigned int, float ) )
+{
+	ios_data_global_handler_attach( handler );
+}
+
+/**
+Détache le handler général
+*/
+void ios_detach_global_handler()
+{
+	ios_data_global_handler_detach();
+}

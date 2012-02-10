@@ -74,4 +74,16 @@ Détache le handler du périphérique
 */
 void ios_detach_handler( int fd );
 
+
+/**
+Attache un handler activé dès qu'une donnée est mise à jour (s'il y en a déjà un, il est détaché)
+\param  handler Foncteur sur la fonction à exécuter
+*/
+void ios_attach_global_handler( void (*handler)( int, unsigned int, float ) );
+
+/**
+Détache le handler général
+*/
+void ios_detach_global_handler();
+
 #endif

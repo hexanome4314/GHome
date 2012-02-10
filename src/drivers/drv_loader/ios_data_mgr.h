@@ -83,6 +83,17 @@ Détache un handler à ce descripteur
 void ios_data_handler_detach( int fd );
 
 /**
+Attache un handler activé dès qu'une donnée est mise à jour (s'il y en a déjà un, il est détaché)
+\param  handler Foncteur sur la fonction à exécuter
+*/
+void ios_data_global_handler_attach( void (*handler)( int, unsigned int, float ) );
+
+/**
+Détache le handler général
+*/
+void ios_data_global_handler_detach();
+
+/**
 Récupère une donnée de la matrice des données
 \param	fd	Le descripteur concerné
 	field	Le champ à récupérer
