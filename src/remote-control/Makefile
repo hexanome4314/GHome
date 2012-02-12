@@ -8,7 +8,7 @@ AR_FLAGS=r
 
 MAKE=make
 
-OBJECT=connection.o console.o main.o
+OBJECT=command_interp.o connection.o console.o main.o
 OUTPUT=remote-control
 
 AR_OBJ=console.o
