@@ -12,13 +12,13 @@ AR_FLAGS=r
 
 MAKE=make
 
-LIB=`xml2-config --libs` -lios -ldl -lpthread -lutils
+LIB=`xml2-config --libs` -lios -lia -lutils -ldl -lpthread
 
-BIN_OBJ= engine.o rulesParser.o engine-test.o
-BIN_OUT= engine-test
+BIN_OBJ= demon.o
+BIN_OUT= core-test
 
-LIB_OBJ= engine.o rulesParser.o
-LIB_OUT=../../lib/libia.a
+LIB_OBJ= demon.o
+LIB_OUT=../../lib/libcore.a
 
 all:
 	$(MAKE) bin

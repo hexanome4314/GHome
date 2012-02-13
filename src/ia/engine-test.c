@@ -8,7 +8,7 @@ void handler0(int device, unsigned int field, float val)
 	printf ("Something happened (field %d, val %f)\n", field, val);
 	apply_actions(device, field, val);
 }
-
+/*
 int main(int argc, char *argv[])
 {
 	int major;
@@ -35,3 +35,5 @@ int main(int argc, char *argv[])
 	ios_release();
 	return 0;
 }
+*/
+
