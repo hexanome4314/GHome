@@ -101,7 +101,7 @@ sensors_queue* read_sensors_list_file(int* a_number_of_sensor){
 
 /* ---------- Methodes public du pilote ---------- */
 
-/*int main(){
+int main(){
 	// false application
 	int msgq_id;
 	msgq_id = msgget(IPC_PRIVATE, 0600 | IPC_CREAT | IPC_EXCL );
@@ -122,7 +122,7 @@ sensors_queue* read_sensors_list_file(int* a_number_of_sensor){
 	printf( "#message  [%d,%d,%d]\t[%d]\n", buffer.id_sensor, buffer.flag_value, buffer.value, msgq_id );
 
 	return 42;
-}*/
+}
 
 /**
  * Met en place le context pour le lancement des deux threads du driver
