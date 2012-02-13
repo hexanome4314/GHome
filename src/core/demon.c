@@ -18,6 +18,13 @@ xmlNodePtr next_XML_ELEMENT_NODE(xmlNodePtr node){
 	return node;
 }
 
+void process_data(int device, unsigned int field, float val)
+{
+	/* appeler l'ia pour effectuer les actions necessaires */
+
+	/* écrire dans raw_data.json les valeurs */
+}
+
 int main(){
 
 	xmlDocPtr capteurs_doc;
