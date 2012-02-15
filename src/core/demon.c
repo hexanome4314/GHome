@@ -4,16 +4,19 @@
 #include <errno.h>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
+#include <time.h>
 
 #include "XMLParser.h"
 #include "ios_api.h"
 #include "engine.h"
 #include "demon.h"
 
-/* 
- * Those blabla_XML_ELEMENT_NODE allow to write readable xml files
- * by removing the fake TEXT_ELEMENT_NODE created by \n and \t
-*/
+int drv[MAX_NUMBER_OF_DRIVERS];
+infos_sensor sensor[MAX_NUMBER_OF_SENSORS];
+
+
+/* Those blabla_XML_ELEMENT_NODE allow to write readable xml files
+ * by removing the fake TEXT_ELEMENT_NODE created by \n and \t */
 
 /**
  * it return the first :father children which is a real XML_ELEMENT_NODE 
@@ -45,35 +48,42 @@ void process_data(int device, unsigned int field, float val)
 
 	/* écrire dans raw_data.json les valeurs */
 }
+/**
+ * Donne le file descriptor d'un capteur installé à partir de son id
+ * Si le capteur n'est pas installé retourne -1
+*/
+int get_fd(int id){
+	int loop_counter = 0;
+	while(id != MAX_NUMBER_OF_SENSORS && sensor[loop_counter].id != id){
+		loop_counter++;
+	}
+	if(sensor[loop_counter].id == id)
+		return sensor[loop_counter].fd;
+	else
+		return -1;
+}
 
-int main(){
+int init_demon(){
 
 	xmlDocPtr capteurs_doc;
-	xmlNodePtr dtd_node;
 	xmlNodePtr drivers_node;
 	xmlNodePtr driver_node;
 	xmlNodePtr capteur_node;
 	
 	capteurs_doc = xmlParseFile("drivers.xml");
 	perror("xmlParseFile");
-	/* the first node of the file is the DTD node */
-	dtd_node = capteurs_doc->children;
-
-	/* get the number of drivers and of capteurs */
-	int drv[2];
-	int fd[32];
+	/* the first xml element node of the file */
+	drivers_node = next_XML_ELEMENT_NODE(capteurs_doc->children);
 
 	/* init, install drivers and add all the capteurs */
 	ios_init();
 	int driver_counter = 0;	
 	int capteur_counter = 0;
-	drivers_node = dtd_node->next;
 	for( 	driver_node = children_XML_ELEMENT_NODE(drivers_node);
 		driver_node != NULL;
 		driver_node = next_XML_ELEMENT_NODE(driver_node))
 	{
 		/* install a driverX/ */
-		printf("CORE/ driver - %s,%i\n",driver_node->name,driver_node->type);
 		xmlChar* drv_so_name = xmlGetProp(driver_node,(const xmlChar*)"so");
 		drv[driver_counter] = ios_install_driver( (char*)drv_so_name, "127.0.0.1", 8080 );
 		xmlFree(drv_so_name);
@@ -87,9 +97,9 @@ int main(){
 			capteur_node = next_XML_ELEMENT_NODE(capteur_node))
 		{
 			/* install a driverX/capteurY/ */
-			printf("CORE/\tcapteur - %s,%i\n",capteur_node->name,capteur_node->type);
 			xmlChar* id = xmlGetProp(drivers_node,(const xmlChar*)"id");
-			fd[capteur_counter] = ios_add_device( drv[driver_counter],(int) id );
+			sensor[capteur_counter].fd = ios_add_device( drv[driver_counter],(int)id);
+			sensor[capteur_counter].id = (int)id;
 			xmlFree(id);
 			capteur_counter++;
 		}
@@ -97,5 +107,13 @@ int main(){
 	}
 	xmlFreeDoc(capteurs_doc);
 	return 0;
+}
+
+int main(){
+	init_demon();
+	for(;;){
+		sleep(5);
+		puts("alive");
+	}
 }
 
