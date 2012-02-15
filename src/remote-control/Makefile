@@ -11,12 +11,15 @@ MAKE=make
 OBJECT=command_interp.o remote-control.o console.o main.o
 OUTPUT=remote-control
 
-AR_OBJ=console.o
-AR_OUT=../../../lib/libremote-ctrl.a
+AR_OBJ=command_interp.o remote-control.o console.o
+AR_OUT=../../lib/libremote-ctrl.a
 
 all: 
-	# $(MAKE) $(AR_OUT)
+	$(MAKE) $(AR_OUT)
 	$(MAKE) $(OUTPUT)
+
+lib:
+	$(MAKE) $(AR_OUT)
 
 $(OUTPUT): $(OBJECT)
 	$(LINKER) -o $@ $^ $(L_FLAGS) $(LIB)
