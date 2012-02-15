@@ -10,6 +10,27 @@
 #include "engine.h"
 #include "demon.h"
 
+/* 
+ * Those blabla_XML_ELEMENT_NODE allow to write readable xml files
+ * by removing the fake TEXT_ELEMENT_NODE created by \n and \t
+*/
+
+/**
+ * it return the first :father children which is a real XML_ELEMENT_NODE 
+ * \param father the xmlNodePtr of the node your intrested in finding it's children
+*/
+xmlNodePtr children_XML_ELEMENT_NODE(xmlNodePtr father){
+	xmlNodePtr child = father->children;
+	while(child != NULL && child->type != XML_ELEMENT_NODE){
+		child = child->next;
+	}
+	return child;
+}
+
+/**
+ * it return the first :node successor which is a real XML_ELEMENT_NODE 
+ * \param node the xmlNodePtr of the node your intrested in finding it's next node
+*/
 xmlNodePtr next_XML_ELEMENT_NODE(xmlNodePtr node){
 	node = node->next;
 	while(node != NULL && node->type != XML_ELEMENT_NODE){
@@ -39,34 +60,37 @@ int main(){
 	dtd_node = capteurs_doc->children;
 
 	/* get the number of drivers and of capteurs */
-	int drv = 1;
-	int fd[9];
+	int drv[2];
+	int fd[32];
 
-	/* init, start drivers and add all the capteurs */
+	/* init, install drivers and add all the capteurs */
 	ios_init();
 	int driver_counter = 0;	
+	int capteur_counter = 0;
 	drivers_node = dtd_node->next;
-	for( 	driver_node = drivers_node->children->next;
+	for( 	driver_node = children_XML_ELEMENT_NODE(drivers_node);
 		driver_node != NULL;
 		driver_node = next_XML_ELEMENT_NODE(driver_node))
 	{
+		/* install a driverX/ */
 		printf("CORE/ driver - %s,%i\n",driver_node->name,driver_node->type);
 		xmlChar* drv_so_name = xmlGetProp(driver_node,(const xmlChar*)"so");
-		drv = ios_install_driver( (char*)drv_so_name, "127.0.0.1", 8080 );
+		drv[driver_counter] = ios_install_driver( (char*)drv_so_name, "127.0.0.1", 8080 );
 		xmlFree(drv_so_name);
-		if( drv < 0 )
+		if( drv[driver_counter] < 0 )
 		{	
 			ios_release();
-			return drv;
+			return drv[driver_counter];
 		}
-		int capteur_counter = 0;
-		for( 	capteur_node = driver_node->children->next;
+		for( 	capteur_node = children_XML_ELEMENT_NODE(driver_node);
 			capteur_node != NULL;
 			capteur_node = next_XML_ELEMENT_NODE(capteur_node))
 		{
+			/* install a driverX/capteurY/ */
 			printf("CORE/\tcapteur - %s,%i\n",capteur_node->name,capteur_node->type);
 			xmlChar* id = xmlGetProp(drivers_node,(const xmlChar*)"id");
-			fd[capteur_counter] = ios_add_device( drv,(int) id );
+			fd[capteur_counter] = ios_add_device( drv[driver_counter],(int) id );
+			xmlFree(id);
 			capteur_counter++;
 		}
 		driver_counter++;
