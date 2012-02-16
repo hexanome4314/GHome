@@ -37,7 +37,8 @@ int getConditionTypeIndex(char *type)
 }
 
 int getDeviceIndex(char *device) {
-    return 0;
+	return get_fd_by_name(device);
+//    return 0;
 }
 
 char * getDeviceName(int device)

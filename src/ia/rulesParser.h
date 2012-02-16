@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "XMLParser.h"
+#include "demon.h"
 #include "engine.h"
 #include "engine-types.h"
 

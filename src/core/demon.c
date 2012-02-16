@@ -8,7 +8,7 @@
 
 #include "XMLParser.h"
 #include "ios_api.h"
-#include "engine.h"
+//#include "engine.h"
 #include "demon.h"
 
 int drv[MAX_NUMBER_OF_DRIVERS];
@@ -63,6 +63,21 @@ int get_fd(int id){
 		return -1;
 }
 
+/**
+ * Donne le file descriptor d'un capteur installé à partir de son nom
+ * \param name le nom du capteur
+ * \return le fd ou -1 si le capteur n'est pas installé
+ */
+int get_fd_by_name(char* name){
+	int i = 0;
+	for(i=0; i<MAX_NUMBER_OF_SENSORS; i++)
+	{
+		if(strcmp(sensor[i].name, name) != 0)
+			return sensor[i].fd;
+	}
+	return -1;
+}
+
 int init_demon(){
 
 	xmlDocPtr capteurs_doc;
@@ -103,6 +118,8 @@ int init_demon(){
 				printf("\tname = %s\n", sensor[capteur_counter].name);
 				xmlChar* id = xmlGetProp(drivers_node,(const xmlChar*)"id");
 				sensor[capteur_counter].fd = ios_add_device( drv[driver_counter],(int)id);
+				printf("id : %d\n", (int)id);
+				printf("added on fd :%d\n", sensor[capteur_counter]);
 				sensor[capteur_counter].id = (int)id;
 				xmlFree(id);
 			}
@@ -112,15 +129,13 @@ int init_demon(){
 		driver_counter++;
 	}
 	xmlFreeDoc(capteurs_doc);
-	return 0;
-}
 
-int main(){
-	init_demon();
-	for(;;){
-		sleep(5);
-		puts("alive");
+	int i=0;
+	for(i=0; i<MAX_NUMBER_OF_SENSORS; i++)
+	{
+		printf("fd: %d, name: %s\n", sensor[i].fd, sensor[i].name);
 	}
+	return 0;
 }
 
 void json_writer_loop(){
