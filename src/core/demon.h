@@ -9,6 +9,7 @@ int get_fd(int id_capteur);
 typedef struct{
 int fd;
 int id;
+unsigned char* name;
 } infos_sensor;
 
 #endif

@@ -97,10 +97,16 @@ int init_demon(){
 			capteur_node = next_XML_ELEMENT_NODE(capteur_node))
 		{
 			/* install a driverX/capteurY/ */
-			xmlChar* id = xmlGetProp(drivers_node,(const xmlChar*)"id");
-			sensor[capteur_counter].fd = ios_add_device( drv[driver_counter],(int)id);
-			sensor[capteur_counter].id = (int)id;
-			xmlFree(id);
+			xmlChar* etat = xmlGetProp(capteur_node,(const xmlChar*)"etat");
+			if(etat[0] == 'O' && etat[1] == 'N'){
+				sensor[capteur_counter].name = xmlNodeGetContent(capteur_node);
+				printf("\tname = %s\n", sensor[capteur_counter].name);
+				xmlChar* id = xmlGetProp(drivers_node,(const xmlChar*)"id");
+				sensor[capteur_counter].fd = ios_add_device( drv[driver_counter],(int)id);
+				sensor[capteur_counter].id = (int)id;
+				xmlFree(id);
+			}
+			xmlFree(etat);
 			capteur_counter++;
 		}
 		driver_counter++;
@@ -117,3 +123,6 @@ int main(){
 	}
 }
 
+void json_writer_loop(){
+
+}
