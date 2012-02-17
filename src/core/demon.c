@@ -48,7 +48,7 @@ void process_data(int device, unsigned int field, float val)
 
 	/* écrire dans raw_data.json les valeurs */
 	/* avec reconstruction totale du fichier */
-		int i = 0;
+	int i = 0;
 	int j = 0;
 	FILE * raw_data = fopen("raw_data.json", "w");
 	char * entete = (char*)malloc(65535);
