@@ -47,6 +47,58 @@ void process_data(int device, unsigned int field, float val)
 	/* appeler l'ia pour effectuer les actions necessaires */
 
 	/* écrire dans raw_data.json les valeurs */
+	
+	/* avec reconstruction totale du fichier */
+	int i = 0;
+	FILE * raw_data = fopen("raw_data.json", "w");
+	char * entete = "{\n\"raw_data\": {\n\0";
+	
+	/* Entete du fichier */
+	while (entete[i] != '\0')
+	{
+		putc(entete[i], raw_data);
+	}
+
+	/* Info des capteurs installes. */
+	for (i = 0; i < MAX_NUMBER_OF_SENSORS; i++)
+	{
+		char * capt = 0;
+		float * but1 = 0; 
+		float * but2 = 0; 
+		float * but3 = 0;
+		float * but4 = 0;
+		float * but5 = 0;
+		float * but6 = 0;
+		float * but7 = 0;
+		float * but8 = 0;
+		float * temp = 0;
+		float * humi = 0;
+		float * lumi = 0;
+		float * volt = 0;
+		ios_read(sensor[i].fd, DRV_FIELD_BUTTON1, but1);
+		ios_read(sensor[i].fd, DRV_FIELD_BUTTON2, but2);
+		ios_read(sensor[i].fd, DRV_FIELD_BUTTON3, but3);
+		ios_read(sensor[i].fd, DRV_FIELD_BUTTON4, but4);
+		ios_read(sensor[i].fd, DRV_FIELD_BUTTON5, but5);
+		ios_read(sensor[i].fd, DRV_FIELD_BUTTON6, but6);
+		ios_read(sensor[i].fd, DRV_FIELD_BUTTON7, but7);
+		ios_read(sensor[i].fd, DRV_FIELD_BUTTON8, but8);
+		ios_read(sensor[i].fd, DRV_FIELD_TEMPERATURE, temp);
+		ios_read(sensor[i].fd, DRV_FIELD_HUMIDITY, humi);
+		ios_read(sensor[i].fd, DRV_FIELD_LIGHTING, lumi);
+		ios_read(sensor[i].fd, DRV_FIELD_VOLTAGE, volt);
+		sprintf(capt, "%i{\n\"Bouton1\" : \"%f\";\n} \0", sensor[i].id, but1);
+	
+		/* Ecriture des donnees dans le fichier */
+		while (capt[i] != '\0')
+		{
+			putc(capt[i], raw_data);
+		}
+	}
+
+	/* Fin du fichier. */
+	putc('}',raw_data);
+	putc('\n',raw_data);
 }
 /**
  * Donne le file descriptor d'un capteur installé à partir de son id
