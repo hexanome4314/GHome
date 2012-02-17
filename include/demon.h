@@ -6,6 +6,7 @@
 
 int get_fd(int id_capteur);
 int get_fd_by_name(char* name);
+int init_demon();
 
 typedef struct{
 int fd;

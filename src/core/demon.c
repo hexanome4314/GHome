@@ -62,7 +62,7 @@ void process_data(int device, unsigned int field, float val)
 	/* Info des capteurs installes. */
 	for (i = 0; i < MAX_NUMBER_OF_SENSORS; i++)
 	{
-		char * capt = 0;
+	/*	char * capt = 0;
 		float * but1 = 0; 
 		float * but2 = 0; 
 		float * but3 = 0;
@@ -88,12 +88,12 @@ void process_data(int device, unsigned int field, float val)
 		ios_read(sensor[i].fd, DRV_FIELD_LIGHTING, lumi);
 		ios_read(sensor[i].fd, DRV_FIELD_VOLTAGE, volt);
 		sprintf(capt, "%i{\n\"Bouton1\" : \"%f\";\n} \0", sensor[i].id, but1);
-	
+	*/
 		/* Ecriture des donnees dans le fichier */
-		while (capt[i] != '\0')
-		{
-			putc(capt[i], raw_data);
-		}
+	//	while (capt[i] != '\0')
+	//	{
+	//		putc(capt[i], raw_data);
+	//	}
 	}
 
 	/* Fin du fichier. */
@@ -124,7 +124,7 @@ int get_fd_by_name(char* name){
 	int i = 0;
 	for(i=0; i<MAX_NUMBER_OF_SENSORS; i++)
 	{
-		if(strcmp(sensor[i].name, name) != 0)
+		if(strcmp((char *)sensor[i].name, name) != 0)
 			return sensor[i].fd;
 	}
 	return -1;
@@ -167,11 +167,12 @@ int init_demon(){
 			xmlChar* etat = xmlGetProp(capteur_node,(const xmlChar*)"etat");
 			if(etat[0] == 'O' && etat[1] == 'N'){
 				sensor[capteur_counter].name = xmlNodeGetContent(capteur_node);
-				printf("\tname = %s\n", sensor[capteur_counter].name);
-				xmlChar* id = xmlGetProp(drivers_node,(const xmlChar*)"id");
+				printf("\tname = %s\n", (char*)sensor[capteur_counter].name);
+				xmlChar* id = xmlGetProp(capteur_node,(const xmlChar*)"id");
+				int id_int = 0;
+				id_int = atoi((const char*)id);
 				sensor[capteur_counter].fd = ios_add_device( drv[driver_counter],(int)id);
-				printf("id : %d\n", (int)id);
-				printf("added on fd :%d\n", sensor[capteur_counter]);
+				//printf("added on fd :%d\n", sensor[capteur_counter]);
 				sensor[capteur_counter].id = (int)id;
 				xmlFree(id);
 			}
