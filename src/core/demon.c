@@ -94,7 +94,7 @@ void process_data(int device, unsigned int field, float val)
 			ios_read(sensor[i].fd, DRV_FIELD_HUMIDITY, &humi);
 			ios_read(sensor[i].fd, DRV_FIELD_LIGHTING, &lumi);
 			ios_read(sensor[i].fd, DRV_FIELD_VOLTAGE, &volt);
-			sprintf(capt,"{\n\"name\": \"%s\",\n\"Temperature\": \"%i\",\n\"Humidite\": \"%i\",\n\"Luminosite\": \"%i\",\n\"Voltage\": \"%i\"\n", sensor[i].name, (int)temp, (int)humi, (int)lumi, (int)volt);
+			sprintf(capt,"{\n\"name\": \"%s\",\n\"temperature\": \"%i\",\n\"humidity\": \"%i\",\n\"brightness\": \"%i\",\n\"voltage\": \"%i\"\n", sensor[i].name, (int)temp, (int)humi, (int)lumi, (int)volt);
 
 			/* Ecriture des donnees dans le fichier */
 			nbCapteur++;
