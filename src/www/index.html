@@ -12,17 +12,61 @@
 		function update_fields() {
 			/* On raffraichit les données */
 			$.ajax( {
+				type: "GET",
 				dataType: "json",
 				url: "data/raw_data.json",
 				success: function( data ) {
-					$("#val_temp").html( data.raw_data.temperature );
-					$("#val_humi").html( data.raw_data.humidity );
-					$("#val_light").html( data.raw_data.lightness );
+
+					// Pour chaque élément du tableau, on va ajouter une nouvelle entrée
+					html_stuff = "";
+					for( var i = 0; i < data.raw_data.length; i++ )	{
+
+						html_stuff += '<span class="sensor_name">' + data.raw_data[i].name + '</span>';
+						html_stuff += '<div class="table">';
+
+						if( 'temperature' in data.raw_data[i] ) {
+							html_stuff += '<div class="row">';
+							html_stuff += '<img src="img/temp.jpg"/>';
+							html_stuff += '<span class="val">Temp&eacute;rature : ';
+							html_stuff += '<i>' + data.raw_data[i].temperature + '</i>&deg;C</span>';
+							html_stuff += '</div>';
+						}
+						if( 'humidity' in data.raw_data[i] ) {
+							html_stuff += '<div class="row">';
+							html_stuff += '<img src="img/humidity.gif">';
+							html_stuff += '<span class="val">Humidit&eacute; : ';
+							html_stuff += '<i>' + data.raw_data[i].humidity + '</i>%</span>';
+							html_stuff += '</div>';
+						}
+						if( 'brightness' in data.raw_data[i] ) {
+							html_stuff += '<div class="row">';
+							html_stuff += '<img src="img/light.jpg">';
+							html_stuff += '<span class="val">Luminosit&eacute; : ';
+							html_stuff += '<i>' + data.raw_data[i].brightness + '</i>%</span>';
+							html_stuff += '</div>';
+						}
+						if( 'voltage' in data.raw_data[i] ) {
+							html_stuff += '<div class="row">';
+							html_stuff += '<img src="img/voltage.jpg">';
+							html_stuff += '<span class="val">Tension : ';
+							html_stuff += '<i>' + data.raw_data[i].voltage + '</i>V</span>';
+							html_stuff += '</div>';
+						}
+
+						html_stuff += '</div>';
+					}
+
+					$("#sensor_data").html( html_stuff );
+					
+					$("#notifier_box").html( "<img src=\"img/refresh.png\"> <span>Donn&eacute;es actualis&eacute;es.</span>" );
+					$("#notifier_box").slideDown().delay(2000).slideUp();
+				},
+				error: function( ) {
+					
+					$("#notifier_box").html( "<img src=\"img/error.png\"> <span>Erreur lors de l'actualisation des donn&eacute;es.</span>" );
+					$("#notifier_box").slideDown().delay(2000).slideUp();
 				}
 			} );
-
-			$("#notifier_box").html( "<img src=\"img/refresh.png\"> <span>Donn&eacute;es actualis&eacute;es.</span>" );
-			$("#notifier_box").slideDown().delay(2000).slideUp();
 		}
 
 		$(document).ready(
@@ -76,13 +120,13 @@
 		);
 	</script>
 
-	<div id="notifier_box">
-		<span>&nbsp;</span>
-	</div>
-
 	<div id="tabbed_box" class="tabbed_box">
 
 	<h4>GHome Project</h4>
+
+	<div id="notifier_box">
+		<span>&nbsp;</span>
+	</div>
 
 	<div class="tabbed_area">
 		<ul class="tabs">
@@ -93,27 +137,11 @@
 
 		<div id="content_1" class="content">
 			<h3>G&eacute;n&eacute;ral</h3>
-			<div class="table">
-				<div class="row">
-					<img src="img/temp.jpg"/>
-					<span>Temp&eacute;rature : </span>
-					<span class="val"><i id="val_temp">##</i>&deg;C</span>
-				</div>
-			
 
-				<div class="row">
-				<img src="img/humidity.gif" />
-					<span>Humidit&eacute; : </span>
-					<span class="val"><i id="val_humi">##</i>%</span>
-				</div>
-
-				<div class="row">
-				<img src="img/light.jpg" />
-					<span>Luminosit&eacute; : </span>
-					<span class="val"><i id="val_light">##</i>%</span>
-				</div>
+			<div id="sensor_data">
+			&nbsp;
 			</div>
-		</div>
+		</div> 
 
 		<div id="content_2" class="content">
 
@@ -140,7 +168,12 @@
 		</div>
 
 		<div id="content_3" class="content">
-			<p>Getting some help</p>
+			<h3>Aide</h3>
+
+			<span>FAQ :</span>
+			<ul>
+				<li>Comment ajouter un nouveau driver?</li>
+			</ul>
 		</div>
 	</div>
 

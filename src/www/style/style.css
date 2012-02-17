@@ -9,17 +9,21 @@ img {
 
 #notifier_box {
 	background-color: #FFFFFF;
-	padding: 10px 50px 10px 50px;
 	border: 1px solid #464C54; 
-	margin: -10px auto 0px auto;
+	padding-top: 5px 10px 5px 10px ;
+	margin: -20px auto 20px auto;
 	text-align: center;
 
 	display: none;
 }
 
 #notifier_box img {
-	width: 32px;
-	height: 32px;
+	width: 24px;
+	height: 24px;
+}
+
+#notifier_box span {
+	font-size: 14px;
 }
 
 #tabbed_box {
@@ -80,8 +84,9 @@ ul.tabs li a.active {
 }
 
 .under_tabbed_area {
-        background-color: #FFFFFF;
+        background-color: #FFFF00;
         padding: 8px;
+	border: 1px solid #494E52;
 }
 
 ul.under_tabs {
@@ -141,35 +146,43 @@ ul.under_tabs li a.active {
 	margin-bottom: 40px;
 }
 
-.content .table {
+#sensor_data .table {
 	
 	display: table;
-	width: 100%;
+	width: 75%;
 	border-collapse: collapse;
 	text-align: left;
 
-	margin: 0px;
+	margin: auto;
+	margin-bottom: 20px;
 }
 
-.content .row {
+#sensor_data .row {
 	display: table-row;
+	border-bottom: 1px solid #DDDDDD;
 }
 
-.content img {
+#sensor_data img {
 	display: table-cell;
 }
 
-.content .table span {
+#sensor_data .table span {
 
 	display: table-cell;
 	border-bottom: 1px solid #DDDDDD;
 }
 
-.content .val {
+#sensor_data .val {
 	
 	width: 450px;
 	text-align: right;
 	border-bottom: 1px solid #DDDDDD;
+}
+
+#sensor_data .sensor_name {
+	font-family: "Courier New", Arial, Helvetica, sans-serif;
+	font-style: oblique;
+	letter-spacing: -3px;
 }
 
 #content_2, #content_3 {
@@ -188,9 +201,13 @@ ul.under_tabs li a.active {
 
 .under_content {
 	background-color: #FFFFFF;
-	padding: 20px 50px 40px 50px;
+	padding: 20px 50px 20px 50px;
 	border: 1px solid #464C54; 
-	margin-top: 7px;
+	/* margin-top: 7px; */
+}
+
+#rules, #remote {
+	display: none;
 }
 
 #foot_box {
