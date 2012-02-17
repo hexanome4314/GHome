@@ -21,8 +21,8 @@ LIB_OBJECTS=ios_api.o ios_data_mgr.o drv_verbose.o drv_manager.o drv_loader.o ma
 LIB_OUT=../../../lib/libios.a
 
 all: $(OBJECTS)
-	$(MAKE) $(BIN_OUT)
 	$(MAKE) $(LIB_OUT)
+	$(MAKE) $(BIN_OUT)
 
 $(BIN_OUT): $(BIN_OBJECTS)
 	$(LINKER) -o $(BIN_OUT) $^ $(L_FLAGS) $(LIB_DIR) $(LIB)

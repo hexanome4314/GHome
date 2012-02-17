@@ -12,7 +12,7 @@ AR_FLAGS=r
 
 MAKE=make
 
-LIB=`xml2-config --libs` -lios -ldl -lpthread -lutils
+LIB=`xml2-config --libs` -lios -ldl -lpthread -lutils -lcore
 
 BIN_OBJ= engine.o rulesParser.o engine-test.o
 BIN_OUT= engine-test

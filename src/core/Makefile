@@ -12,9 +12,9 @@ AR_FLAGS=r
 
 MAKE=make
 
-LIB=`xml2-config --libs` -lios -lia -lutils -ldl -lpthread
+LIB=`xml2-config --libs` -lios -lutils -ldl -lpthread
 
-BIN_OBJ= demon.o
+BIN_OBJ= demon.o core-test.o
 BIN_OUT= core-test
 
 LIB_OBJ= demon.o
