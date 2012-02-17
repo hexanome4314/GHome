@@ -37,7 +37,7 @@ int help_handler( int fd, const char* command )
 		current = current->_next;
 	}
 
-	return RCTRL_OK;
+	return RCTRL_COMMAND_OK;
 }
 
 
