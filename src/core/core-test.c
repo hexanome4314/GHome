@@ -1,3 +1,5 @@
+#include <time.h>
+#include <stdio.h>
 #include "demon.h"
 
 int main(){

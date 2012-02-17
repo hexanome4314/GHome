@@ -47,58 +47,81 @@ void process_data(int device, unsigned int field, float val)
 	/* appeler l'ia pour effectuer les actions necessaires */
 
 	/* écrire dans raw_data.json les valeurs */
-	
 	/* avec reconstruction totale du fichier */
 	int i = 0;
+	int j = 0;
 	FILE * raw_data = fopen("raw_data.json", "w");
-	char * entete = "{\n\"raw_data\": {\n\0";
+	char * entete = (char*)malloc(65535);
+	entete = "{\n\"raw_data\": {\n\0";
 	
-	/* Entete du fichier */
-	while (entete[i] != '\0')
-	{
-		putc(entete[i], raw_data);
-	}
+	/* Fait planter */
+	//free(entete);
 
+	/* Entete du fichier */
+	j = 0;
+	while (entete[j] != '\0')
+	{
+		putc(entete[j], raw_data);
+		printf("Ecriture entete en cours : char %c !!!!\n", entete[j]);
+		j++;	
+	}
+	printf("Entete ecrit !!!!\n");
 	/* Info des capteurs installes. */
 	for (i = 0; i < MAX_NUMBER_OF_SENSORS; i++)
 	{
-		char * capt = 0;
-		float * but1 = 0; 
-		float * but2 = 0; 
-		float * but3 = 0;
-		float * but4 = 0;
-		float * but5 = 0;
-		float * but6 = 0;
-		float * but7 = 0;
-		float * but8 = 0;
-		float * temp = 0;
-		float * humi = 0;
-		float * lumi = 0;
-		float * volt = 0;
-		ios_read(sensor[i].fd, DRV_FIELD_BUTTON1, but1);
-		ios_read(sensor[i].fd, DRV_FIELD_BUTTON2, but2);
-		ios_read(sensor[i].fd, DRV_FIELD_BUTTON3, but3);
-		ios_read(sensor[i].fd, DRV_FIELD_BUTTON4, but4);
-		ios_read(sensor[i].fd, DRV_FIELD_BUTTON5, but5);
-		ios_read(sensor[i].fd, DRV_FIELD_BUTTON6, but6);
-		ios_read(sensor[i].fd, DRV_FIELD_BUTTON7, but7);
-		ios_read(sensor[i].fd, DRV_FIELD_BUTTON8, but8);
-		ios_read(sensor[i].fd, DRV_FIELD_TEMPERATURE, temp);
-		ios_read(sensor[i].fd, DRV_FIELD_HUMIDITY, humi);
-		ios_read(sensor[i].fd, DRV_FIELD_LIGHTING, lumi);
-		ios_read(sensor[i].fd, DRV_FIELD_VOLTAGE, volt);
-		sprintf(capt, "%i{\n\"Bouton1\" : \"%f\";\n} \0", sensor[i].id, but1);
-	
-		/* Ecriture des donnees dans le fichier */
-		while (capt[i] != '\0')
+		printf("Capteur trouve !!!!\n");
+
+		if (sensor[i].name != 0)
 		{
-			putc(capt[i], raw_data);
+			printf("Capteur trouve !!!!\n");
+			char * capt = (char*)malloc(65535);
+			float but1 = 0; 
+			float but2 = 0; 
+			float but3 = 0;
+			float but4 = 0;
+			float but5 = 0;
+			float but6 = 0;
+			float but7 = 0;
+			float but8 = 0;
+			float temp = 0;
+			float humi = 0;
+			float lumi = 0;
+			float volt = 0;
+			ios_read(sensor[i].fd, DRV_FIELD_BUTTON1, &but1);
+			ios_read(sensor[i].fd, DRV_FIELD_BUTTON2, &but2);
+			ios_read(sensor[i].fd, DRV_FIELD_BUTTON3, &but3);
+			ios_read(sensor[i].fd, DRV_FIELD_BUTTON4, &but4);
+			ios_read(sensor[i].fd, DRV_FIELD_BUTTON5, &but5);
+			ios_read(sensor[i].fd, DRV_FIELD_BUTTON6, &but6);
+			ios_read(sensor[i].fd, DRV_FIELD_BUTTON7, &but7);
+			ios_read(sensor[i].fd, DRV_FIELD_BUTTON8, &but8);
+			ios_read(sensor[i].fd, DRV_FIELD_TEMPERATURE, &temp);
+			ios_read(sensor[i].fd, DRV_FIELD_HUMIDITY, &humi);
+			ios_read(sensor[i].fd, DRV_FIELD_LIGHTING, &lumi);
+			ios_read(sensor[i].fd, DRV_FIELD_VOLTAGE, &volt);
+			sprintf(capt,"\"%s\":{\n\"Bouton1\":\"%i\";\n\"Bouton2\":\"%i\";\n\"Bouton3\":\"%i\";\n\"Bouton4\":\"%i\";\n\"Bouton5\":\"%i\";\n\"Bouton6\":\"%i\";\n\"Bouton7\":\"%i\";\n\"Bouton8\":\"%i\";\n\"Temperature\":\"%i\";\n\"Humidite\":\"%i\";\n\"Luminosite\":\"%i\";\n\"Voltage\":\"%i\";\n}", sensor[i].name, (int)but1, (int)but2, (int)but3, (int)but4, (int)but5, (int)but6, (int)but7, (int)but8,(int)temp, (int)humi, (int)lumi, (int)volt);
+			/* Ecriture des donnees dans le fichier */
+			j = 0;
+			while (capt[j] != '\0')
+			{
+				putc(capt[j], raw_data);
+				j++;
+				printf("Ecriture des infos en cours !!!!\n");
+			}
+			printf("Infos capteurs ecrites !!!!\n");
+
+			/* Fait planter */
+			//free(capt);
 		}
 	}
 
 	/* Fin du fichier. */
 	putc('}',raw_data);
 	putc('\n',raw_data);
+
+	fclose(raw_data);
+	printf("Fermeture du fichier !!!!\n");
+
 }
 /**
  * Donne le file descriptor d'un capteur installé à partir de son id
@@ -124,7 +147,7 @@ int get_fd_by_name(char* name){
 	int i = 0;
 	for(i=0; i<MAX_NUMBER_OF_SENSORS; i++)
 	{
-		if(strcmp(sensor[i].name, name) != 0)
+		if(strcmp((char *)sensor[i].name, name) != 0)
 			return sensor[i].fd;
 	}
 	return -1;
@@ -167,11 +190,12 @@ int init_demon(){
 			xmlChar* etat = xmlGetProp(capteur_node,(const xmlChar*)"etat");
 			if(etat[0] == 'O' && etat[1] == 'N'){
 				sensor[capteur_counter].name = xmlNodeGetContent(capteur_node);
-				printf("\tname = %s\n", sensor[capteur_counter].name);
-				xmlChar* id = xmlGetProp(drivers_node,(const xmlChar*)"id");
+				printf("\tname = %s\n", (char*)sensor[capteur_counter].name);
+				xmlChar* id = xmlGetProp(capteur_node,(const xmlChar*)"id");
+				int id_int = 0;
+				id_int = atoi((const char*)id);
 				sensor[capteur_counter].fd = ios_add_device( drv[driver_counter],(int)id);
-				printf("id : %d\n", (int)id);
-				printf("added on fd :%d\n", sensor[capteur_counter]);
+				//printf("added on fd :%d\n", sensor[capteur_counter]);
 				sensor[capteur_counter].id = (int)id;
 				xmlFree(id);
 			}
