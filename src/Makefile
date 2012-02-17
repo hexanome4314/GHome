@@ -1,6 +1,6 @@
 MAKE=make
 
-SUBDIRS=system/ drivers/ utils/ core/ ia/ remote-control/
+SUBDIRS=system/ drivers/ ia/ core/ remote-control/
 
 all: 
 	for i in $(SUBDIRS); do (cd $$i; $(MAKE) all); done	

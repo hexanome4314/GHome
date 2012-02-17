@@ -12,7 +12,7 @@ L_FLAGS=-shared -Wall -m32
 LIB=-lpthread
 
 OBJ= drv_api.o utils.o listen.o 
-OUTPUT=libsunspot.so #EXE= ../sunspot_driver #Nom du binaire à construire
+OUTPUT=../../../drivers/libsunspot.so #EXE= ../sunspot_driver #Nom du binaire à construire
 
 all:
 	$(MAKE) $(OUTPUT)

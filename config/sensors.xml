@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE drivers SYSTEM "drivers.dtd">
+
+<drivers>
+  <driver so="mon_driver.so.1.0.1">
+    <capteur id="00000003" type="TEMPERATURE" etat="ON">temp_chambre</capteur>
+    <capteur id="00000004" type="ACTUATOR" etat="ON">chauffage</capteur>
+  </driver>
+<!--  <driver so="libenocean.so">
+    <capteur id="012A45F7" type="TEMPERATURE" etat="ON">temp_salon</capteur>
+  </driver>-->
+</drivers>

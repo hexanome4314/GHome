@@ -6,14 +6,12 @@
 #include <libxml/parser.h>
 #include <time.h>
 
-#include "XMLParser.h"
 #include "ios_api.h"
-//#include "engine.h"
-#include "demon.h"
+#include "engine.h"
+#include "core.h"
 
-int drv[MAX_NUMBER_OF_DRIVERS];
-infos_sensor sensor[MAX_NUMBER_OF_SENSORS];
-
+static int drv[MAX_NUMBER_OF_DRIVERS];
+static infos_sensor sensor[MAX_NUMBER_OF_SENSORS];
 
 /* Those blabla_XML_ELEMENT_NODE allow to write readable xml files
  * by removing the fake TEXT_ELEMENT_NODE created by \n and \t */
@@ -44,8 +42,9 @@ xmlNodePtr next_XML_ELEMENT_NODE(xmlNodePtr node){
 
 void process_data(int device, unsigned int field, float val)
 {
+	printf("Got some data from %d on field %d : %f\n", device, field, val);
 	/* appeler l'ia pour effectuer les actions necessaires */
-
+	apply_actions(device, field, val);
 	/* écrire dans raw_data.json les valeurs */
 	/* avec reconstruction totale du fichier */
 	int i = 0;
@@ -132,47 +131,25 @@ void process_data(int device, unsigned int field, float val)
 	putc('}',raw_data);
 
 	fclose(raw_data);
-	printf("Fermeture du fichier (fichier ecrit ;) ) !!!!\n");
-
-}
-/**
- * Donne le file descriptor d'un capteur installé à partir de son id
- * Si le capteur n'est pas installé retourne -1
-*/
-int get_fd(int id){
-	int loop_counter = 0;
-	while(id != MAX_NUMBER_OF_SENSORS && sensor[loop_counter].id != id){
-		loop_counter++;
-	}
-	if(sensor[loop_counter].id == id)
-		return sensor[loop_counter].fd;
-	else
-		return -1;
 }
 
-/**
- * Donne le file descriptor d'un capteur installé à partir de son nom
- * \param name le nom du capteur
- * \return le fd ou -1 si le capteur n'est pas installé
- */
-int get_fd_by_name(char* name){
-	int i = 0;
+void print_sensors(){
+	int i;
+	printf("Configured sensors : \n");
 	for(i=0; i<MAX_NUMBER_OF_SENSORS; i++)
-	{
-		if(strcmp((char *)sensor[i].name, name) != 0)
-			return sensor[i].fd;
-	}
-	return -1;
+		if(sensor[i].name)
+			printf("Sensor : %s\n -FD : %d\n -ID : %.8X\n",
+			       sensor[i].name, sensor[i].fd, sensor[i].id);
 }
 
-int init_demon(){
+int main(){
 
 	xmlDocPtr capteurs_doc;
 	xmlNodePtr drivers_node;
 	xmlNodePtr driver_node;
 	xmlNodePtr capteur_node;
 	
-	capteurs_doc = xmlParseFile("drivers.xml");
+	capteurs_doc = xmlParseFile("config/sensors.xml");
 	perror("xmlParseFile");
 	/* the first xml element node of the file */
 	drivers_node = next_XML_ELEMENT_NODE(capteurs_doc->children);
@@ -204,10 +181,10 @@ int init_demon(){
 				sensor[capteur_counter].name = xmlNodeGetContent(capteur_node);
 				printf("\tname = %s\n", (char*)sensor[capteur_counter].name);
 				xmlChar* id = xmlGetProp(capteur_node,(const xmlChar*)"id");
-				int id_int = 0;
-				id_int = atoi((const char*)id);
-				sensor[capteur_counter].fd = ios_add_device( drv[driver_counter],(int)id);
-				sensor[capteur_counter].id = (int)id;
+				int id_int;
+				sscanf(id, "%X", &id_int);
+				sensor[capteur_counter].fd = ios_add_device( drv[driver_counter],id_int);
+				sensor[capteur_counter].id = id_int;
 				xmlFree(id);
 			}
 			xmlFree(etat);
@@ -216,13 +193,10 @@ int init_demon(){
 		driver_counter++;
 	}
 	xmlFreeDoc(capteurs_doc);
-
-	int i=0;
-	for(i=0; i<MAX_NUMBER_OF_SENSORS; i++)
-	{
-		printf("fd: %d, name: %s\n", sensor[i].fd, sensor[i].name);
-	}
-	return 0;
+	print_sensors();
+	init_engine("config/rules.xml", sensor);
+	ios_attach_global_handler(process_data);
+	sleep(5);
 }
 
 void json_writer_loop(){

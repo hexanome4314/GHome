@@ -138,13 +138,29 @@ void apply_actions(int device, unsigned int field, float val)
 /**
  * Lancer la gestion des règles à partir d'un fichier de règles
  * \param file Le fichier de règle
+ * \param sensor structure permettant de faire le lien entre nom et fd
  * \return 0 si tout va bien, négatif sinon
  */
-int launch_engine(const char *file)
+int launch_engine(const char *file, infos_sensor *sensor)
 {
-	rules = get_rules(file);
-	strcpy(file, rulefile);
+	rules = get_rules(file, sensor);
+	strcpy(rulefile, file);
 	ios_attach_global_handler(apply_actions);
+	return 0;
+}
+
+/**
+ * Initialise la gestion des règles à partir d'un fichier de règles
+ * Suite à l'appel de l'initialisation, les valeurs des capteurs
+ * peuvent être prisent en compte en appelant apply_actions
+ * \param file Le fichier de règles
+ * \param sensor structure permettant de faire le lien entre nom et fd
+ * \return 0 si tout va bien, négatif sinon
+ */
+int init_engine(const char *file, infos_sensor *sensor)
+{
+	rules = get_rules(file, sensor);
+	strcpy(rulefile, file);
 	return 0;
 }
 
@@ -152,11 +168,11 @@ int launch_engine(const char *file)
  * Relit les règles à partir du fichier xml
  * \return 0 si tout va bien, négatif sinon
  */
-int reload_rules()
+int reload_rules(infos_sensor *sensor)
 {
 	ios_detach_global_handler();
 	free_rules(rules);
-	rules = get_rules(rulefile);
+	rules = get_rules(rulefile, sensor);
 	ios_attach_global_handler(apply_actions);
 	return 0;
 }

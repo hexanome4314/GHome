@@ -14,8 +14,8 @@
 
 #define MAX_SENSOR 32
 #define SEED	   5
-#define MIN_PULSE_INTERVAL 500
-#define MAX_PULSE_INTERVAL 2000
+#define MIN_PULSE_INTERVAL 5000
+#define MAX_PULSE_INTERVAL 20000
 
 static int the_msgq;
 static pthread_t the_thread;
@@ -41,7 +41,6 @@ int add_sensor( unsigned int id )
 		}
 	}
 	pthread_mutex_unlock( &the_mutex );
-
 	if( i == MAX_SENSOR )
 		return 1;
 
@@ -92,7 +91,6 @@ void* callback( void* ptr )
 	must_continue = 1;
 	buffer = 1;
 	pthread_mutex_unlock( &the_mutex );
-
 	while( buffer == 1 )
 	{
 		int index;
@@ -102,7 +100,6 @@ void* callback( void* ptr )
 
 		/* On verifie que l'id est bien dans la liste des capteurs surveillés */
 		index = sensor_exists( id );
-
 		if( index >= 0 && index < MAX_SENSOR )
 		{
 			int res;
@@ -110,9 +107,9 @@ void* callback( void* ptr )
 
 			buf.msg_type = DRV_MSG_TYPE;
 			buf.id_sensor = id;
-			buf.flag_value = (rand() % DRV_LAST_VALUE);
+			//buf.flag_value = (rand() % DRV_LAST_VALUE);
+			buf.flag_value = 8;
 			buf.value = (float) (rand()%1024);
-
 			res = msgsnd( the_msgq, (const void*) &buf, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
 		}
 

@@ -131,7 +131,6 @@ int main(){
  */
 int drv_init( const char* remote_addr, int remote_port )
 {
-
 	/* init the communication with the sensors base */
 	sock = connect_to(inet_addr(remote_addr), remote_port, 0);
 	if(sock == -1){
@@ -198,22 +197,7 @@ void drv_stop( void ){
 int drv_add_sensor( unsigned int id_sensor){
 	sensors_queue* new_sensor = malloc(sizeof(sensors_queue));
 	new_sensor->next = sensors;
-	int remainder = id_sensor;
-	new_sensor->sensor[0] = (char) (remainder % 10000000);
-	remainder = remainder - new_sensor->sensor[0]*10000000;
-	new_sensor->sensor[1] = (char) (remainder % 1000000);
-	remainder = remainder - new_sensor->sensor[1]*1000000;
-	new_sensor->sensor[2] = (char) (remainder % 10000);
-	remainder = remainder - new_sensor->sensor[2]*10000;
-	new_sensor->sensor[3] = (char) (remainder % 1000);
-	remainder = remainder - new_sensor->sensor[3]*1000;
-	new_sensor->sensor[4] = (char) (remainder % 100);
-	remainder = remainder - new_sensor->sensor[4]*100;
-	new_sensor->sensor[5] = (char) (remainder % 100);
-	remainder = remainder - new_sensor->sensor[5]*100;
-	new_sensor->sensor[6] = (char) (remainder % 10);
-	remainder = remainder - new_sensor->sensor[6]*10;
-	new_sensor->sensor[7] = (char) remainder;
+	sprintf(new_sensor->sensor, "%.8X", id_sensor);
 	printf("DEBUG drv_add_sensor %s\n",new_sensor->sensor);
 	sensors = new_sensor;
 	return 0;
@@ -377,3 +361,12 @@ int drv_send_data( unsigned int id_sensor, char commande )
 	return 0;
 }
 
+/**
+Retourne les informations concernant le driver (nom, version, ...)
+\param  buffer		Chaîne de caractère qui reçoit les données
+	max_length	Taille du buffer max
+*/
+void drv_get_info( char* buffer, int max_length )
+{
+    strcpy( buffer, "Driver enOcean, v1.456" );
+}

@@ -12,12 +12,12 @@ AR_FLAGS=r
 
 MAKE=make
 
-LIB=`xml2-config --libs` -lios -ldl -lpthread -lutils -lcore
+LIB=`xml2-config --libs` -lios -ldl -lpthread
 
-BIN_OBJ= engine.o rulesParser.o engine-test.o
+BIN_OBJ= engine.o rulesParser.o XMLParser.o engine-test.o
 BIN_OUT= engine-test
 
-LIB_OBJ= engine.o rulesParser.o
+LIB_OBJ= engine.o rulesParser.o XMLParser.o
 LIB_OUT=../../lib/libia.a
 
 all:

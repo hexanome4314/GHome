@@ -12,7 +12,7 @@ L_FLAGS=-shared
 LIB=-lpthread
 
 OBJECT=driver.o
-OUTPUT=mon_driver.so.1.0.1
+OUTPUT=../../../drivers/mon_driver.so.1.0.1
 
 all:
 	$(MAKE) $(OUTPUT)

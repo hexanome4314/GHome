@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE rules SYSTEM "rules.dtd">
+
+<rules>
+  <rule name="Allumage chauffage chambre">
+    <actions>
+      <activate device="chauffage" field="BUTTON_3">false</activate>
+      <alert recipient="web">Chauffage mis hors tension pour éviter le gaspillage d’énergie.</alert>
+    </actions>
+    <conditions>
+      <condition device="temp_chambre" field="TEMPERATURE" type="sup">500</condition>
+    </conditions>
+  </rule>
+<!--  <rule name="Eteignage chauffage chambre">
+    <actions>
+      <activate device="chauffage" field="BUTTON_3">true</activate>
+      <alert recipient="web">Chauffage reallumé</alert>
+    </actions>
+    <conditions>
+      <condition device="temp_chambre" field="TEMPERATURE" type="sup">400</condition>
+    </conditions>
+  </rule> -->
+</rules>

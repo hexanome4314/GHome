@@ -34,7 +34,10 @@ int drv_load( const char* filename, struct drv_func_ptr* func_ptr )
 
 	/* Petite vérification pour voir que tous les symboles sont bien chargés */
         if( ! (func_ptr->drv_init && func_ptr->drv_add_device && func_ptr->drv_remove_device && func_ptr->drv_run && func_ptr->drv_stop && func_ptr->drv_get_info && func_ptr->drv_send_data) )
+	{
+		fprintf( drv_output, "%s::%s -> Missings functions in %s\n", __FILE__, __FUNCTION__, true_filename );
 		return DRV_SYMBOL_NOT_FOUND;
+	}
 
 	return DRV_OK;
 }

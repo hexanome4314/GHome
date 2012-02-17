@@ -3,12 +3,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "XMLParser.h"
-#include "demon.h"
+#include "core.h"
 #include "engine.h"
 #include "engine-types.h"
 
 
-Rule * get_rules(const char *filename);
+Rule * get_rules(const char *filename, infos_sensor *sensor);
 
 void free_rules(Rule *rules);
 
