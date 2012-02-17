@@ -52,28 +52,23 @@ void process_data(int device, unsigned int field, float val)
 	int j = 0;
 	FILE * raw_data = fopen("raw_data.json", "w");
 	char * entete = (char*)malloc(65535);
-	entete = "{\n\"raw_data\": {\n\0";
-	
-	/* Fait planter */
-	//free(entete);
+	entete = "{\n    \"raw_data\": [\0";
 
 	/* Entete du fichier */
 	j = 0;
 	while (entete[j] != '\0')
 	{
 		putc(entete[j], raw_data);
-		printf("Ecriture entete en cours : char %c !!!!\n", entete[j]);
 		j++;	
 	}
-	printf("Entete ecrit !!!!\n");
+
 	/* Info des capteurs installes. */
+	int nbCapteur = 0; /* Pour gerer des elements d'ecriture du fichier. */
 	for (i = 0; i < MAX_NUMBER_OF_SENSORS; i++)
 	{
-		printf("Capteur trouve !!!!\n");
-
+		
 		if (sensor[i].name != 0)
 		{
-			printf("Capteur trouve !!!!\n");
 			char * capt = (char*)malloc(65535);
 			float but1 = 0; 
 			float but2 = 0; 
@@ -99,28 +94,45 @@ void process_data(int device, unsigned int field, float val)
 			ios_read(sensor[i].fd, DRV_FIELD_HUMIDITY, &humi);
 			ios_read(sensor[i].fd, DRV_FIELD_LIGHTING, &lumi);
 			ios_read(sensor[i].fd, DRV_FIELD_VOLTAGE, &volt);
-			sprintf(capt,"\"%s\":{\n\"Bouton1\":\"%i\";\n\"Bouton2\":\"%i\";\n\"Bouton3\":\"%i\";\n\"Bouton4\":\"%i\";\n\"Bouton5\":\"%i\";\n\"Bouton6\":\"%i\";\n\"Bouton7\":\"%i\";\n\"Bouton8\":\"%i\";\n\"Temperature\":\"%i\";\n\"Humidite\":\"%i\";\n\"Luminosite\":\"%i\";\n\"Voltage\":\"%i\";\n}", sensor[i].name, (int)but1, (int)but2, (int)but3, (int)but4, (int)but5, (int)but6, (int)but7, (int)but8,(int)temp, (int)humi, (int)lumi, (int)volt);
+			sprintf(capt,"{\n\"name\": \"%s\",\n\"temperature\": \"%i\",\n\"humidity\": \"%i\",\n\"brightness\": \"%i\",\n\"voltage\": \"%i\"\n", sensor[i].name, (int)temp, (int)humi, (int)lumi, (int)volt);
+
+			/* Ecriture des donnees dans le fichier */
+			nbCapteur++;
+			if (nbCapteur > 2)
+			{
+				putc('}', raw_data);
+				putc(',', raw_data);
+				putc('\n', raw_data);
+			}
+			else if (nbCapteur == 2)
+			{
+				putc(' ', raw_data);
+				putc(' ', raw_data);
+				putc(' ', raw_data);
+				putc(' ', raw_data);
+				putc('}', raw_data);
+				putc(',', raw_data);
+				putc('\n', raw_data);
+			}
+
 			/* Ecriture des donnees dans le fichier */
 			j = 0;
 			while (capt[j] != '\0')
 			{
 				putc(capt[j], raw_data);
 				j++;
-				printf("Ecriture des infos en cours !!!!\n");
 			}
-			printf("Infos capteurs ecrites !!!!\n");
-
-			/* Fait planter */
-			//free(capt);
 		}
 	}
 
 	/* Fin du fichier. */
 	putc('}',raw_data);
+	putc(']',raw_data);
 	putc('\n',raw_data);
+	putc('}',raw_data);
 
 	fclose(raw_data);
-	printf("Fermeture du fichier !!!!\n");
+	printf("Fermeture du fichier (fichier ecrit ;) ) !!!!\n");
 
 }
 /**
