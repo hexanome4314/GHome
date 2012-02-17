@@ -54,6 +54,7 @@ void process_data(int device, unsigned int field, float val)
 	char * entete = (char*)malloc(65535);
 	entete = "{\n\"raw_data\": {\n\0";
 	
+	/* Fait planter */
 	//free(entete);
 
 	/* Entete du fichier */
@@ -98,8 +99,7 @@ void process_data(int device, unsigned int field, float val)
 			ios_read(sensor[i].fd, DRV_FIELD_HUMIDITY, &humi);
 			ios_read(sensor[i].fd, DRV_FIELD_LIGHTING, &lumi);
 			ios_read(sensor[i].fd, DRV_FIELD_VOLTAGE, &volt);
-			sprintf(capt,"%s{\n\"Bouton1\":\"%f\";\n\"Bouton2\":\"%f\";\n\"Bouton3\":\"%f\";\n\"Bouton4\":\"%f\";\n\"Bouton5\":\"%f\";\n\"Bouton6\":\"%f\";\n\"Bouton7\":\"%f\";\n\"Bouton8\":\"%f\";\n\"Temperature\":\"%f\";\n\"Humidite\":\"%f\";\n\"Luminosite\":\"%f\";\n\"Voltage\":\"%f\";\n}", sensor[i].name, but1, but2, but3, but4, but5, but6, but7, but8,temp, humi, lumi, volt);
-		
+			sprintf(capt,"\"%s\":{\n\"Bouton1\":\"%i\";\n\"Bouton2\":\"%i\";\n\"Bouton3\":\"%i\";\n\"Bouton4\":\"%i\";\n\"Bouton5\":\"%i\";\n\"Bouton6\":\"%i\";\n\"Bouton7\":\"%i\";\n\"Bouton8\":\"%i\";\n\"Temperature\":\"%i\";\n\"Humidite\":\"%i\";\n\"Luminosite\":\"%i\";\n\"Voltage\":\"%i\";\n}", sensor[i].name, (int)but1, (int)but2, (int)but3, (int)but4, (int)but5, (int)but6, (int)but7, (int)but8,(int)temp, (int)humi, (int)lumi, (int)volt);
 			/* Ecriture des donnees dans le fichier */
 			j = 0;
 			while (capt[j] != '\0')
@@ -110,6 +110,7 @@ void process_data(int device, unsigned int field, float val)
 			}
 			printf("Infos capteurs ecrites !!!!\n");
 
+			/* Fait planter */
 			//free(capt);
 		}
 	}
