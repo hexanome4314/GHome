@@ -61,15 +61,14 @@ void process_data(int device, unsigned int field, float val)
 		putc(entete[j], raw_data);
 		j++;	
 	}
-	
+
 	/* Info des capteurs installes. */
+	int nbCapteur = 0; /* Pour gerer des elements d'ecriture du fichier. */
 	for (i = 0; i < MAX_NUMBER_OF_SENSORS; i++)
 	{
-		printf("Capteur trouve !!!!\n");
-
+		
 		if (sensor[i].name != 0)
 		{
-			printf("Capteur trouve !!!!\n");
 			char * capt = (char*)malloc(65535);
 			float but1 = 0; 
 			float but2 = 0; 
@@ -95,36 +94,45 @@ void process_data(int device, unsigned int field, float val)
 			ios_read(sensor[i].fd, DRV_FIELD_HUMIDITY, &humi);
 			ios_read(sensor[i].fd, DRV_FIELD_LIGHTING, &lumi);
 			ios_read(sensor[i].fd, DRV_FIELD_VOLTAGE, &volt);
-			sprintf(capt,"{\n\"name\": \"%s\",\n\"Temperature\": \"%i\",\n\"Humidite\": \"%i\",\n\"Luminosite\": \"%i\",\n\"Voltage\": \"%i\"\n    }", sensor[i].name, (int)temp, (int)humi, (int)lumi, (int)volt);
-		
+			sprintf(capt,"{\n\"name\": \"%s\",\n\"Temperature\": \"%i\",\n\"Humidite\": \"%i\",\n\"Luminosite\": \"%i\",\n\"Voltage\": \"%i\"\n", sensor[i].name, (int)temp, (int)humi, (int)lumi, (int)volt);
+
 			/* Ecriture des donnees dans le fichier */
-			
-			if (i != 0)
+			nbCapteur++;
+			if (nbCapteur > 2)
 			{
+				putc('}', raw_data);
 				putc(',', raw_data);
 				putc('\n', raw_data);
 			}
-			
+			else if (nbCapteur == 2)
+			{
+				putc(' ', raw_data);
+				putc(' ', raw_data);
+				putc(' ', raw_data);
+				putc(' ', raw_data);
+				putc('}', raw_data);
+				putc(',', raw_data);
+				putc('\n', raw_data);
+			}
+
+			/* Ecriture des donnees dans le fichier */
 			j = 0;
 			while (capt[j] != '\0')
 			{
 				putc(capt[j], raw_data);
 				j++;
-				printf("Ecriture des infos en cours !!!!\n");
 			}
-			printf("Infos capteurs ecrites !!!!\n");
-
-			/* Fait planter */
-			//free(capt);
 		}
 	}
 
 	/* Fin du fichier. */
 	putc('}',raw_data);
+	putc(']',raw_data);
 	putc('\n',raw_data);
+	putc('}',raw_data);
 
 	fclose(raw_data);
-	printf("Fermeture du fichier !!!!\n");
+	printf("Fermeture du fichier (fichier ecrit ;) ) !!!!\n");
 
 }
 /**
