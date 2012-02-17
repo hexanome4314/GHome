@@ -4,77 +4,22 @@
     <title>.:: GHome - Interface de gestion ::.</title>
     <meta http-equiv="Content-Type" content="text/html; utf-8" />
     <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="js/sensors.js"></script>
+    <script type="text/javascript" src="js/drivers.js"></script>
+    <script type="text/javascript" src="js/utils.js"></script>
     <link rel="stylesheet" href="style/style.css" type="text/css" media="screen" />
   </head>
   <body>
 
 	<script type="text/javascript">
-		function update_fields() {
-			/* On raffraichit les données */
-			$.ajax( {
-				type: "GET",
-				dataType: "json",
-				url: "data/raw_data.json",
-				success: function( data ) {
-
-					// Pour chaque élément du tableau, on va ajouter une nouvelle entrée
-					html_stuff = "";
-					for( var i = 0; i < data.raw_data.length; i++ )	{
-
-						html_stuff += '<span class="sensor_name">' + data.raw_data[i].name + '</span>';
-						html_stuff += '<div class="table">';
-
-						if( 'temperature' in data.raw_data[i] ) {
-							html_stuff += '<div class="row">';
-							html_stuff += '<img src="img/temp.jpg"/>';
-							html_stuff += '<span class="val">Temp&eacute;rature : ';
-							html_stuff += '<i>' + data.raw_data[i].temperature + '</i>&deg;C</span>';
-							html_stuff += '</div>';
-						}
-						if( 'humidity' in data.raw_data[i] ) {
-							html_stuff += '<div class="row">';
-							html_stuff += '<img src="img/humidity.gif">';
-							html_stuff += '<span class="val">Humidit&eacute; : ';
-							html_stuff += '<i>' + data.raw_data[i].humidity + '</i>%</span>';
-							html_stuff += '</div>';
-						}
-						if( 'brightness' in data.raw_data[i] ) {
-							html_stuff += '<div class="row">';
-							html_stuff += '<img src="img/light.jpg">';
-							html_stuff += '<span class="val">Luminosit&eacute; : ';
-							html_stuff += '<i>' + data.raw_data[i].brightness + '</i>%</span>';
-							html_stuff += '</div>';
-						}
-						if( 'voltage' in data.raw_data[i] ) {
-							html_stuff += '<div class="row">';
-							html_stuff += '<img src="img/voltage.jpg">';
-							html_stuff += '<span class="val">Tension : ';
-							html_stuff += '<i>' + data.raw_data[i].voltage + '</i>V</span>';
-							html_stuff += '</div>';
-						}
-
-						html_stuff += '</div>';
-					}
-
-					$("#sensor_data").html( html_stuff );
-					
-					$("#notifier_box").html( "<img src=\"img/refresh.png\"> <span>Donn&eacute;es actualis&eacute;es.</span>" );
-					$("#notifier_box").slideDown().delay(2000).slideUp();
-				},
-				error: function( ) {
-					
-					$("#notifier_box").html( "<img src=\"img/error.png\"> <span>Erreur lors de l'actualisation des donn&eacute;es.</span>" );
-					$("#notifier_box").slideDown().delay(2000).slideUp();
-				}
-			} );
-		}
 
 		$(document).ready(
 
 			function() {
 
-				update_fields();
-				setInterval( update_fields, 30000 );
+				update_sensor_data();
+				update_driver_data();
+				setInterval( update_sensor_data, 30000 );
 
 				/* Clique sur les onglets */
 				$("a.tab").click(
@@ -83,7 +28,7 @@
 						if( ! $(this).hasClass( "active" ) )
 						{
 							/* On change l'élément actif par celui en cours et on fait des effets jolis */
-							$(".active").removeClass( "active" );
+							$("ul.tabs a.active").removeClass( "active" );
 							$(this).addClass( "active" );
 							$(".content").slideUp();
 
@@ -103,15 +48,13 @@
                                                 if( ! $(this).hasClass( "active" ) )
                                                 {
                                                         /* On change l'élément actif par celui en cours et on fait des effets jolis */
-                                                        $(".active").removeClass( "active" );
+                                                        $("ul.under_tabs a.active").removeClass( "active" );
                                                         $(this).addClass( "active" );
                                                         $(".under_content").slideUp();
 
                                                         var contenu_aff = $(this).attr( "alt" );
                                                         $("#" + contenu_aff).slideDown();
                                                 }
-
-                                                //update_fields();
 
                                                 return;
                                         }
@@ -144,6 +87,7 @@
 		</div> 
 
 		<div id="content_2" class="content">
+			<h3>Configuration</h3>
 
 			<div class="under_tabbed_area">
 				<ul class="under_tabs">
@@ -153,14 +97,23 @@
 				</ul>
 
 				<div id="drivers" class="under_content">
-					<p>C'est les pilotes !</p>
+					<h5>Pilotes</h5>
+
+					<div id="driver_data">
+					&nbsp;
+					</div>
 				</div>
 
 				<div id="rules" class="under_content">
-					<p>R&egrave;gle du moteur d'inf&eacute;rence</p>
+					<h5>R&egrave;gles</h5>
+
+					<div id="rules_data">
+					&nbsp;
+					</div>
 				</div>
 
 				<div id="remote" class="under_content">
+					<h5>Acc&egrave;s distant</h5>
 					<p>Controle &agrave; distance</p>
 				</div>
 			</div>	
@@ -171,9 +124,14 @@
 			<h3>Aide</h3>
 
 			<span>FAQ :</span>
-			<ul>
-				<li>Comment ajouter un nouveau driver?</li>
-			</ul>
+
+			<div id="help_data">
+				<ul>
+					<li>Comment ajouter un nouveau driver?</li>
+					<li>Comment ajouter un capteur &agrave; un driver?</li>
+					<li>Comment ajouter une nouvelle r&egrave;gle?</li>
+				</ul>
+			</div>
 		</div>
 	</div>
 

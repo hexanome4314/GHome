@@ -10,7 +10,7 @@ img {
 #notifier_box {
 	background-color: #FFFFFF;
 	border: 1px solid #464C54; 
-	padding-top: 5px 10px 5px 10px ;
+	padding: 5px 10px 5px 10px;
 	margin: -20px auto 20px auto;
 	text-align: center;
 
@@ -83,18 +83,9 @@ ul.tabs li a.active {
 	border-bottom: 1px solid #FFFFFF;
 }
 
-.under_tabbed_area {
-        background-color: #FFFF00;
-        padding: 8px;
-	border: 1px solid #494E52;
-}
-
 ul.under_tabs {
-        margin: 0px;
-        padding: 0px;
-        margin-top: 5px;
-        margin-bottom: 6px;
         text-align: center;
+	height: 25px;
 }
 
 ul.under_tabs li {
@@ -146,6 +137,17 @@ ul.under_tabs li a.active {
 	margin-bottom: 40px;
 }
 
+.content h5 {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 18px;
+	font-style: oblique;
+        color: #444444;
+        letter-spacing: -2px;
+        margin-bottom: 40px;
+        text-align: center;
+	border-bottom: 1px solid #DDDDDD;
+}
+
 #sensor_data .table {
 	
 	display: table;
@@ -185,6 +187,12 @@ ul.under_tabs li a.active {
 	letter-spacing: -3px;
 }
 
+#driver_data .driver_name {
+	font-family: "Courier New", Arial, Helvetica, sans-serif;
+	font-style: oblique;
+	letter-spacing: -3px;
+}
+
 #content_2, #content_3 {
 	display: none;
 }
@@ -194,20 +202,42 @@ ul.under_tabs li a.active {
 	padding: 0px 20px 0px 20px;
 }
 
-.content img {
+.sensor_img {
 	width: 32px;
 	height: 32px;
 }
 
 .under_content {
 	background-color: #FFFFFF;
-	padding: 20px 50px 20px 50px;
+	padding: 0px 40px 20px 40px;
 	border: 1px solid #464C54; 
-	/* margin-top: 7px; */
 }
 
 #rules, #remote {
 	display: none;
+}
+
+.device_list {
+	border-left: 1px dotted #464C54;
+	margin-left: 5px;
+	padding-left: 50px;
+}
+
+.device_list span {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	letter-spacing: -1px;
+
+	margin-right: 40px;
+}
+
+.device_list img {
+	width: 32px;
+	height: 32px;
+}
+
+#help_data {
+	padding: 0px 20px 10px 20px;
+	margin: 10px auto 20px auto;
 }
 
 #foot_box {
