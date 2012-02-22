@@ -198,6 +198,23 @@ void drv_stop( void ){
 int drv_add_sensor( unsigned int id_sensor){
 	sensors_queue* new_sensor = malloc(sizeof(sensors_queue));
 	new_sensor->next = sensors;
+	int remainder = id_sensor;
+	new_sensor->sensor[0] = (char) (remainder % 10000000);
+	remainder = remainder - new_sensor->sensor[0]*10000000;
+	new_sensor->sensor[1] = (char) (remainder % 1000000);
+	remainder = remainder - new_sensor->sensor[1]*1000000;
+	new_sensor->sensor[2] = (char) (remainder % 10000);
+	remainder = remainder - new_sensor->sensor[2]*10000;
+	new_sensor->sensor[3] = (char) (remainder % 1000);
+	remainder = remainder - new_sensor->sensor[3]*1000;
+	new_sensor->sensor[4] = (char) (remainder % 100);
+	remainder = remainder - new_sensor->sensor[4]*100;
+	new_sensor->sensor[5] = (char) (remainder % 100);
+	remainder = remainder - new_sensor->sensor[5]*100;
+	new_sensor->sensor[6] = (char) (remainder % 10);
+	remainder = remainder - new_sensor->sensor[6]*10;
+	new_sensor->sensor[7] = (char) remainder;
+	printf("DEBUG drv_add_sensor %s\n",new_sensor->sensor);
 	sensors = new_sensor;
 	return 0;
 }
