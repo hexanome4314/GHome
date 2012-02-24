@@ -207,7 +207,6 @@ int init_demon(){
 				int id_int = 0;
 				id_int = atoi((const char*)id);
 				sensor[capteur_counter].fd = ios_add_device( drv[driver_counter],(int)id);
-				//printf("added on fd :%d\n", sensor[capteur_counter]);
 				sensor[capteur_counter].id = (int)id;
 				xmlFree(id);
 			}
