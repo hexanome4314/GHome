@@ -1,3 +1,25 @@
+/**
+Permet de replier et de déplier les différentes infos des drivers
+*/
+function collapse_device_list( element ) {
+
+	if( element.hasClass( 'expanded' ) ) {
+		element.find( 'img' ).attr( 'src', "img/expand.gif" );
+		$(".device_list").slideUp();
+
+		element.removeClass( 'expanded' );
+	}
+	else {
+		element.find( 'img' ).attr( 'src', "img/collapse.gif" );
+		$(".device_list").slideDown();
+
+		element.addClass( 'expanded' );
+	}
+}
+
+/**
+Lecture du XML concernant les périphériques et les drivers
+*/
 function update_driver_data() {
 
 	$.ajax( {
@@ -10,7 +32,7 @@ function update_driver_data() {
 
 			$( data ).find( 'driver' ).each( function() {
 				
-				str += '<a href="#"><img src="img/collapse.gif" /></a>';
+				str += '<a href="#" class="collapse expanded"><img src="img/collapse.gif" /></a>';
 				str += '<span class="driver_name">' + $(this).attr( 'so' ) + "</span>";
 				str += '<div class="device_list">';
 

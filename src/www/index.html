@@ -6,6 +6,7 @@
     <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="js/sensors.js"></script>
     <script type="text/javascript" src="js/drivers.js"></script>
+    <script type="text/javascript" src="js/rules.js"></script>
     <script type="text/javascript" src="js/utils.js"></script>
     <link rel="stylesheet" href="style/style.css" type="text/css" media="screen" />
   </head>
@@ -17,8 +18,9 @@
 
 			function() {
 
-				update_sensor_data();
+				/*update_sensor_data();*/
 				update_driver_data();
+				update_rules_data();
 				setInterval( update_sensor_data, 30000 );
 
 				/* Clique sur les onglets */
@@ -58,6 +60,16 @@
 
                                                 return;
                                         }
+				);
+
+				$("#driver_data").click(
+					function() {
+						$(".collapse").click(
+							function() {
+								collapse_device_list( $(this) );
+							}
+						);
+					}
 				);
 			}
 		);

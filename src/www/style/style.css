@@ -193,6 +193,18 @@ ul.under_tabs li a.active {
 	letter-spacing: -3px;
 }
 
+#rules_data .rule_name {
+	font-family: "Courier New", Arial, Helvetica, sans-serif;
+	font-style: oblique;
+	letter-spacing: -3px;
+}
+
+#rules_data .rule_cond {
+	border-left: 1px dotted #464C54;
+	margin-left: 5px;
+	padding-left: 30px;
+}
+
 #content_2, #content_3 {
 	display: none;
 }
