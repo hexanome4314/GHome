@@ -8,7 +8,7 @@
 
 #include "ios_api.h"
 #include "engine.h"
-#include "fiels.h"
+#include "fields.h"
 #include "core.h"
 
 static int drv[MAX_NUMBER_OF_DRIVERS];
@@ -59,85 +59,37 @@ void process_data(int device, unsigned int field, float val)
 	int i = 0;
 	int j = 0;
 	FILE * raw_data = fopen("raw_data.json", "w");
-	char * entete = (char*)malloc(65535);
-	entete = "{\n    \"raw_data\": [\0";
-
-	/* Entete du fichier */
-	j = 0;
-	while (entete[j] != '\0')
-	{
-		putc(entete[j], raw_data);
-		j++;	
-	}
-
+	fprintf(raw_data, "{\n \"raw_data\": [");
 	/* Info des capteurs installes. */
 	int nbCapteur = 0; /* Pour gerer des elements d'ecriture du fichier. */
 	for (i = 0; i < MAX_NUMBER_OF_SENSORS; i++)
 	{
 		if (sensor[i].name != 0)
 		{
-			char * capt = (char*)malloc(65535);
-			float but1 = 0; 
-			float but2 = 0; 
-			float but3 = 0;
-			float but4 = 0;
-			float but5 = 0;
-			float but6 = 0;
-			float but7 = 0;
-			float but8 = 0;
-			float temp = 0;
-			float humi = 0;
-			float lumi = 0;
-			float volt = 0;
-			ios_read(sensor[i].fd, DRV_FIELD_BUTTON1, &but1);
-			ios_read(sensor[i].fd, DRV_FIELD_BUTTON2, &but2);
-			ios_read(sensor[i].fd, DRV_FIELD_BUTTON3, &but3);
-			ios_read(sensor[i].fd, DRV_FIELD_BUTTON4, &but4);
-			ios_read(sensor[i].fd, DRV_FIELD_BUTTON5, &but5);
-			ios_read(sensor[i].fd, DRV_FIELD_BUTTON6, &but6);
-			ios_read(sensor[i].fd, DRV_FIELD_BUTTON7, &but7);
-			ios_read(sensor[i].fd, DRV_FIELD_BUTTON8, &but8);
-			ios_read(sensor[i].fd, DRV_FIELD_TEMPERATURE, &temp);
-			ios_read(sensor[i].fd, DRV_FIELD_HUMIDITY, &humi);
-			ios_read(sensor[i].fd, DRV_FIELD_LIGHTING, &lumi);
-			ios_read(sensor[i].fd, DRV_FIELD_VOLTAGE, &volt);
-			sprintf(capt,"{\n\"name\": \"%s\",\n\"temperature\": \"%i\",\n\"humidity\": \"%i\",\n\"brightness\": \"%i\",\n\"voltage\": \"%i\"\n", sensor[i].name, (int)temp, (int)humi, (int)lumi, (int)volt);
-
-			/* Ecriture des donnees dans le fichier */
+			int f;
+			/* On indique que ce capteur utilise ce champ, et que ce champ
+			   doit être écrit */
+			if (sensor[i].fd == device)
+				sensor[i].used_fields |= (1 << field);
+			if (nbCapteur != 0)
+				putc(',', raw_data);
+			fprintf(raw_data,"\n {\n   \"name\": \"%s\"", sensor[i].name);
+			for (f = 0; f < DRV_LAST_VALUE; f++)
+			{
+			/* On n'écrit que si le capteur utilise le champ */
+				if (sensor[i].used_fields & (1 << f))
+				{
+					float value = 0;
+					ios_read(sensor[i].fd, f, &value);
+					fprintf(raw_data, ",\n   \"%s\": \"%f\"", Fields[f], value);
+				}
+				
+			}
+			fprintf(raw_data, "\n }");
 			nbCapteur++;
-			if (nbCapteur > 2)
-			{
-				putc('}', raw_data);
-				putc(',', raw_data);
-				putc('\n', raw_data);
-			}
-			else if (nbCapteur == 2)
-			{
-				putc(' ', raw_data);
-				putc(' ', raw_data);
-				putc(' ', raw_data);
-				putc(' ', raw_data);
-				putc('}', raw_data);
-				putc(',', raw_data);
-				putc('\n', raw_data);
-			}
-
-			/* Ecriture des donnees dans le fichier */
-			j = 0;
-			while (capt[j] != '\0')
-			{
-				putc(capt[j], raw_data);
-				j++;
-			}
 		}
 	}
-
-	/* Fin du fichier. */
-	putc('}',raw_data);
-	putc(']',raw_data);
-	putc('\n',raw_data);
-	putc('}',raw_data);
-
+	fprintf(raw_data, "\n]\n}");
 	fclose(raw_data);
 }
 
@@ -164,6 +116,14 @@ int main(){
 
 	/* init, install drivers and add all the capteurs */
 	ios_init();
+	int i;
+	for(i=0; i++; i < MAX_NUMBER_OF_SENSORS)
+	{
+		sensor[i].fd=0;
+		sensor[i].id=0;
+		sensor[i].name=NULL;
+		sensor[i].used_fields=0;
+	}
 	int driver_counter = 0;	
 	int capteur_counter = 0;
 	for( 	driver_node = children_XML_ELEMENT_NODE(drivers_node);
