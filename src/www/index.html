@@ -4,11 +4,13 @@
     <title>.:: GHome - Interface de gestion ::.</title>
     <meta http-equiv="Content-Type" content="text/html; utf-8" />
     <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.8.18.custom.min.js"></script>
     <script type="text/javascript" src="js/sensors.js"></script>
     <script type="text/javascript" src="js/drivers.js"></script>
     <script type="text/javascript" src="js/rules.js"></script>
     <script type="text/javascript" src="js/utils.js"></script>
     <link rel="stylesheet" href="style/style.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="style/jquery-ui-1.8.18.custom.css" type="text/css" media="screen" />
   </head>
   <body>
 
@@ -22,6 +24,7 @@
 				update_driver_data();
 				update_rules_data();
 				setInterval( update_sensor_data, 30000 );
+
 
 				/* Clique sur les onglets */
 				$("a.tab").click(
@@ -40,7 +43,7 @@
 
 						//update_fields();
 
-						return;
+						return false;
 					}
 				);
 
@@ -58,19 +61,39 @@
                                                         $("#" + contenu_aff).slideDown();
                                                 }
 
-                                                return;
+                                                return false;
                                         }
 				);
 
-				$("#driver_data").click(
+				$("div#driver_data .collapse").click( 
 					function() {
-						$(".collapse").click(
-							function() {
-								collapse_device_list( $(this) );
-							}
-						);
+						collapse_device_list( $(this) );
+						return false;
 					}
 				);
+
+				$("div#driver_data .view").click( 
+					function() {
+						show_device_info( $(this).attr( 'alt' ) );
+						return false;
+					}
+				);
+
+				$("div#driver_data .edit").click(
+					function() {
+						edit_device_info( $(this).attr( 'alt' ) );
+						return false;
+					}
+				);
+
+				$("div#driver_data .del").click(
+					function() {
+						confirm_remove_device( $(this).attr( 'alt' ) );
+						return false;
+					}
+				);
+
+				return false;
 			}
 		);
 	</script>
@@ -78,6 +101,10 @@
 	<div id="tabbed_box" class="tabbed_box">
 
 	<h4>GHome Project</h4>
+
+	<div id="dialog">
+		<span>&nbsp;</span>
+	</div>
 
 	<div id="notifier_box">
 		<span>&nbsp;</span>
