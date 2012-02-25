@@ -6,7 +6,7 @@
 #include "core.h"
 #include "engine.h"
 #include "engine-types.h"
-
+#include "fields.h"
 
 Rule * get_rules(const char *filename, infos_sensor *sensor);
 

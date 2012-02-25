@@ -8,10 +8,19 @@
 
 #include "ios_api.h"
 #include "engine.h"
+#include "fiels.h"
 #include "core.h"
 
 static int drv[MAX_NUMBER_OF_DRIVERS];
 static infos_sensor sensor[MAX_NUMBER_OF_SENSORS];
+
+// Association id champ => nom
+static char* Fields[] = {
+#define X(define, str) str,
+FIELDS
+#undef X
+};
+
 
 /* Those blabla_XML_ELEMENT_NODE allow to write readable xml files
  * by removing the fake TEXT_ELEMENT_NODE created by \n and \t */
@@ -65,7 +74,6 @@ void process_data(int device, unsigned int field, float val)
 	int nbCapteur = 0; /* Pour gerer des elements d'ecriture du fichier. */
 	for (i = 0; i < MAX_NUMBER_OF_SENSORS; i++)
 	{
-		
 		if (sensor[i].name != 0)
 		{
 			char * capt = (char*)malloc(65535);
