@@ -26,6 +26,22 @@ img {
 	font-size: 14px;
 }
 
+#dialog {
+	display: none;
+}
+
+#dialog p {
+	margin-bottom: 0px;
+}
+
+#dialog p.value {
+	margin-top: 0px;
+	padding-left: 10px;
+
+	letter-spacing: -1px;
+	font-style: oblique;
+}
+
 #tabbed_box {
 	margin: 0px auto 0px auto;
 	width: 800px;
