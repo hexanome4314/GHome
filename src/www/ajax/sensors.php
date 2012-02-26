@@ -4,22 +4,30 @@
 * Author : Sébastien                          *
 **********************************************/
 
-session_start();
+
+require_once( "../include/auth.php" );
+
+if( is_authenticated() == false )
+	die( '{ "type": "Error", "mesg": "Vous n\'êtes pas autorisés à effectuer cette action." }' );
+
 
 /* Vérification que l'utilisateur est bien loggé */
-if( @isset( $_SESSION['GHOME'] ) && $_SESSION['GHOME'] == 'yes' ) {
-
-	switch( $_POST['action'] ) {
+switch( $_POST['action'] ) {
 	
-		case "edit":
-			break;
-		case "delete":
-			break;
-	}	
+	case "edit":
+		die( '{ "type": "Error", "mesg": "Vous n\'êtes pas autorisés à effectuer cette action." }' );
+		break;
+	case "delete":
 
-}
-else {
-	echo '{ "type": "Error", "mesg": "Vous n\'êtes pas autorisés à effectuer cette action." }';
-}
+		/* Il est demandé de supprimer un capteur */
+		if( @isset( $_POST['id'] ) ) {
+			
+			/* Il faut supprimer l'entrée dans le fichier xml... funky ! */
+		}
+		else
+			die( '{ "type": "fail", "mesg": "Mauvaise requête." }' );
 
+
+		break;
+}	
 ?>
