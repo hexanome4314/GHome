@@ -57,7 +57,6 @@ void process_data(int device, unsigned int field, float val)
 	/* écrire dans raw_data.json les valeurs */
 	/* avec reconstruction totale du fichier */
 	int i = 0;
-	int j = 0;
 	FILE * raw_data = fopen("raw_data.json", "w");
 	fprintf(raw_data, "{\n \"raw_data\": [");
 	/* Info des capteurs installes. */
@@ -117,7 +116,7 @@ int main(){
 	/* init, install drivers and add all the capteurs */
 	ios_init();
 	int i;
-	for(i=0; i++; i < MAX_NUMBER_OF_SENSORS)
+	for(i=0; i < MAX_NUMBER_OF_SENSORS ; i++)
 	{
 		sensor[i].fd=0;
 		sensor[i].id=0;
@@ -150,7 +149,7 @@ int main(){
 				printf("\tname = %s\n", (char*)sensor[capteur_counter].name);
 				xmlChar* id = xmlGetProp(capteur_node,(const xmlChar*)"id");
 				int id_int;
-				sscanf(id, "%X", &id_int);
+				sscanf((char*)id, "%X", &id_int);
 				sensor[capteur_counter].fd = ios_add_device( drv[driver_counter],id_int);
 				sensor[capteur_counter].id = id_int;
 				xmlFree(id);
@@ -165,6 +164,7 @@ int main(){
 	init_engine("config/rules.xml", sensor);
 	ios_attach_global_handler(process_data);
 	sleep(5);
+	return 0;
 }
 
 void json_writer_loop(){

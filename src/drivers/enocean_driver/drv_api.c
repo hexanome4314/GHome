@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "../drv_api.h"
 #include "listen.h"
@@ -119,7 +120,7 @@ int main(){
 	// check for the result
 	struct msg_drv_notify buffer;
 	msgrcv( msgq_id, (void*) &buffer, sizeof(buffer) - sizeof(long), DRV_MSG_TYPE, 0 );
-	printf( "#message  [%d,%d,%d]\t[%d]\n", buffer.id_sensor, buffer.flag_value, buffer.value, msgq_id );
+	printf( "#message  [%u,%u,%f]\t[%i]\n", buffer.id_sensor, buffer.flag_value, buffer.value, msgq_id );
 
 	return 42;
 }
