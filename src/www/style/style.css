@@ -42,12 +42,12 @@ img {
 	font-style: oblique;
 }
 
-#tabbed_box {
+#main {
 	margin: 0px auto 0px auto;
 	width: 800px;
 }
 
-.tabbed_box h4 {
+.main h4 {
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 23px;
 	color: #FFFFFF;
@@ -164,7 +164,7 @@ ul.under_tabs li a.active {
 	border-bottom: 1px solid #DDDDDD;
 }
 
-#sensor_data .table {
+.table {
 	
 	display: table;
 	width: 75%;
@@ -175,9 +175,14 @@ ul.under_tabs li a.active {
 	margin-bottom: 20px;
 }
 
-#sensor_data .row {
+.row {
 	display: table-row;
 	border-bottom: 1px solid #DDDDDD;
+}
+
+.cell {
+	display: table-cell;
+	width: 50%;
 }
 
 #sensor_data img {
@@ -287,3 +292,47 @@ ul.under_tabs li a.active {
 	margin: 0px;
 }
 
+form.auth .text {
+	
+	margin: auto;
+	background: #EEEEEE;
+	padding: 3px 10px 3px 10px;
+	margin-top: 5px;
+	text-align: center;
+
+	border: 1px solid #DDDDDD;
+	border-radius: 10px;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+}
+
+form.auth .button {
+	border: 1px solid #DDDDDD;
+
+	border-radius: 10px;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+
+	letter-spacing: -1px;
+
+	padding: 3px 10px 3px 10px;
+}
+
+form.auth .content {
+	width: 80%;
+	margin: auto;
+
+	text-align: center;
+}
+
+p.error_msg {
+	color: #FF0000;
+
+	text-align: center;
+	font-style: oblique;
+	letter-spacing: -1px;
+
+	display: none;
+
+	margin-bottom: 40px;
+}

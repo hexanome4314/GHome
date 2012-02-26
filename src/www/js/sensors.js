@@ -1,4 +1,4 @@
-function update_sensor_data() {
+function update_sensor_data( hide_notif ) {
         /* On raffraichit les données */
 	$.ajax( {
         	type: "GET",
@@ -46,8 +46,9 @@ function update_sensor_data() {
                         }
 
                         $("#sensor_data").html( html_stuff );
-                                        
-                        show_notifier_box( 'refresh.png', 'Donn&eacute;es actualis&eacute;es.' );
+                                 
+			if( hide_notif == false )       
+	                        show_notifier_box( 'refresh.png', 'Donn&eacute;es actualis&eacute;es.' );
                 },
 		error: function( ) {
                                         

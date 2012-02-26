@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<auth>
+  <web>
+    <user name="admin" passwd="d033e22ae348aeb5660fc2140aec35850c4da997" />
+  </web>
+</auth>
