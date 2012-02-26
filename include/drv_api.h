@@ -24,23 +24,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
-
-/*
-Définition des valeurs admissibles par l'IOS
-*/
-#define DRV_FIELD_BUTTON1	0
-#define DRV_FIELD_BUTTON2	1
-#define DRV_FIELD_BUTTON3	2
-#define DRV_FIELD_BUTTON4	3
-#define DRV_FIELD_BUTTON5	4
-#define DRV_FIELD_BUTTON6	5
-#define DRV_FIELD_BUTTON7	6
-#define DRV_FIELD_BUTTON8	7
-#define DRV_FIELD_TEMPERATURE	8
-#define DRV_FIELD_HUMIDITY	9
-#define DRV_FIELD_LIGHTING	10
-#define DRV_FIELD_VOLTAGE	11
-#define DRV_LAST_VALUE		12
+#include "fields.h"
 
 /*
 Types des messages de la boîte aux lettres

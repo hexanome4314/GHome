@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <string.h>
 
 #include "utils.h"
@@ -41,7 +42,7 @@ int connect_to(int addr, int c_port, int proto)
   prepare_sock(c_port, addr, &sock, &saddr);
 
   if(connect(sock, (struct sockaddr*)&saddr, sizeof(struct sockaddr))==0)
-	 printf("Connexion to %s on port %d\n", inet_ntoa(saddr.sin_addr), c_port);
+	 printf("Connexion to %s on port %i\n", inet_ntoa(saddr.sin_addr), c_port);
   else{
 	 printf("Connexion fail : %s\n", strerror(errno));
 	 return -1;

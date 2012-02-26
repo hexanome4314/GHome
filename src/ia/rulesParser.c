@@ -4,8 +4,14 @@
 #define PATH_COND "/rules/rule/conditions/condition"
 #define PATH_ACTION "/rules/rule/actions/activate"
 
-#define FIELDS_SIZE 13
-static char* Fields[FIELDS_SIZE] = {"Button_1", "Button_2", "Button_3", "Button_4", "Button_5", "Button_6", "Button_7", "Button_8", "Temperature", "Humidity", "Lighting", "Voltage", "Unknown_Field"};
+#define FIELDS_SIZE DRV_LAST_VALUE
+
+// Association id champ => nom
+static char* Fields[] = {
+#define X(define, str) str,
+FIELDS
+#undef X
+};
 
 #define RECIPIENTS_SIZE 2
 static char* Recipients[RECIPIENTS_SIZE] = {"Web", "Unknown_Recipient"};
