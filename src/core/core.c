@@ -172,8 +172,15 @@ int init_sensors(const char* path)
 	{
 		/* install a driverX/ */
 		xmlChar* drv_so_name = xmlGetProp(driver_node,(const xmlChar*)"so");
-		drv[driver_counter] = ios_install_driver( (char*)drv_so_name, "127.0.0.1", 8080 );
+		xmlChar* drv_ip = xmlGetProp(driver_node,(const xmlChar*)"ip");
+		xmlChar* drv_port = xmlGetProp(driver_node,(const xmlChar*)"port");
+		unsigned int port;
+		sscanf((char*) drv_port, "%u", &port);
+		printf("DEBUG unsigned int = %u\n", port); 
+		drv[driver_counter] = ios_install_driver((char*) drv_so_name, (char*) drv_ip, port);
 		xmlFree(drv_so_name);
+		xmlFree(drv_ip);
+		xmlFree(drv_port);
 		if( drv[driver_counter] < 0 )
 		{	
 			ios_release();
@@ -230,7 +237,7 @@ int list_sensors_cmd(int fd, const char* cmd)
  */
 int list_rules_cmd(int fd, const char* cmd)
 {
-	fprint_rules(fd);
+//	fprint_rules(fd);
 	return 1;
 }
 
@@ -251,7 +258,7 @@ int main(){
 	}
 
 	/* Chargement du fichier de configuration des capteurs */
-	if ((status = init_sensors("config/sensors.xml")) < 0)
+	if ((status = init_sensors("drivers/sensors.test.xml")) < 0)
 	{
 		perror("Initialisation error\n");
 		return status;
