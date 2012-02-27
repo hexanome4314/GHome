@@ -13,6 +13,7 @@
 #include "engine.h"
 #include "fields.h"
 #include "core.h"
+#include "remote-control.h"
 
 static int drv[MAX_NUMBER_OF_DRIVERS];
 static infos_sensor sensor[MAX_NUMBER_OF_SENSORS];
@@ -187,15 +188,34 @@ int init_sensors(const char* path)
 	return 0;
 }
 
+int remote_stop_cmd(int fd, const char* cmd)
+{
+	char* msg = "GHome is stopping. Goodbye !\n";
+	write(fd, msg, strlen(msg));
+	sem_post(&stop_sem);
+	return 0;
+}
+
 int main(){
 	sem_init(&stop_sem, 0, 0);
 	int status;
-	if (signal (SIGINT, stop_handler) == SIG_IGN)
-		signal(SIGINT, SIG_IGN);
+	
+	/* Handler d'arrêt */
+	struct sigaction stop_action;
+	stop_action.sa_handler=&stop_handler;
+	sigemptyset(&stop_action.sa_mask);
+	stop_action.sa_flags = 0;
+	if((sigaction(SIGINT, &stop_action, NULL) < 0) ||
+	   (sigaction(SIGTERM, &stop_action, NULL) < 0))
+	{
+		perror("Internal Error\n");
+		return -1;
+	}
+
 	/* Chargement du fichier de configuration des capteurs */
 	if ((status = init_sensors("config/sensors.xml")) < 0)
 	{
-		printf("Initialisation error\n");
+		perror("Initialisation error\n");
 		return status;
 	}
 	print_sensors();
@@ -206,12 +226,20 @@ int main(){
 		printf("Rule loading error\n");
 		return status;
 	}
-	printf("%d\n", status);
+	
+	/* Lancement du contrôle telnet */
+	start_remote_control(1235);
+	add_command("stop-server", "Stop the GHome server and cut the connection", &remote_stop_cmd);
+
 	/* Association du handler d'arrivée d'informations de capteurs */
 	ios_attach_global_handler(process_data);
 
+	/* Attente de commande d'arrêt */
 	sem_wait(&stop_sem);
+
+	/* Procedure d'arrêt */
 	sem_destroy(&stop_sem);
+	stop_remote_control();
 	ios_release();
 	printf("Stopping...\n");
 	return 0;

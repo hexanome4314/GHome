@@ -251,7 +251,7 @@ void stop_remote_control()
 	/* Fermeture du socket d'écoute et du thread d'acceptation des connexions */
 	close( fd_sock );
 
-	pthread_kill( accept_thread, 9 );
+	pthread_cancel( accept_thread);
 
 	release_command();
 }

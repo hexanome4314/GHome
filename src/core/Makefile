@@ -12,7 +12,7 @@ AR_FLAGS=r
 
 MAKE=make
 
-LIB=`xml2-config --libs` -lios -ldl -lpthread -lia
+LIB=`xml2-config --libs` -lios -ldl -lpthread -lia -lremote-ctrl
 
 BIN_OBJ= core.o
 BIN_OUT= ../../ghome
