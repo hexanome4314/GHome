@@ -221,7 +221,7 @@ void gfree(void* ptr)
 
 void* gcalloc(size_t nmemb, size_t size)
 {
-	char* ptr = malloc(nmemb*size);
+	char* ptr = gmalloc(nmemb*size);
 	int i;
 	if (size == 0 || nmemb == 0)
 		return NULL;

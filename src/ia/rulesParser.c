@@ -85,7 +85,7 @@ char * getDeviceName(int device)
 	for(i=0; i<MAX_NUMBER_OF_SENSORS; i++)
 	{
 		if(sensor[i].name && (sensor[i].fd == device))
-			return sensor[i].name;
+			return (char*)sensor[i].name;
 	}
 	return "DEVICE";
 }

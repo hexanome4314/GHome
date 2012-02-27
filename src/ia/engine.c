@@ -34,7 +34,7 @@ void apply_alert(Alert* alert)
 char check_condition(Condition* condition)
 {
 	float value;
-	int status = ios_read(condition->device, condition->field, &value);
+	ios_read(condition->device, condition->field, &value);
 	switch(condition->type)
 	{
 	case Equ:
