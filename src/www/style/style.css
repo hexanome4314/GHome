@@ -32,14 +32,16 @@ img {
 
 #dialog p {
 	margin-bottom: 0px;
+	font-size: 16px;
 }
 
 #dialog p.value {
 	margin-top: 0px;
-	padding-left: 10px;
+	padding-left: 20px;
 
 	letter-spacing: -1px;
 	font-style: oblique;
+	font-size: 14px;
 }
 
 #main {
@@ -263,9 +265,13 @@ ul.under_tabs li a.active {
 	margin-right: 40px;
 }
 
-.device_list img {
+img.tiny_btn {
 	width: 32px;
 	height: 32px;
+}
+
+.driver_list span {
+	margin-right: 40px;
 }
 
 #help_data {
@@ -335,4 +341,21 @@ p.error_msg {
 	display: none;
 
 	margin-bottom: 40px;
+}
+
+form.edit_sensor .text {
+
+        margin: auto;
+        background: #EEEEEE;
+        padding: 3px 10px 3px 10px;
+        margin-top: 5px;
+        text-align: center;
+
+        border: 1px solid #DDDDDD;
+        border-radius: 10px;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+
+	margin-left: 20px;
+	font-size: 14px;
 }

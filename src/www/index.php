@@ -100,6 +100,13 @@ force_authentication();
 						return false;
 					}
 				);
+			
+				$("div#driver_data .add").click(
+					function() {
+						new_device( $(this).attr( 'alt' ) );
+						return false;
+					}
+				);
 
 				return false;
 			}

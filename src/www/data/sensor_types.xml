@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<sensor_types>
+	<type>TEMPERATURE</type>
+	<type>HUMIDITY</type>
+	<type>ACTUATOR</type>
+	<type>BRIGHTNESS</type>
+</sensor_types>
+

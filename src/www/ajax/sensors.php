@@ -14,22 +14,29 @@ if( is_authenticated() == false )
 
 /* Vérification que l'utilisateur est bien loggé */
 switch( $_POST['action'] ) {
-	
-	case "edit":
-		die( '{ "type": "Error", "mesg": "Vous n\'êtes pas autorisés à effectuer cette action." }' );
-		break;
-	case "delete":
 
-		/* Il est demandé de supprimer un capteur */
+	/* Il est demandé d'éditer un capteur */	
+	case "edit":
+
+		if( @isset( $_POST['id'] ) ) {
+
+			$res = send_ract_request( "PING" );
+			echo '{ "type": "success", "mesg": "'.$res.'" }';
+		}
+		else 
+			die( '{ "type": "fail", "mesg": "Mauvaise requête." }' );
+
+		break;
+
+	/* Il est demandé de supprimer un capteur */
+	case "delete":
 		if( @isset( $_POST['id'] ) ) {
 			
 			$res = send_ract_request( "PING" );
-
 			echo '{ "type": "success", "mesg": "'.$res.'" }';
 		}
 		else
 			die( '{ "type": "fail", "mesg": "Mauvaise requête." }' );
-
 
 		break;
 }	
