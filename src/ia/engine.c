@@ -160,6 +160,8 @@ int launch_engine(const char *file, infos_sensor *sensor)
 int init_engine(const char *file, infos_sensor *sensor)
 {
 	rules = get_rules(file, sensor);
+	if ((int)rules < 0)
+		return (int)rules;
 	strcpy(rulefile, file);
 	return 0;
 }

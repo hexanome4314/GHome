@@ -5,6 +5,9 @@
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <time.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <signal.h>
 
 #include "ios_api.h"
 #include "engine.h"
@@ -13,6 +16,7 @@
 
 static int drv[MAX_NUMBER_OF_DRIVERS];
 static infos_sensor sensor[MAX_NUMBER_OF_SENSORS];
+static sem_t stop_sem; // Semaphore arret application
 
 // Association id champ => nom
 static char* Fields[] = {
@@ -21,6 +25,15 @@ FIELDS
 #undef X
 };
 
+
+/**
+ * Handler d'arrêt de l'application
+ * \param signum Signal interrompant l'application
+ */
+void stop_handler(int signum)
+{
+	sem_post(&stop_sem);
+}
 
 /* Those blabla_XML_ELEMENT_NODE allow to write readable xml files
  * by removing the fake TEXT_ELEMENT_NODE created by \n and \t */
@@ -101,15 +114,25 @@ void print_sensors(){
 			       sensor[i].name, sensor[i].fd, sensor[i].id);
 }
 
-int main(){
-
+/**
+ * Charge les drivers et ajoute les capteurs selon un fichier de
+ * configuration xml
+ * \param path chemin du fichier de configuration
+ * \return <0 si erreur
+ */
+int init_sensors(const char* path)
+{
 	xmlDocPtr capteurs_doc;
 	xmlNodePtr drivers_node;
 	xmlNodePtr driver_node;
 	xmlNodePtr capteur_node;
 	
-	capteurs_doc = xmlParseFile("config/sensors.xml");
-	perror("xmlParseFile");
+	capteurs_doc = xmlParseFile(path);
+	if (capteurs_doc == NULL)
+	{
+		perror("xmlParseFile");
+		return -1;
+	}
 	/* the first xml element node of the file */
 	drivers_node = next_XML_ELEMENT_NODE(capteurs_doc->children);
 
@@ -136,6 +159,7 @@ int main(){
 		if( drv[driver_counter] < 0 )
 		{	
 			ios_release();
+			perror("Driver loading error");
 			return drv[driver_counter];
 		}
 		for( 	capteur_node = children_XML_ELEMENT_NODE(driver_node);
@@ -160,13 +184,35 @@ int main(){
 		driver_counter++;
 	}
 	xmlFreeDoc(capteurs_doc);
-	print_sensors();
-	init_engine("config/rules.xml", sensor);
-	ios_attach_global_handler(process_data);
-	sleep(5);
 	return 0;
 }
 
-void json_writer_loop(){
+int main(){
+	sem_init(&stop_sem, 0, 0);
+	int status;
+	if (signal (SIGINT, stop_handler) == SIG_IGN)
+		signal(SIGINT, SIG_IGN);
+	/* Chargement du fichier de configuration des capteurs */
+	if ((status = init_sensors("config/sensors.xml")) < 0)
+	{
+		printf("Initialisation error\n");
+		return status;
+	}
+	print_sensors();
+	/* Chargement du fichier de configuration du moteur de règles */
+	status = init_engine("config/rules.xml", sensor);
+	if (status < 0)
+	{
+		printf("Rule loading error\n");
+		return status;
+	}
+	printf("%d\n", status);
+	/* Association du handler d'arrivée d'informations de capteurs */
+	ios_attach_global_handler(process_data);
 
+	sem_wait(&stop_sem);
+	sem_destroy(&stop_sem);
+	ios_release();
+	printf("Stopping...\n");
+	return 0;
 }

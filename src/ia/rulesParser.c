@@ -434,14 +434,14 @@ Rule * get_rules(const char *filename, infos_sensor *sensor_list) {
 	doc = xmlParseFile(filename);
     
 	if(doc == NULL || !DTDValidation(doc, "config/rules.dtd", 0)) {
-		fprintf(stderr, "Document XML invalide\n");
-		return NULL;
+		fprintf(stderr, "Invalid rule file\n");
+		return (Rule*)-1;
 	}
 
 	// Récupération de la racine
 	racine = xmlDocGetRootElement(doc);
 	if (racine == NULL) {
-		fprintf(stderr, "Document XML vierge\n");
+		fprintf(stderr, "Warning : Rules file empty\n");
 		xmlFreeDoc(doc);
 		return NULL;
 	}
