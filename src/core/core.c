@@ -15,8 +15,10 @@
 #include "core.h"
 #include "remote-control.h"
 
+/* ------------------------------------------------------------------- GLOBALS */
+
 static int drv[MAX_NUMBER_OF_DRIVERS];
-static infos_sensor sensor[MAX_NUMBER_OF_SENSORS];
+static infos_sensor sensor[MAX_NUMBER_OF_SENSORS]; /* variable globale fourni à l'IA */
 static sem_t stop_sem; // Semaphore arret application
 
 // Association id champ => nom
@@ -36,6 +38,9 @@ void stop_handler(int signum)
 	sem_post(&stop_sem);
 }
 
+
+/* ------------------------------------------------------- OUTILS POUR xmllib2 */
+ 
 /* Those blabla_XML_ELEMENT_NODE allow to write readable xml files
  * by removing the fake TEXT_ELEMENT_NODE created by \n and \t */
 
@@ -63,6 +68,72 @@ xmlNodePtr next_XML_ELEMENT_NODE(xmlNodePtr node){
 	return node;
 }
 
+
+/* --------------------------------------------------- INFORMATIONS POUR DES HUMAINS */
+
+/**
+ * Écrit une chaîne descriptive des capteurs dans un flux specifique
+ * \param output le flux de sortie
+ */
+void fprint_sensors(int output)
+{
+	int i;
+	char msg[1024];
+	sprintf(msg,"Configured sensors : \n");
+	write(output, msg, strlen(msg));
+	for(i=0; i<MAX_NUMBER_OF_SENSORS; i++)
+	{
+		if(sensor[i].name)
+		{
+			sprintf(msg, "Sensor \"%s\"\n├─ FD : %d\n└─ ID : %.8X\n",
+				sensor[i].name, sensor[i].fd, sensor[i].id);
+			write(output, msg, strlen(msg));
+		}
+	}
+}
+
+/** Affiche sur la sortie standard les infos sur les capteurs */
+void print_sensors(){
+	fprint_sensors(stdout->_fileno);
+}
+
+
+/* -------------------------------------------------------------- TELNET */
+
+/**
+ * Commande telnet d'arrêt
+ */
+int remote_stop_cmd(int fd, const char* cmd)
+{
+	char* msg = "GHome is stopping. Goodbye !\n";
+	write(fd, msg, strlen(msg));
+	sem_post(&stop_sem);
+	return 0;
+}
+
+/**
+ * Commande telnet de listage de capteurs
+ */
+int list_sensors_cmd(int fd, const char* cmd)
+{
+	fprint_sensors(fd);
+	return 1;
+}
+
+/**
+ * Commande telnet de listage de règles
+ */
+int list_rules_cmd(int fd, const char* cmd)
+{
+//	fprint_rules(fd);
+	return 1;
+}
+
+/* ----------------------------------------------------------- FAT FONCTIONS :) */
+
+/**
+ *   
+*/
 void process_data(int device, unsigned int field, float val)
 {
 	printf("Got some data from %d on field %d : %f\n", device, field, val);
@@ -104,32 +175,6 @@ void process_data(int device, unsigned int field, float val)
 	}
 	fprintf(raw_data, "\n]\n}");
 	fclose(raw_data);
-}
-
-/**
- * Écrit une chaîne descriptive des capteurs dans un flux specifique
- * \param output le flux de sortie
- */
-void fprint_sensors(int output)
-{
-	int i;
-	char msg[1024];
-	sprintf(msg,"Configured sensors : \n");
-	write(output, msg, strlen(msg));
-	for(i=0; i<MAX_NUMBER_OF_SENSORS; i++)
-	{
-		if(sensor[i].name)
-		{
-			sprintf(msg, "Sensor \"%s\"\n├─ FD : %d\n└─ ID : %.8X\n",
-				sensor[i].name, sensor[i].fd, sensor[i].id);
-			write(output, msg, strlen(msg));
-		}
-	}
-}
-
-/** Affiche sur la sortie standard les infos sur les capteurs */
-void print_sensors(){
-	fprint_sensors(stdout->_fileno);
 }
 
 /**
@@ -210,35 +255,6 @@ int init_sensors(const char* path)
 	}
 	xmlFreeDoc(capteurs_doc);
 	return 0;
-}
-
-/**
- * Commande telnet d'arrêt
- */
-int remote_stop_cmd(int fd, const char* cmd)
-{
-	char* msg = "GHome is stopping. Goodbye !\n";
-	write(fd, msg, strlen(msg));
-	sem_post(&stop_sem);
-	return 0;
-}
-
-/**
- * Commande telnet de listage de capteurs
- */
-int list_sensors_cmd(int fd, const char* cmd)
-{
-	fprint_sensors(fd);
-	return 1;
-}
-
-/**
- * Commande telnet de listage de règles
- */
-int list_rules_cmd(int fd, const char* cmd)
-{
-//	fprint_rules(fd);
-	return 1;
 }
 
 int main(){
