@@ -2,11 +2,12 @@
 <!DOCTYPE drivers SYSTEM "drivers.dtd">
 
 <drivers>
-<driver so="mon_driver.so.1.0.1">
+<driver so="mon_driver.so.1.0.1" ip="127.0.0.1" port="8080">
 	<capteur id="43141330" type="BUTTON" etat="ON">blague</capteur>
 	<capteur id="0021CC31" type="BUTTON" etat="ON">bouton</capteur>
 	<capteur id="008933FF" type="WINDOW" etat="ON">fenetre du salon</capteur>
 	<capteur id="0001B593" type="WINDOW" etat="ON">fenetre</capteur>
 	<capteur id="0001B594" type="BUTTON" etat="ON">??</capteur>
 </driver>
+
 </drivers>

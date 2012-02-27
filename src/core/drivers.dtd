@@ -4,7 +4,9 @@
 <!ELEMENT driver (capteur+)>
 <!ELEMENT capteur (#PCDATA)>
 			
-<!ATTLIST driver so CDATA #REQUIRED>	
+<!ATTLIST driver so CDATA #REQUIRED>
+<!ATTLIST driver ip CDATA #REQUIRED>
+<!ATTLIST driver port CDATA #REQUIRED>	
 <!ATTLIST capteur id CDATA #REQUIRED>
 <!ATTLIST capteur type CDATA #REQUIRED>
 <!ATTLIST capteur etat (ON|OFF) #REQUIRED>
