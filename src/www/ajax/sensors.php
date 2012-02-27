@@ -6,6 +6,7 @@
 
 
 require_once( "../include/auth.php" );
+require_once( "../include/remote-act.php" );
 
 if( is_authenticated() == false )
 	die( '{ "type": "Error", "mesg": "Vous n\'êtes pas autorisés à effectuer cette action." }' );
@@ -22,7 +23,9 @@ switch( $_POST['action'] ) {
 		/* Il est demandé de supprimer un capteur */
 		if( @isset( $_POST['id'] ) ) {
 			
-			/* Il faut supprimer l'entrée dans le fichier xml... funky ! */
+			$res = send_ract_request( "PING" );
+
+			echo '{ "type": "success", "mesg": "'.$res.'" }';
 		}
 		else
 			die( '{ "type": "fail", "mesg": "Mauvaise requête." }' );
