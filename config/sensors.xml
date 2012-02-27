@@ -3,13 +3,13 @@
 
 <drivers>
   <!-- SunSpot -->
-  <driver so="mon_driver.so.1.0.1">
+  <driver so="libsunspot.so">
     <capteur id="00000003" type="TEMPERATURE" etat="ON">temp_chambre</capteur>
     <capteur id="00000004" type="ACTUATOR" etat="ON">chauffage</capteur>
   </driver>
   
   <!-- enOcean -->
-  <driver so="mon_driver.so.1.0.1" ip="134.214.105.28" port="5000"> 
+  <driver so="libenocean.so" ip="134.214.105.28" port="5000"> 
     <capteur id="00053F16" type="TEMPERATURE" etat="ON">temp cave a vin</capteur>
     <capteur id="0021CC31" type="BUTTON" etat="ON" >interrupteur ambiance disco</capteur>
     <capteur id="0089337F" type="BRIGHTNESS" etat="ON">luminosite et presence salon</capteur>
