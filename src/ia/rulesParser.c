@@ -363,63 +363,77 @@ void fillRules(xmlNodePtr node) {
 	xmlFree(chemin);
 }
 
-void traceRules(Rule *rules)
+void ftraceRules(Rule *rules, int output)
 {
 	Rule *r;
 	int i=0, j;
-
+	char msg[1024];
 	for(r = rules; r != NULL; r = r->next)
 	{
-		printf("\n\033[31mRule n°%d :\033[00m %s\n", ++i, r->name);
-
+		sprintf(msg, "\n\033[31mRule n°%d :\033[00m %s\n", ++i, r->name);
+		write(output, msg, strlen(msg));
 		// Liste les actions
 		Action *ac;
 		j=0;
-		printf("├── \033[32mActions\033[00m\n");
+		sprintf(msg, "├── \033[32mActions\033[00m\n");
+		write(output, msg, strlen(msg));
 		for(ac = r->actions; ac != NULL; ac = ac->next)
 		{
 			if(ac->next == NULL)
 			{
-				printf("│\t└── \033[33mAction n°%d : \033[34mDo\033[00m %s\033[34m->\033[00m%s \033[34m=\033[00m %s\n", ++j, getDeviceName(ac->device), getFieldName(ac->field), getStateName(ac->state));
+				sprintf(msg, "│\t└── \033[33mAction n°%d : \033[34mDo\033[00m %s\033[34m->\033[00m%s \033[34m=\033[00m %s\n", ++j, getDeviceName(ac->device), getFieldName(ac->field), getStateName(ac->state));
+				write(output, msg, strlen(msg));
 			}
 			else
 			{
-				printf("│\t├── \033[33mAction n°%d : \033[34mDo\033[00m %s\033[34m->\033[00m%s \033[34m=\033[00m %s\n", ++j, getDeviceName(ac->device), getFieldName(ac->field), getStateName(ac->state));
+				sprintf(msg, "│\t├── \033[33mAction n°%d : \033[34mDo\033[00m %s\033[34m->\033[00m%s \033[34m=\033[00m %s\n", ++j, getDeviceName(ac->device), getFieldName(ac->field), getStateName(ac->state));
+				write(output, msg, strlen(msg));
 			}
 		}
 
 		// Liste les alertes
 		Alert *al;
 		j=0;
-		printf("├── \033[32mAlertes\033[00m\n");
+		sprintf(msg, "├── \033[32mAlertes\033[00m\n");
+		write(output, msg, strlen(msg));
 		for(al = r->alerts; al != NULL; al = al->next)
 		{
 			if(al->next == NULL)
 			{
-				printf("│\t└── \033[33mAlert n°%d : \033[34mSend \"\033[00m%s\033[34m\" To\033[00m %s\n", ++j, al->message, getRecipientName(al->recipient));
+				sprintf(msg, "│\t└── \033[33mAlert n°%d : \033[34mSend \"\033[00m%s\033[34m\" To\033[00m %s\n", ++j, al->message, getRecipientName(al->recipient));
+				write(output, msg, strlen(msg));
 			}
 			else
 			{
-				printf("│\t├── \033[33mAlert n°%d : \033[34mSend\033[00m \"%s\" \033[34mTo\033[00m %s\n", ++j, al->message, getRecipientName(al->recipient));
+				sprintf(msg, "│\t├── \033[33mAlert n°%d : \033[34mSend\033[00m \"%s\" \033[34mTo\033[00m %s\n", ++j, al->message, getRecipientName(al->recipient));
+				write(output, msg, strlen(msg));
 			}
 		}
 
 		// Liste les conditions
 		Condition *cd;
 		j=0;
-		printf("└── \033[32mConditions\033[00m\n");
+		sprintf(msg, "└── \033[32mConditions\033[00m\n");
+		write(output, msg, strlen(msg));
 		for(cd = r->conditions; cd != NULL; cd = cd->next)
 		{
 			if(cd->next == NULL)
 			{
-				printf("\t└── \033[33mCondition n°%d : \033[34mWhen\033[00m %s[%d] \033[34m->\033[00m%s %s %f\n", ++j,  getDeviceName(cd->device), cd->device, getFieldName(cd->field), getConditionType(cd->type), cd->value);
+				sprintf(msg, "\t└── \033[33mCondition n°%d : \033[34mWhen\033[00m %s[%d] \033[34m->\033[00m%s %s %f\n", ++j,  getDeviceName(cd->device), cd->device, getFieldName(cd->field), getConditionType(cd->type), cd->value);
+				write(output, msg, strlen(msg));
 			}
 			else
 			{
-				printf("\t├── \033[33mCondition n°%d : \033[34mWhen\033[00m %s[%d] \033[34m->\033[00m%s %s %f \033[34mAnd\033[00m\n", ++j, getDeviceName(cd->device), cd->device, getFieldName(cd->field), getConditionType(cd->type), cd->value);
+				sprintf(msg, "\t├── \033[33mCondition n°%d : \033[34mWhen\033[00m %s[%d] \033[34m->\033[00m%s %s %f \033[34mAnd\033[00m\n", ++j, getDeviceName(cd->device), cd->device, getFieldName(cd->field), getConditionType(cd->type), cd->value);
+				write(output, msg, strlen(msg));
 			}
 		}
 	}
+}
+
+void traceRules(Rule *rules)
+{
+	ftraceRules(rules, stdout->_fileno);
 }
 
 Rule * get_rules(const char *filename, infos_sensor *sensor_list) {

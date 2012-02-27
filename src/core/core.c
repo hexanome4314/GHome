@@ -106,13 +106,30 @@ void process_data(int device, unsigned int field, float val)
 	fclose(raw_data);
 }
 
-void print_sensors(){
+/**
+ * Écrit une chaîne descriptive des capteurs dans un flux specifique
+ * \param output le flux de sortie
+ */
+void fprint_sensors(int output)
+{
 	int i;
-	printf("Configured sensors : \n");
+	char msg[1024];
+	sprintf(msg,"Configured sensors : \n");
+	write(output, msg, strlen(msg));
 	for(i=0; i<MAX_NUMBER_OF_SENSORS; i++)
+	{
 		if(sensor[i].name)
-			printf("Sensor : %s\n -FD : %d\n -ID : %.8X\n",
-			       sensor[i].name, sensor[i].fd, sensor[i].id);
+		{
+			sprintf(msg, "Sensor \"%s\"\n├─ FD : %d\n└─ ID : %.8X\n",
+				sensor[i].name, sensor[i].fd, sensor[i].id);
+			write(output, msg, strlen(msg));
+		}
+	}
+}
+
+/** Affiche sur la sortie standard les infos sur les capteurs */
+void print_sensors(){
+	fprint_sensors(stdout->_fileno);
 }
 
 /**
@@ -188,12 +205,33 @@ int init_sensors(const char* path)
 	return 0;
 }
 
+/**
+ * Commande telnet d'arrêt
+ */
 int remote_stop_cmd(int fd, const char* cmd)
 {
 	char* msg = "GHome is stopping. Goodbye !\n";
 	write(fd, msg, strlen(msg));
 	sem_post(&stop_sem);
 	return 0;
+}
+
+/**
+ * Commande telnet de listage de capteurs
+ */
+int list_sensors_cmd(int fd, const char* cmd)
+{
+	fprint_sensors(fd);
+	return 1;
+}
+
+/**
+ * Commande telnet de listage de règles
+ */
+int list_rules_cmd(int fd, const char* cmd)
+{
+	fprint_rules(fd);
+	return 1;
 }
 
 int main(){
@@ -230,6 +268,8 @@ int main(){
 	/* Lancement du contrôle telnet */
 	start_remote_control(1235);
 	add_command("stop-server", "Stop the GHome server and cut the connection", &remote_stop_cmd);
+	add_command("list-sensors", "Print the list of configured sensors", &list_sensors_cmd);
+	add_command("list-rules", "Print the list of applied rules", &list_rules_cmd);
 
 	/* Association du handler d'arrivée d'informations de capteurs */
 	ios_attach_global_handler(process_data);

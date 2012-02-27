@@ -178,3 +178,12 @@ int reload_rules(infos_sensor *sensor)
 	ios_attach_global_handler(apply_actions);
 	return 0;
 }
+
+/**
+ * Ecrit les règles en applications sur une sortie
+ * \param output la sortie
+ */
+void fprint_rules(int output)
+{
+	ftraceRules(rules, output);
+}

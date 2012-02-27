@@ -41,4 +41,10 @@ int init_engine(const char *file, infos_sensor *sensor);
  */
 void apply_actions(int device, unsigned int field, float val);
 
+/**
+ * Ecrit les règles en applications sur une sortie
+ * \param output la sortie
+ */
+void fprint_rules(int output);
+
 #endif
