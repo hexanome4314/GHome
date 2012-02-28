@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!ELEMENT rules (rule+)>
+<!ELEMENT rules (rule*)>
 <!ELEMENT rule (actions,conditions)>
-<!ELEMENT actions (activate+,alert+)>
-<!ELEMENT conditions (condition+)>
+<!ELEMENT actions (activate*,alert*)>
+<!ELEMENT conditions (condition*)>
 <!ELEMENT activate (#PCDATA)>
 <!ELEMENT alert (#PCDATA)>
 <!ELEMENT condition (#PCDATA)>

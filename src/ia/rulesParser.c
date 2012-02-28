@@ -1,9 +1,5 @@
 #include "rulesParser.h"
 
-#define PATH_ALERT "/rules/rule/actions/alert"
-#define PATH_COND "/rules/rule/conditions/condition"
-#define PATH_ACTION "/rules/rule/actions/activate"
-
 #define FIELDS_SIZE DRV_LAST_VALUE
 
 // Association id champ => nom
@@ -273,10 +269,10 @@ void addCondition(char *device, char *field, char *type, char *value)
 	printf("New condition added : %s->%s %s %f\n", device, field, type, condition->value);
 }
 
-void fillRules(xmlNodePtr node) {
-	xmlChar *chemin = xmlGetNodePath(node);
+void fillRules(xmlNodePtr node)
+{
 	// Ajout d'une regle
-	if(strcmp((char *)chemin, "/rules/rule") == 0)
+	if(strcmp((char *)node->name, "rule") == 0)
 	{
 		xmlAttrPtr attr = getAttrByName(node, "name");
 
@@ -288,11 +284,7 @@ void fillRules(xmlNodePtr node) {
 	}
 
 	// Ajout d'une action
-	int chAcSize=strlen(PATH_ACTION);
-	char * cheminAction = malloc(chAcSize+1);
-	cheminAction[chAcSize] = '\0';
-	strncpy(cheminAction, (char *)chemin, chAcSize);
-	if(strcmp((char *)cheminAction, PATH_ACTION) == 0)
+	if(strcmp((char *)node->name, "activate") == 0)
 	{
 		xmlAttrPtr devicePtr = getAttrByName(node, "device");
 		xmlAttrPtr fieldPtr = getAttrByName(node, "field");
@@ -310,15 +302,9 @@ void fillRules(xmlNodePtr node) {
 			xmlFree(field);
 		}
 	}
-	free(cheminAction);
 
 	// Ajout d'une alerte
-	int chAlSize=strlen(PATH_ALERT);
-	char * cheminAlert = malloc(chAlSize+1);
-	cheminAlert[chAlSize] = '\0';
-	strncpy(cheminAlert, (char *)chemin, chAlSize);
-
-	if(strcmp((char *)chemin, PATH_ALERT) == 0)
+	if(strcmp((char *)node->name, "alert") == 0)
 	{
 		xmlAttrPtr attr = getAttrByName(node, "recipient");
 
@@ -330,14 +316,9 @@ void fillRules(xmlNodePtr node) {
 			xmlFree(recipient);
 		}
 	}
-	free(cheminAlert);
 
 	// Ajout d'une condition
-	int chCdSize = strlen(PATH_COND);
-	char * cheminCond = malloc(chCdSize+1);
-	cheminCond[chCdSize] = '\0';
-	strncpy(cheminCond, (char *)chemin, chCdSize);
-	if(strcmp(cheminCond, PATH_COND) == 0)
+	if(strcmp((char *)node->name, "condition") == 0)
 	{
 		xmlAttrPtr devicePtr = getAttrByName(node, "device");
 		xmlAttrPtr fieldPtr = getAttrByName(node, "field");
@@ -358,9 +339,7 @@ void fillRules(xmlNodePtr node) {
 			xmlFree(field);
 			xmlFree(type);
 		}
-		free(cheminCond);
 	}
-	xmlFree(chemin);
 }
 
 void ftraceRules(Rule *rules, int output)
@@ -368,10 +347,12 @@ void ftraceRules(Rule *rules, int output)
 	Rule *r;
 	int i=0, j;
 	char msg[1024];
+    
 	for(r = rules; r != NULL; r = r->next)
 	{
-		sprintf(msg, "\n\033[31mRule n°%d :\033[00m %s\n", ++i, r->name);
+		sprintf(msg, "\n\033[31mRule n°%d :\033[00m %s\n", ++i, r->name);        
 		write(output, msg, strlen(msg));
+        
 		// Liste les actions
 		Action *ac;
 		j=0;
@@ -419,12 +400,12 @@ void ftraceRules(Rule *rules, int output)
 		{
 			if(cd->next == NULL)
 			{
-				sprintf(msg, "\t└── \033[33mCondition n°%d : \033[34mWhen\033[00m %s[%d] \033[34m->\033[00m%s %s %f\n", ++j,  getDeviceName(cd->device), cd->device, getFieldName(cd->field), getConditionType(cd->type), cd->value);
+				sprintf(msg, "\t└── \033[33mCondition n°%d : \033[34mWhen\033[00m %s[%d]\033[34m->\033[00m%s %s %f\n", ++j,  getDeviceName(cd->device), cd->device, getFieldName(cd->field), getConditionType(cd->type), cd->value);
 				write(output, msg, strlen(msg));
 			}
 			else
 			{
-				sprintf(msg, "\t├── \033[33mCondition n°%d : \033[34mWhen\033[00m %s[%d] \033[34m->\033[00m%s %s %f \033[34mAnd\033[00m\n", ++j, getDeviceName(cd->device), cd->device, getFieldName(cd->field), getConditionType(cd->type), cd->value);
+				sprintf(msg, "\t├── \033[33mCondition n°%d : \033[34mWhen\033[00m %s[%d]\033[34m->\033[00m%s %s %f \033[34mAnd\033[00m\n", ++j, getDeviceName(cd->device), cd->device, getFieldName(cd->field), getConditionType(cd->type), cd->value);
 				write(output, msg, strlen(msg));
 			}
 		}
@@ -436,9 +417,9 @@ void traceRules(Rule *rules)
 	ftraceRules(rules, stdout->_fileno);
 }
 
-Rule * get_rules(const char *filename, infos_sensor *sensor_list) {
-
-	xmlDocPtr doc;
+Rule * get_rules(const char *filename, infos_sensor *sensor_list)
+{
+    xmlDocPtr doc;
 	xmlNodePtr racine;
 	Rule *rules = malloc(sizeof(Rule));
 	sensor = sensor_list;
@@ -459,10 +440,13 @@ Rule * get_rules(const char *filename, infos_sensor *sensor_list) {
 		xmlFreeDoc(doc);
 		return NULL;
 	}
-
-	// Parcours
+    
+    // Parcours
+    printf("Starting to browse...\n");
 	lastRule=rules;
 	nodeBrowser(racine, fillRules);
+    printf("Browsing end reached!\n");
+    
 	// Libération de la mémoire
 	xmlFreeDoc(doc);
 	traceRules(rules->next);

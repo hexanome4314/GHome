@@ -3,6 +3,6 @@
 
 <drivers>
 <driver so="sunspot_driver.so.1.0.1">
-	<capteur id="00001001" type="BUTTON" etat="ON">blague</capteur>
+	<capteur id="00001001" etat="ON">blague</capteur>
 </driver>
 </drivers>
