@@ -45,12 +45,16 @@ if( is_authenticated() )
 
 							/* Affichage du message si on a une erreur */
 				                        if( data.type == "error" || data.type == "fail" ) {
+
+								$(".content").effect( "shake", { times: 1 }, 120 );
+
 								$("#error_msg").html( data.mesg );
 								$("#error_msg").slideDown();
 							}
 				                        else {
-								/* Sinon on accepte le post */
-                                				res = true;
+								$(".content").hide( "puff", {  }, 1000 );
+
+								$(".content").promise().done( function() { $(location).attr( 'href', '/' ); } );
 				                        }
 				                },
 				                error: function( j, t, e) {
@@ -71,6 +75,7 @@ if( is_authenticated() )
 	<div id="main" class="main">
 
 	<h4>GHome Project</h4>
+	<div id="logout"></div>
 
 	<div class="content">
 		<h3>Authentification</h3>
@@ -79,8 +84,7 @@ if( is_authenticated() )
 
 		<p>Veuillez vous authentifier avant de poursuivre:</p>
 
-		<form method="post" class="auth">
-		<div class="content">
+		<div class="content auth">
 		<div class="table">
 			<div class="">
 				<div class="cell">
@@ -102,7 +106,6 @@ if( is_authenticated() )
 
 		<input type="submit" value="Se connecter" name="action" class="button" id="auth_button" />
 		</div>
-		</form>
 	</div>
 
 	</div>

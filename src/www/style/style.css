@@ -47,6 +47,8 @@ img {
 #main {
 	margin: 0px auto 0px auto;
 	width: 800px;
+
+	text-align: center;
 }
 
 .main h4 {
@@ -54,14 +56,38 @@ img {
 	font-size: 23px;
 	color: #FFFFFF;
 	letter-spacing: -1px;
-	margin-bottom: 40px;
 	text-align: center;
+
+	margin-bottom: 0px;
+}
+
+.main #logout {
+	font-family: Arial, Helvetica, sans-serif;
+	color: #FFFFFF;
+	font-size: 12px;
+	letter-spacing: -1px;
+	text-align: center;
+	font-style: oblique;
+
+	margin-bottom: 40px;
+}
+
+.main #logout :hover {
+	font-weight: bold;
+	
+	border-bottom: 1px solid #FFFFFF;
 }
 
 .tabbed_area {
 	border: 1px solid #494E52;
 	background-color: #636D76;
 	padding: 8px;
+
+	text-align: left;
+
+        border-radius: 10px;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
 }
 
 ul.tabs {
@@ -87,6 +113,10 @@ ul.tabs li a {
 	font-weight: bold;
 	text-transform: uppercase;
 	border: 1px solid #464c54;
+
+        border-top-left-radius: 10px;
+        -webkit-border-radius-topleft: 10px;
+        -moz-border-top-left-radius: 10px;
 }
 
 ul.tabs li a:hover {
@@ -121,6 +151,10 @@ ul.under_tabs li a {
         font-weight: bold;
         text-transform: uppercase;
         border: 1px solid #464c54;
+
+        border-top-left-radius: 10px;
+        -webkit-border-radius-topleft: 10px;
+        -moz-border-top-left-radius: 10px;
 }
 
 ul.under_tabs li a:hover {
@@ -140,6 +174,10 @@ ul.under_tabs li a.active {
 	background-color: #FFFFFF;
 	padding: 20px 50px 40px 50px;
 	border: 1px solid #464C54; 
+
+        border-radius: 10px;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
 }
 
 .content h3 {
@@ -225,6 +263,10 @@ ul.under_tabs li a.active {
 	background-color: #FFFFFF;
 	padding: 0px 40px 20px 40px;
 	border: 1px solid #464C54; 
+
+        border-radius: 10px;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
 }
 
 #rules, #remote {
@@ -311,6 +353,10 @@ img.tiny_btn {
 	margin-top: 40px;
 	padding: 8px;
 	text-align: center;
+
+        border-radius: 10px;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
 }
 
 #foot_box p {
@@ -324,7 +370,7 @@ img.tiny_btn {
 	margin: 0px;
 }
 
-form.auth .text {
+.auth .text {
 	
 	margin: auto;
 	background: #EEEEEE;
@@ -338,7 +384,7 @@ form.auth .text {
 	-moz-border-radius: 10px;
 }
 
-form.auth .button {
+.auth .button {
 	border: 1px solid #DDDDDD;
 
 	border-radius: 10px;
@@ -350,11 +396,15 @@ form.auth .button {
 	padding: 3px 10px 3px 10px;
 }
 
-form.auth .content {
+.auth .content {
 	width: 80%;
 	margin: auto;
 
 	text-align: center;
+
+        border-radius: 10px;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
 }
 
 p.error_msg {

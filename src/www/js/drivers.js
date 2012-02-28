@@ -84,6 +84,8 @@ function show_device_info( id, drv ) {
 				$("#dialog").dialog( {
 					title: dialog_title,
 					width: 400,
+					show: 'drop',
+					hide: 'drop',
 					resizable: false,
 					buttons: { "Ok": function() { $(this).dialog( "close" ); },
 						   "Modifier": function() { $(this).dialog( "close" ); edit_device_info( id, drv ); },
@@ -104,6 +106,8 @@ function show_device_info( id, drv ) {
 				$("#dialog").dialog( {
 					title: dialog_title,
 					width: 350,
+					show: 'drop',
+					hide: 'drop',
 					resizable: false,
 					buttons: { "Ok": function() { $(this).dialog( "close" ); }  }
 				});
@@ -122,6 +126,8 @@ function show_device_info( id, drv ) {
 			$("#dialog").dialog( {
 				title: dialog_title,
 				width: 350,
+				show: 'drop',
+				hide: 'drop',
 				resizable: false,
 				buttons: { "Ok": function() { $(this).dialog( "close" ); }  }
 			});
@@ -234,7 +240,9 @@ function edit_device_info( id, drv ) {
 					title: dialog_title,
 					width: 450,
 					resizable: false,
-					buttons: { "Enregistrer": function() { if( save_device_info( drv_name, id ) == 1 ) $(this).dialog( "close" ); },
+					show: 'drop',
+					hide: 'drop',
+					buttons: { "Enregistrer": function() { if( save_device_info( drv_name, id ) == 1 ) $(this).dialog( "close" ); else $( ".ui-dialog" ).effect( "shake", { times: 1 }, 75 ); },
 						   "Annuler": function() { $(this).dialog( "close" ); },
 						 }
 				});
@@ -253,6 +261,8 @@ function edit_device_info( id, drv ) {
 					title: dialog_title,
 					width: 350,
 					resizable: false,
+					show: 'drop',
+					hide: 'drop',
 					buttons: { 
 						   "Ok": function() { $(this).dialog( "close" ); },
 						 }
@@ -273,6 +283,8 @@ function edit_device_info( id, drv ) {
 				title: dialog_title,
 				width: 350,
 				resizable: false,
+				show: 'drop',
+				hide: 'drop',
 				buttons: { 
 					   "Ok": function() { $(this).dialog( "close" ); },
 					 }
@@ -432,7 +444,9 @@ function new_device( driver_name ) {
 			title: dialog_title,
 			width: 450,
 			resizable: false,
-			buttons: { "Enregistrer": function() { if( save_device_info() == 1 ) $(this).dialog( "close" ); },
+			show: 'drop',
+			hide: 'drop',
+			buttons: { "Enregistrer": function() { if( save_device_info() == 1 ) $(this).dialog( "close" );  else $( ".ui-dialog" ).effect( "shake", { times: 1 }, 75 ); },
 				   "Annuler": function() { $(this).dialog( "close" ); },
 				 }
 		} );
@@ -458,6 +472,8 @@ function confirm_remove_device( id, drv ) {
 		title: 'Confirmation',
 		width: 400,
 		resizable: false,
+		show: 'drop',
+		hide: 'drop',
 		buttons: { "Oui": function() { $(this).dialog( "close" ); remove_device( id, drv ); },
 			   "Non": function() { $(this).dialog( "close" ); }
 			}
