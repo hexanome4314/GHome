@@ -272,9 +272,8 @@ int main(){
 		perror("Internal Error\n");
 		return -1;
 	}
-
 	/* Chargement du fichier de configuration des capteurs */
-	if ((status = init_sensors("drivers/sensors.test.xml")) < 0)
+	if ((status = init_sensors("config/sensors.xml")) < 0)
 	{
 		perror("Initialisation error\n");
 		return status;
