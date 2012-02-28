@@ -172,7 +172,7 @@ int init_engine(const char *file, infos_sensor *sensor)
  */
 int reload_rules(infos_sensor *sensor)
 {
-	free_rules(rules);
+	//free_rules(rules); // À corriger
 	rules = get_rules(rulefile, sensor);
 	if(!rules)
 		return -1;
