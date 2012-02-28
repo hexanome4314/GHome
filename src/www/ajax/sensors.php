@@ -28,6 +28,44 @@ switch( $_POST['action'] ) {
 
 	/* Il est demandé d'ajouter un capteur */
 	case "add":
+		if( @(  isset( $_POST['new_id'] ) && 
+			isset( $_POST['new_drv'] ) && 
+			isset( $_POST['name'] ) &&
+			isset( $_POST['state'] )) ) {
+
+			/* On désérialise le nom du driver */
+			list($drv, $ip, $port) = parse_driver_name( $_POST['new_drv'] );
+
+			/* Parsing du XML */
+			$xml_content = file_get_contents( $sensors_xml );
+			$drivers = new SimpleXMLElement( $xml_content );
+
+			/* On cherche le capteur à éditer avec une requête xpath */
+			$driver_node = fetch_driver_node( $drivers, $drv, $ip, $port );
+			
+			/* Maintenant que l'on a le bon noeud, on procède à l'ajout ! */
+			/* Et on crée le nouveau noeud ! */
+			$new_node = $driver_node->addChild( "capteur", $_POST['name'] );
+			$new_node->addAttribute( "id", $_POST['new_id'] );
+			$new_node->addAttribute( "etat", $_POST['state'] );
+
+			/* Il ne reste plus qu'à écrire le nouveau fichier */
+			if( @$drivers->asXML( $sensors_xml ) == false ) {
+
+				$log_mgr->write( "Critical", "L'écriture du nouveau XML a échoué. (action=".$_POST['action']." / user=".get_username().")" );
+				die( '{ "type": "fail", "mesg": "L\'écriture du nouveau fichier a échoué." }' );
+			}
+
+			/* On averti le core */
+			$res = /*"ok"; //*/ send_ract_request( "RELOAD_DRIVERS" );
+
+			exit( '{ "type": "success", "mesg": "'.$res.'" }' );
+		}
+		else {
+			$log_mgr->write( "Error", "Requête erronée (action=".$_POST['action']." / user=".get_username().")" );
+			die( '{ "type": "fail", "mesg": "Mauvaise requête." }' );
+		}
+
 		break;
 
 	/* Il est demandé d'éditer un capteur */	
