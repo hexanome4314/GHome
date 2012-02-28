@@ -257,7 +257,21 @@ int init_sensors(const char* path)
 	return 0;
 }
 
-int main(){
+/**
+ * libère la mémoire dynamique de la variable global sensor[]
+*/
+int free_sensor_array()
+{
+	int loop_index;
+	for(loop_index = 0 ; ((loop_index < MAX_NUM_OF_SENSOR) && (sensor[loop_index].name != NULL)) ; loop_index++){
+		if(xmlFree(sensor[loop_index].name) != 0)
+			perror("free_sensor_tab - xmlFree");		
+	}
+	return 0;
+}
+
+int main()
+{
 	sem_init(&stop_sem, 0, 0);
 	int status;
 	
