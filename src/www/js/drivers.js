@@ -507,6 +507,12 @@ function update_driver_data() {
 			
 			var str = "";
 
+			/* Pour plus tard 
+			str += '<a href="#" class="tiny_link add_drv">';
+			str += '<span><img src="img/button/add.png" />Ajouter un nouveau pilote</span>';
+			str += '</a><br /><br />';
+			*/
+
 			$( data ).find( 'driver' ).each( function() {
 				
 				str += '<div class="driver_list">';
