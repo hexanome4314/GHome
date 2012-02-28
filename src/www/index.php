@@ -73,41 +73,6 @@ force_authentication();
                                         }
 				);
 
-				$("div#driver_data .collapse").click( 
-					function() {
-						collapse_device_list( $(this) );
-						return false;
-					}
-				);
-
-				$("div#driver_data .view").click( 
-					function() {
-						show_device_info( $(this).attr( 'alt' ) );
-						return false;
-					}
-				);
-
-				$("div#driver_data .edit").click(
-					function() {
-						edit_device_info( $(this).attr( 'alt' ) );
-						return false;
-					}
-				);
-
-				$("div#driver_data .del").click(
-					function() {
-						confirm_remove_device( $(this).attr( 'alt' ) );
-						return false;
-					}
-				);
-			
-				$("div#driver_data .add").click(
-					function() {
-						new_device( $(this).attr( 'alt' ) );
-						return false;
-					}
-				);
-
 				return false;
 			}
 		);

@@ -275,23 +275,36 @@ function save_device_info( old_driver, old_id ) {
 	var new_id	= $( "#new_id" ).attr( 'value' );
 	var state	= $( "#state" ).attr( 'value' );
 
+	/* On regarde si on est dans une édition ou un ajout afin de fixer les bons paramètres */
+	var param = "";
+	if( old_driver != void 0 ) // Edition
+		param = "action=edit&id="+old_id+"&drv="+old_driver+"&new_drv="+new_driver+"&new_id="+new_id+"&name="+name+"&state="+state;
+	else
+		param = "action=add&&new_drv="+new_driver+"&new_id="+new_id+"&name="+name+"&state="+state;
 
 	/* Et maintenant on envoie tout au php qui va computer tout ça */
+	var res = 0;
 	$.ajax( {
 		async: false,
 		type: "POST",
 		dataType: "json",
 		url: "ajax/sensors.php",
-		data: "action=edit&id="+old_id+"&drv="+old_driver+"&new_drv="+new_driver+"&new_id="+new_id+"&name="+name+"&state="+state,
+		data: param,
 		success: function( data ) {
-			alert( data.mesg );
+			if( data.type != "success" ) {
+				alert( data.mesg );
+			}
+			else {
+				update_driver_data();
+				res = 1;
+			}
 		},
 		error: function( j, t, e ) {
-			alert( 'Une erreur est survenue lors de l\'enregistrement des données. Veuillez réessayer plus tard.\n' + t + ' - ' + e );
+			alert( 'Une erreur est survenue lors de l\'enregistrement des données. Veuillez réessayer plus tard.\n' + t + ' - ' + e + '\n' + j.responseText );
 		}
 	} );
 
-	return 0;
+	return res;
 }
 
 /**
@@ -487,6 +500,43 @@ function update_driver_data() {
 
 
 			$( '#driver_data' ).html( str );
+
+			/* Enregistrement des handlers associés */
+			$("div#driver_data .collapse").click( 
+				function() {
+					collapse_device_list( $(this) );
+					return false;
+				}
+			);
+
+			$("div#driver_data .view").click( 
+				function() {
+					show_device_info( $(this).attr( 'alt' ) );
+					return false;
+				}
+			);
+
+			$("div#driver_data .edit").click(
+				function() {
+					edit_device_info( $(this).attr( 'alt' ) );
+					return false;
+				}
+			);
+
+			$("div#driver_data .del").click(
+				function() {
+					confirm_remove_device( $(this).attr( 'alt' ) );
+					return false;
+				}
+			);
+		
+			$("div#driver_data .add").click(
+				function() {
+					new_device( $(this).attr( 'alt' ) );
+					return false;
+				}
+			);
+
 		},
 		error: function( xhr, str, error) {
 			alert( "Impossible de charger les données relatives aux pilotes." );
