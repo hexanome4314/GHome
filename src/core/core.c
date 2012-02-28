@@ -116,6 +116,30 @@ void process_data(int device, unsigned int field, float val)
 
 
 
+/**
+ * libère la mémoire dynamique de la variable global sensor[]
+*/
+int free_sensor_array()
+{
+	int loop_index;
+	for(loop_index = 0 ; loop_index < MAX_NUMBER_OF_SENSORS ; loop_index++){
+		xmlFree(sensor[loop_index].name);
+	}
+	return 0;
+}
+
+/**
+ * libère la mémoire dynamique de la variable global drv[]
+*/
+int free_drv_array()
+{
+	int loop_index;
+	for(loop_index = 0 ; loop_index < MAX_NUMBER_OF_DRIVERS ; loop_index++){
+		xmlFree(drv[loop_index].name);
+	}
+	return 0;
+}
+
 /* -------------------------------------------------------------- TELNET */
 
 /**
@@ -172,6 +196,8 @@ int reload_rules_cmd(int fd, const char* cmd)
 int reload_sensors_cmd(int fd, const char* cmd)
 {
 	ios_detach_global_handler();
+	free_sensor_array();
+	free_drv_array();
 	if(read_sensors("config/sensors.xml", sensor, drv) < 0)
 	{
 		char message[] = "Malformed sensor description file. Correct it and reload sensor description file\n";
@@ -184,31 +210,6 @@ int reload_sensors_cmd(int fd, const char* cmd)
 	}
 	return 1;
 }
-
-/**
- * libère la mémoire dynamique de la variable global sensor[]
-*/
-int free_sensor_array()
-{
-	int loop_index;
-	for(loop_index = 0 ; loop_index < MAX_NUMBER_OF_SENSORS ; loop_index++){
-		xmlFree(sensor[loop_index].name);
-	}
-	return 0;
-}
-
-/**
- * libère la mémoire dynamique de la variable global drv[]
-*/
-int free_drv_array()
-{
-	int loop_index;
-	for(loop_index = 0 ; loop_index < MAX_NUMBER_OF_DRIVERS ; loop_index++){
-		xmlFree(drv[loop_index].name);
-	}
-	return 0;
-}
-
 
 /* ----------------------------------------------------------- FAT FONCTIONS :) */
 
@@ -245,7 +246,7 @@ int main()
 	}
 	
 	/* Lancement du contrôle telnet */
-	start_remote_control(1235);
+	start_remote_control(1233);
 	add_command("stop-server", "Stop the GHome server and cut the connection", &remote_stop_cmd);
 	add_command("list-sensors", "Print the list of configured sensors", &list_sensors_cmd);
 	add_command("list-rules", "Print the list of applied rules", &list_rules_cmd);
