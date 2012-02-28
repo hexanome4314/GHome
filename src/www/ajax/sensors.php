@@ -149,10 +149,29 @@ switch( $_POST['action'] ) {
 
 	/* Il est demandé de supprimer un capteur */
 	case "delete":
-		if( @isset( $_POST['id'] ) ) {
+		if( @isset( $_POST['id'] ) &&
+		     isset( $_POST['drv'] ) ) {
 			
-			$res = send_ract_request( "PING" );
-			echo '{ "type": "success", "mesg": "'.$res.'" }';
+			/* On désérialise le nom du driver */
+			list($drv, $ip, $port) = parse_driver_name( $_POST['drv'] );
+
+			/* Parsing du XML */
+			$xml_content = file_get_contents( $sensors_xml );
+			$drivers = new SimpleXMLElement( $xml_content );
+
+			/* Suppression du noeud du capteur */
+			$drivers = remove_sensor_node( $drivers, $drv, $ip, $port, $_POST['id'] );
+
+			if( @$drivers->asXML( $sensors_xml ) == false ) {
+				
+				$log_mgr->write( "Critical", "L'écriture du nouveau XML a échoué. (action=".$_POST['action']." / user=".get_username().")" );
+				die( '{ "type": "fail", "mesg": "L\'écriture du nouveau fichier a échoué." }' );
+			}
+
+			/* Averti le core */
+			$res = "ok"; // send_ract_request( "RELOAD_DRIVERS" );
+			
+			exit( '{ "type": "success", "mesg": "'.$res.'" }' );
 		}
 		else {
 			$log_mgr->write( "Error", "Requête erronée (action=".$_POST['action']." / user=".get_username().")" );

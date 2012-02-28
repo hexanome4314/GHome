@@ -19,8 +19,10 @@ function collapse_device_list( element ) {
 
 /**
 Affiche les informations relatives à un capteurs
+\param	id	ID du capteur
+	drv	Driver utilisé
 */
-function show_device_info( id ) {
+function show_device_info( id, drv ) {
 	var dialog_title = "";
 
 	/* On commence par récupérer dans le xml les dernières info que l'on a du capteur */
@@ -31,10 +33,30 @@ function show_device_info( id ) {
 		url: "data/sensors.xml",
 		success: function( data ) {
 	
-			/* Avec XPath, on choppe le bon noeud */
-			var node = $(data).find( 'capteur[id=' + id + ']' );
+                        /* Avec XPath, on choppe le bon parent */
+                        var parent_node = null;
 
-			if( node.length == 1 ) {
+                        $(data).find( 'driver' ).each( function() {
+
+                                /* Formattage du nom comme il faut */
+                                var cur_drv_name = $(this).attr( 'so' );
+                                if( $(this).attr( 'ip' ) != null ) {
+                                        cur_drv_name += ' [' + $(this).attr( 'ip' ) + ':' + $(this).attr( 'port' ) + ']';
+                                }
+
+                                /* Test avec le nom passé en param */
+                                if( cur_drv_name == drv ) {
+                                        parent_node = $(this);
+                                        return false;
+                                }
+                        } );
+
+			/* Avec XPath, on choppe le bon noeud */
+			var node = null;
+			if( parent_node != null )
+				node = parent_node.find( 'capteur[id=' + id + ']' );
+
+			if( node != null && node.length == 1 ) {
 				/* On prépare les infos de la fenêtre */
 				dialog_title = 'Capteur "' + node.text()  + '"';
 
@@ -45,12 +67,7 @@ function show_device_info( id ) {
 				content += '<p>Driver :</p>';
 				content += '<p class="value">';
 
-				/* Formattage du nom du driver en fonction de s'il y a une IP ou pas */
-				content += node.parent().attr( 'so' );
-				if( node.parent().attr( 'ip' ) != null ) {
-					content += ' [' + node.parent().attr( 'ip' ) + ':' + node.parent().attr( 'port' ) + ']';
-				}
-
+				content += drv;
 				content += '</p>';
 
 				content += "<p>Identifiant :</p>";
@@ -62,6 +79,17 @@ function show_device_info( id ) {
 				content += "</div>";
 
 				$("#dialog").html( content );
+
+				/* Et on affiche la dialog */
+				$("#dialog").dialog( {
+					title: dialog_title,
+					width: 400,
+					resizable: false,
+					buttons: { "Ok": function() { $(this).dialog( "close" ); },
+						   "Modifier": function() { $(this).dialog( "close" ); edit_device_info( id, drv ); },
+						   "Supprimer": function() { $(this).dialog( "close" ); confirm_remove_device( id, drv ); }
+						 }
+				});
 			}
 			else {
 				dialog_title = 'Oups !';
@@ -71,6 +99,14 @@ function show_device_info( id ) {
 				content += '</div>';
 
 				$("#dialog").html( content );
+
+				/* Et on affiche la dialog */
+				$("#dialog").dialog( {
+					title: dialog_title,
+					width: 350,
+					resizable: false,
+					buttons: { "Ok": function() { $(this).dialog( "close" ); }  }
+				});
 			}
 		},
 		error: function( data ) {
@@ -81,25 +117,24 @@ function show_device_info( id ) {
 			content += '</div>';
 
 			$("#dialog").html( content );
+			
+			/* Et on affiche la dialog */
+			$("#dialog").dialog( {
+				title: dialog_title,
+				width: 350,
+				resizable: false,
+				buttons: { "Ok": function() { $(this).dialog( "close" ); }  }
+			});
 		}
 	} );
-
-	/* Et on affiche la dialog */
-	$("#dialog").dialog( {
-		title: dialog_title,
-		width: 400,
-		resizable: false,
-		buttons: { "Ok": function() { $(this).dialog( "close" ); },
-			   "Modifier": function() { $(this).dialog( "close" ); edit_device_info( id ); },
-			   "Supprimer": function() { $(this).dialog( "close" ); confirm_remove_device( id ); }
-			 }
-	});
 }
 
 /**
 Permet d'éditer les informations d'un capteur
+\param	id	ID du capteur
+	drv	Driver utilisé
 */
-function edit_device_info( id ) {
+function edit_device_info( id, drv ) {
 	var dialog_title = "";
 	var drv_name ="";
 
@@ -111,10 +146,30 @@ function edit_device_info( id ) {
 		url: "data/sensors.xml",
 		success: function( data ) {
 	
-			/* Avec XPath, on choppe le bon noeud */
-			var node = $(data).find( 'capteur[id=' + id + ']' );
+			/* Avec XPath, on choppe le bon parent */
+			var parent_node = null;
 
-			if( node.length == 1 ) {
+			$(data).find( 'driver' ).each( function() {
+		
+				/* Formattage du nom comme il faut */
+				var cur_drv_name = $(this).attr( 'so' );
+				if( $(this).attr( 'ip' ) != null ) {
+					cur_drv_name += ' [' + $(this).attr( 'ip' ) + ':' + $(this).attr( 'port' ) + ']';
+				}
+				
+				/* Test avec le nom passé en param */
+				if( cur_drv_name == drv ) {
+					parent_node = $(this);
+					drv_name = cur_drv_name;
+					return false;
+				}		
+			} );
+
+			var node = null;
+			if( parent_node != null )
+				node = parent_node.find( 'capteur[id=' + id + ']' );
+
+			if( node != null && node.length == 1 ) {
 				/* On prépare les infos de la fenêtre */
 				dialog_title = 'Capteur "' + node.text()  + '"';
 
@@ -128,11 +183,6 @@ function edit_device_info( id ) {
 				content += '<select id="new_driver" name="new_driver" class="text">';
 
 				/* Récupération de l'ensemble des drivers disponibles via le xml et une requête xpath */
-				drv_name = node.parent().attr( 'so' );
-				if( node.parent().attr( 'ip' ) ) {
-					drv_name += ' [' + node.parent().attr( 'ip' ) + ':' + node.parent().attr( 'port' ) + ']';
-				}
-
 				$(data).find( 'driver' ).each( function() {
 					
 					var cur_drv_name = $(this).attr( 'so' );
@@ -333,26 +383,23 @@ function new_device( driver_name ) {
 		url: "data/sensors.xml",
 		success: function( data ) {
 	
-			/* Avec XPath, on choppe le bon noeud */
-			var node = $(data).find( 'capteur[id=' + id + ']' );
-
-				/* Récupération de l'ensemble des drivers disponibles via le xml et une requête xpath */
-				$(data).find( 'driver' ).each( function() {
-				
-					var cur_drv_name = $(this).attr( 'so' );
-					var sel = "";
+			/* Récupération de l'ensemble des drivers disponibles via le xml et une requête xpath */
+			$(data).find( 'driver' ).each( function() {
 			
-					if( $(this).attr( 'ip' ) != null ) {
-						cur_drv_name += ' [' + $(this).attr( 'ip' ) + ':' + $(this).attr( 'port' ) + ']';
-					}
+				var cur_drv_name = $(this).attr( 'so' );
+				var sel = "";
+		
+				if( $(this).attr( 'ip' ) != null ) {
+					cur_drv_name += ' [' + $(this).attr( 'ip' ) + ':' + $(this).attr( 'port' ) + ']';
+				}
 
-					var sel = "";
-					if( driver_name == cur_drv_name ) sel = "SELECTED";
-	
-					content += '<option value="' + cur_drv_name + '" ' + sel + '>';
-					content += cur_drv_name;
-					content += '</option>';
-				} );
+				var sel = "";
+				if( driver_name == cur_drv_name ) sel = "SELECTED";
+
+				content += '<option value="' + cur_drv_name + '" ' + sel + '>';
+				content += cur_drv_name;
+				content += '</option>';
+			} );
 		}
 	} );
 
@@ -394,8 +441,10 @@ function new_device( driver_name ) {
 
 /**
 Demande à l'utilisateur de confirmer qu'il veut supprimer un capteur
+\param	id	ID du capteur
+	drv	Driver utilisé
 */
-function confirm_remove_device( id ) {
+function confirm_remove_device( id, drv ) {
 
 	var content = '<div class="content">';
 	content += '<h3>Suppression d\'un capteur</h3>';
@@ -409,7 +458,7 @@ function confirm_remove_device( id ) {
 		title: 'Confirmation',
 		width: 400,
 		resizable: false,
-		buttons: { "Oui": function() { $(this).dialog( "close" ); remove_device( id ); },
+		buttons: { "Oui": function() { $(this).dialog( "close" ); remove_device( id, drv ); },
 			   "Non": function() { $(this).dialog( "close" ); }
 			}
 	} );
@@ -417,22 +466,25 @@ function confirm_remove_device( id ) {
 
 /**
 Supprime un capteur
+\param 	id	ID du capteur
+	drv	Driver utilisé
 */
-function remove_device( id ) {
+function remove_device( id, drv ) {
 
 	/* On poste la requête */
 	$.ajax( {
-		async: true,
+		async: false,
 		type: "POST",
 		dataType: "json",
 		url: "ajax/sensors.php",
-		data: "action=delete&id="+id ,
+		data: "action=delete&id="+id+"&drv="+drv ,
 		success: function( data ) {
 
-			if( data.type == "error" )
-				alert( "Erreur :\n" + data.mesg );
-			else {
+			if( data.type != "success" ) {
 				alert( data.mesg );
+			}
+			else {
+				update_driver_data();
 			}
 		},
 		error: function( j, e, t ) {
@@ -455,6 +507,12 @@ function update_driver_data() {
 			
 			var str = "";
 
+			/* Pour plus tard 
+			str += '<a href="#" class="tiny_link add_drv">';
+			str += '<span><img src="img/button/add.png" />Ajouter un nouveau pilote</span>';
+			str += '</a><br /><br />';
+			*/
+
 			$( data ).find( 'driver' ).each( function() {
 				
 				str += '<div class="driver_list">';
@@ -469,13 +527,15 @@ function update_driver_data() {
 				}
 				str += "</span>";
 
-				str += '<a href="#" class="tiny_link add" alt="';
+				str += '<a href="#" class="tiny_link add" drv="';
 
 				/* Formattage du nom du driver en fonction de s'il y a une IP ou pas */
-				str += $(this).attr( 'so' );
+				var drv_name = $(this).attr( 'so' );
 				if( $(this).attr( 'ip' ) != null ) {
-					str += ' [' + $(this).attr( 'ip' ) + ':' + $(this).attr( 'port' ) + ']';
+					drv_name += ' [' + $(this).attr( 'ip' ) + ':' + $(this).attr( 'port' ) + ']';
 				}
+				str += drv_name;
+
 				str += '"><span><img src="img/button/add.png" />Ajouter capteur</span></a>';
 				str += '<div class="device_list">';
 
@@ -486,9 +546,9 @@ function update_driver_data() {
 					str += '<div class="cell">';
 					str += '<span>' + $(this).text() + '</span>'
 					str += '</div><div class="cell">';
-					str += '<a href="#" class="tiny_link view" alt="' + id + '"><span><img src="img/button/view.png" class="tiny_btn"/>Voir</span></a>'
-					str += '<a href="#" class="tiny_link edit" alt="' + id + '"><span><img src="img/button/edit.png" class="tiny_btn"/>Editer</span></a>'
-					str += '<a href="#" class="tiny_link del"  alt="' + id + '"><span><img src="img/button/delete.png" class="tiny_btn"/>Supprimer</span></a>'
+					str += '<a href="#" class="tiny_link view" drv="' + drv_name +'" cid="' + id + '"><span><img src="img/button/view.png" class="tiny_btn"/>Voir</span></a>'
+					str += '<a href="#" class="tiny_link edit" drv="' + drv_name +'" cid="' + id + '"><span><img src="img/button/edit.png" class="tiny_btn"/>Editer</span></a>'
+					str += '<a href="#" class="tiny_link del"  drv="' + drv_name +'" cid="' + id + '"><span><img src="img/button/delete.png" class="tiny_btn"/>Supprimer</span></a>'
 					str += '</div>';
 					str += '</div>';
 				} );
@@ -511,28 +571,28 @@ function update_driver_data() {
 
 			$("div#driver_data .view").click( 
 				function() {
-					show_device_info( $(this).attr( 'alt' ) );
+					show_device_info( $(this).attr( 'cid' ), $(this).attr( 'drv' ) );
 					return false;
 				}
 			);
 
 			$("div#driver_data .edit").click(
 				function() {
-					edit_device_info( $(this).attr( 'alt' ) );
+					edit_device_info( $(this).attr( 'cid' ), $(this).attr( 'drv' ) );
 					return false;
 				}
 			);
 
 			$("div#driver_data .del").click(
 				function() {
-					confirm_remove_device( $(this).attr( 'alt' ) );
+					confirm_remove_device( $(this).attr( 'cid' ), $(this).attr( 'drv' ) );
 					return false;
 				}
 			);
 		
 			$("div#driver_data .add").click(
 				function() {
-					new_device( $(this).attr( 'alt' ) );
+					new_device( $(this).attr( 'drv' ) );
 					return false;
 				}
 			);

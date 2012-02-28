@@ -17,7 +17,7 @@
 
 /* ------------------------------------------------------------------- GLOBALS */
 
-static int drv[MAX_NUMBER_OF_DRIVERS];
+static infos_drv drv[MAX_NUMBER_OF_DRIVERS];
 static infos_sensor sensor[MAX_NUMBER_OF_SENSORS]; /* variable globale fourni à l'IA */
 static sem_t stop_sem; // Semaphore arret application
 
@@ -185,9 +185,36 @@ int reload_sensors_cmd(int fd, const char* cmd)
 	return 1;
 }
 
+/**
+ * libère la mémoire dynamique de la variable global sensor[]
+*/
+int free_sensor_array()
+{
+	int loop_index;
+	for(loop_index = 0 ; loop_index < MAX_NUMBER_OF_SENSORS ; loop_index++){
+		xmlFree(sensor[loop_index].name);
+	}
+	return 0;
+}
+
+/**
+ * libère la mémoire dynamique de la variable global drv[]
+*/
+int free_drv_array()
+{
+	int loop_index;
+	for(loop_index = 0 ; loop_index < MAX_NUMBER_OF_DRIVERS ; loop_index++){
+		xmlFree(drv[loop_index].name);
+	}
+	return 0;
+}
+
+
 /* ----------------------------------------------------------- FAT FONCTIONS :) */
 
-int main(){
+int main()
+{
+
 	sem_init(&stop_sem, 0, 0);
 	int status;
 	
@@ -231,6 +258,8 @@ int main(){
 	sem_wait(&stop_sem);
 
 	/* Procedure d'arrêt */
+	free_sensor_array();
+	free_drv_array();
 	sem_destroy(&stop_sem);
 	stop_remote_control();
 	ios_release();

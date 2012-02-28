@@ -36,7 +36,7 @@ xmlNodePtr next_XML_ELEMENT_NODE(xmlNodePtr node){
 	return node;
 }
 
-int read_sensors(const char* path, infos_sensor* sensor, int* drv)
+int read_sensors(const char* path, infos_sensor* sensor, infos_drv* drv)
 {
 	xmlDocPtr capteurs_doc;
 	xmlNodePtr drivers_node;
@@ -75,15 +75,15 @@ int read_sensors(const char* path, infos_sensor* sensor, int* drv)
 		unsigned int port;
 		sscanf((char*) drv_port, "%u", &port);
 		printf("DEBUG unsigned int = %u\n", port); 
-		drv[driver_counter] = ios_install_driver((char*) drv_so_name, (char*) drv_ip, port);
-		xmlFree(drv_so_name);
+		drv[driver_counter].id = ios_install_driver((char*) drv_so_name, (char*) drv_ip, port);
+		drv[driver_counter].name = drv_so_name;
 		xmlFree(drv_ip);
 		xmlFree(drv_port);
-		if( drv[driver_counter] < 0 )
+		if( drv[driver_counter].id < 0 )
 		{	
 			ios_release();
 			perror("Driver loading error");
-			return drv[driver_counter];
+			return drv[driver_counter].id;
 		}
 		for( 	capteur_node = children_XML_ELEMENT_NODE(driver_node);
 			capteur_node != NULL;
@@ -97,7 +97,7 @@ int read_sensors(const char* path, infos_sensor* sensor, int* drv)
 				xmlChar* id = xmlGetProp(capteur_node,(const xmlChar*)"id");
 				int id_int;
 				sscanf((char*)id, "%X", &id_int);
-				sensor[capteur_counter].fd = ios_add_device( drv[driver_counter],id_int);
+				sensor[capteur_counter].fd = ios_add_device( drv[driver_counter].id,id_int);
 				sensor[capteur_counter].id = id_int;
 				xmlFree(id);
 			}
