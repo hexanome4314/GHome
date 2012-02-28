@@ -32,6 +32,14 @@ Enregistre la session de l'utilisateur
 function set_authenticated( $user ) {
 	
 	$_SESSION['GHOME'] = "yes";
+	$_SESSION['GHOME_CUSER'] = $user;
+}
+
+/**
+Retourne l'utilisateur de la session en cours
+*/
+function get_username() {
+	return $_SESSION['GHOME_CUSER'];
 }
 
 ?>

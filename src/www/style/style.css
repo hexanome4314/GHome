@@ -166,27 +166,6 @@ ul.under_tabs li a.active {
 	border-bottom: 1px solid #DDDDDD;
 }
 
-.table {
-	
-	display: table;
-	width: 75%;
-	border-collapse: collapse;
-	text-align: left;
-
-	margin: auto;
-	margin-bottom: 20px;
-}
-
-.row {
-	display: table-row;
-	border-bottom: 1px solid #DDDDDD;
-}
-
-.cell {
-	display: table-cell;
-	width: 50%;
-}
-
 #sensor_data img {
 	display: table-cell;
 }
@@ -252,6 +231,27 @@ ul.under_tabs li a.active {
 	display: none;
 }
 
+.table {
+	
+	display: table;
+	width: 75%;
+	border-collapse: collapse;
+	text-align: left;
+
+	margin: auto;
+	margin-bottom: 20px;
+}
+
+.row {
+	display: table-row;
+	border-bottom: 1px solid #DDDDDD;
+}
+
+.cell {
+	display: table-cell;
+	width: 50%;
+}
+
 .device_list {
 	border-left: 1px dotted #464C54;
 	margin-left: 5px;
@@ -272,6 +272,32 @@ img.tiny_btn {
 
 .driver_list span {
 	margin-right: 40px;
+}
+
+.tiny_link img {
+	width: 16px;
+	height: 16px;
+
+	margin-right: 5px;
+}
+
+.tiny_link {
+	font-style: oblique;
+	text-decoration: none;	
+	font-size: 9px;
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        text-transform: uppercase;
+}
+
+.tiny_link span {
+	color: #800080;
+	margin-right: 5px;
+}
+
+.tiny_link :hover {
+	border-bottom: 1px dashed #800080;
+	font-size: 10px;
 }
 
 #help_data {
@@ -359,3 +385,4 @@ form.edit_sensor .text {
 	margin-left: 20px;
 	font-size: 14px;
 }
+
