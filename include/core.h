@@ -11,4 +11,9 @@ typedef struct{
 	int used_fields; // flag indiquant les champs utilisés par le capteur
 } infos_sensor;
 
+typedef struct{
+	int id; 
+	unsigned char* name;
+} infos_drv;
+
 #endif

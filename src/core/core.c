@@ -17,7 +17,7 @@
 
 /* ------------------------------------------------------------------- GLOBALS */
 
-static int drv[MAX_NUMBER_OF_DRIVERS];
+static infos_drv drv[MAX_NUMBER_OF_DRIVERS];
 static infos_sensor sensor[MAX_NUMBER_OF_SENSORS]; /* variable globale fourni à l'IA */
 static sem_t stop_sem; // Semaphore arret application
 
@@ -222,15 +222,15 @@ int init_sensors(const char* path)
 		unsigned int port;
 		sscanf((char*) drv_port, "%u", &port);
 		printf("DEBUG unsigned int = %u\n", port); 
-		drv[driver_counter] = ios_install_driver((char*) drv_so_name, (char*) drv_ip, port);
-		xmlFree(drv_so_name);
+		drv[driver_counter].id = ios_install_driver((char*) drv_so_name, (char*) drv_ip, port);
+		drv[driver_counter].name = drv_so_name;
 		xmlFree(drv_ip);
 		xmlFree(drv_port);
-		if( drv[driver_counter] < 0 )
+		if( drv[driver_counter].id < 0 )
 		{	
 			ios_release();
 			perror("Driver loading error");
-			return drv[driver_counter];
+			return drv[driver_counter].id;
 		}
 		for( 	capteur_node = children_XML_ELEMENT_NODE(driver_node);
 			capteur_node != NULL;
@@ -244,7 +244,7 @@ int init_sensors(const char* path)
 				xmlChar* id = xmlGetProp(capteur_node,(const xmlChar*)"id");
 				int id_int;
 				sscanf((char*)id, "%X", &id_int);
-				sensor[capteur_counter].fd = ios_add_device( drv[driver_counter],id_int);
+				sensor[capteur_counter].fd = ios_add_device( drv[driver_counter].id,id_int);
 				sensor[capteur_counter].id = id_int;
 				xmlFree(id);
 			}
@@ -263,9 +263,20 @@ int init_sensors(const char* path)
 int free_sensor_array()
 {
 	int loop_index;
-	for(loop_index = 0 ; ((loop_index < MAX_NUM_OF_SENSOR) && (sensor[loop_index].name != NULL)) ; loop_index++){
-		if(xmlFree(sensor[loop_index].name) != 0)
-			perror("free_sensor_tab - xmlFree");		
+	for(loop_index = 0 ; loop_index < MAX_NUMBER_OF_SENSORS ; loop_index++){
+		xmlFree(sensor[loop_index].name);
+	}
+	return 0;
+}
+
+/**
+ * libère la mémoire dynamique de la variable global drv[]
+*/
+int free_drv_array()
+{
+	int loop_index;
+	for(loop_index = 0 ; loop_index < MAX_NUMBER_OF_DRIVERS ; loop_index++){
+		xmlFree(drv[loop_index].name);
 	}
 	return 0;
 }
