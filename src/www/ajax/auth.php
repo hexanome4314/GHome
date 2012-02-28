@@ -49,6 +49,17 @@ if( @$_POST['action'] == "auth") {
 		die();
 	}
 }
+else if( $_POST['action'] == "logoff" ) {
+	
+	/* On déconnecte l'utilisateur si besoin */
+	if( is_authenticated() ) {
+
+		$log_mgr->write( "Info", "L'utilisateur s'est déconnecté. (username= ".get_username().")" );
+		disconnect_user();
+	}
+
+	exit();
+}
 else {
 
 	echo '{ "type": "error", "mesg": "Unknown action..." }';

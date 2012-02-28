@@ -42,4 +42,12 @@ function get_username() {
 	return $_SESSION['GHOME_CUSER'];
 }
 
+/**
+Ferme la session de l'utilisateur
+*/
+function disconnect_user() {
+	unset( $_SESSION['GHOME'] );
+	unset( $_SESSION['GHOME_CUSER'] );
+}
+
 ?>

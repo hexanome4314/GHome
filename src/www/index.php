@@ -32,7 +32,25 @@ force_authentication();
 				update_driver_data();
 				update_rules_data();
 				setInterval( update_sensor_data, 30000 );
+				
+				/* Logging off */
+				$( "#logout span" ).click( function() {
 
+					$.ajax( {
+						async: false,
+                                                type: "POST",
+                                                url: "ajax/auth.php",
+                                                data: "action=logoff" ,
+                                                success: function( data ) {
+							$(location).attr( 'href', '/' );
+						},
+						error: function( ) {
+							$(location).attr( 'href', '/' );
+						}						
+					} );
+
+					return false;
+				} );
 
 				/* Clique sur les onglets */
 				$("a.tab").click(
@@ -81,6 +99,7 @@ force_authentication();
 	<div id="main" class="main">
 
 	<h4>GHome Project</h4>
+	<div id="logout"><span>[D&eacute;connexion]</span></div>
 
 	<div id="dialog">
 		<span>&nbsp;</span>
