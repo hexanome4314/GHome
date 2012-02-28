@@ -169,7 +169,7 @@ switch( $_POST['action'] ) {
 			}
 
 			/* Averti le core */
-			$res = "ok"; // send_ract_request( "RELOAD_DRIVERS" );
+			$res = /*"ok"; //*/ send_ract_request( "RELOAD_DRIVERS" );
 			
 			exit( '{ "type": "success", "mesg": "'.$res.'" }' );
 		}
