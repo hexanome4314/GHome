@@ -4,8 +4,8 @@
 #define OVERRIDE_STDLIB
 #define MAX_FILENAME_SIZE 64
 
-Rule* rules;
-char rulefile[64];
+static Rule* rules;
+static char rulefile[64];
 
 /**
  * Execute une action passée en paramêtre (écrit la valeur
@@ -160,8 +160,8 @@ int launch_engine(const char *file, infos_sensor *sensor)
 int init_engine(const char *file, infos_sensor *sensor)
 {
 	rules = get_rules(file, sensor);
-	if ((int)rules < 0)
-		return (int)rules;
+	if (!rules)
+		return -1;
 	strcpy(rulefile, file);
 	return 0;
 }
@@ -172,10 +172,10 @@ int init_engine(const char *file, infos_sensor *sensor)
  */
 int reload_rules(infos_sensor *sensor)
 {
-	ios_detach_global_handler();
 	free_rules(rules);
 	rules = get_rules(rulefile, sensor);
-	ios_attach_global_handler(apply_actions);
+	if(!rules)
+		return -1;
 	return 0;
 }
 

@@ -2,7 +2,7 @@ LIB_DIR=../../lib
 INC_DIR=../../include
 
 COMPILE=gcc
-C_FLAGS=-Wall -I$(INC_DIR) -c `xml2-config --cflags`
+C_FLAGS=-Wall -I$(INC_DIR) -c `xml2-config --cflags` -g
 
 LINKER=gcc
 L_FLAGS=-L$(LIB_DIR)
@@ -14,10 +14,10 @@ MAKE=make
 
 LIB=`xml2-config --libs` -lios -ldl -lpthread -lia -lremote-ctrl
 
-BIN_OBJ= core.o
+BIN_OBJ= core.o sensor-parse.o
 BIN_OUT= ../../ghome
 
-LIB_OBJ= core.o
+LIB_OBJ= core.o sensor-parse.o
 LIB_OUT=../../lib/libcore.a
 
 all:
