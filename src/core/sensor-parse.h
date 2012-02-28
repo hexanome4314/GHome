@@ -17,6 +17,6 @@ Utilitaire pour parser le fichier de configuration des capteurs
  * \param sensors tableau à remplir
  * \return <0 si erreur
  */
-int read_sensors(const char* path, infos_sensor* sensor, int* drv);
+int read_sensors(const char* path, infos_sensor* sensor, infos_drv* drv);
 
 #endif /* __SENSOR_PARSE_H_ */

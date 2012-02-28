@@ -214,6 +214,7 @@ int free_drv_array()
 
 int main()
 {
+
 	sem_init(&stop_sem, 0, 0);
 	int status;
 	
@@ -257,6 +258,8 @@ int main()
 	sem_wait(&stop_sem);
 
 	/* Procedure d'arrêt */
+	free_sensor_array();
+	free_drv_array();
 	sem_destroy(&stop_sem);
 	stop_remote_control();
 	ios_release();
