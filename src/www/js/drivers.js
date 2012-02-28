@@ -23,7 +23,7 @@ Affiche les informations relatives à un capteurs
 function show_device_info( id ) {
 	var dialog_title = "";
 
-	/* On commence pa récupérer dans le xml les dernières info que l'on a du capteur */
+	/* On commence par récupérer dans le xml les dernières info que l'on a du capteur */
 	$.ajax( {
 		async: false,
 		type: "GET",
@@ -43,13 +43,18 @@ function show_device_info( id ) {
 				content += "<h3>" + node.text() + "</h3>";
 
 				content += '<p>Driver :</p>';
-				content += '<p class="value">' + node.parent().attr( 'so' ) + "</p>";
+				content += '<p class="value">';
+
+				/* Formattage du nom du driver en fonction de s'il y a une IP ou pas */
+				content += node.parent().attr( 'so' );
+				if( node.parent().attr( 'ip' ) != null ) {
+					content += ' [' + node.parent().attr( 'ip' ) + ':' + node.parent().attr( 'port' ) + ']';
+				}
+
+				content += '</p>';
 
 				content += "<p>Identifiant :</p>";
 				content += '<p class="value">' + node.attr( 'id' ) + "</p>";
-
-				content += '<p>Type : </p>';
-				content += '<p class="value">' + node.attr( 'type' ) + "</p>";
 
 				content += '<p>Etat : </p>';
 				content += '<p class="value">' + node.attr( 'etat' ) + "</p>";
@@ -96,6 +101,7 @@ Permet d'éditer les informations d'un capteur
 */
 function edit_device_info( id ) {
 	var dialog_title = "";
+	var drv_name ="";
 
 	/* On commence pa récupérer dans le xml les dernières info que l'on a du capteur */
 	$.ajax( {
@@ -119,54 +125,40 @@ function edit_device_info( id ) {
 				content += '<form id="edit_sensor" class="edit_sensor">';
 
 				content += '<p>Driver :</p>';
-				content += '<select name="new_driver" class="text">';
+				content += '<select id="new_driver" name="new_driver" class="text">';
 
 				/* Récupération de l'ensemble des drivers disponibles via le xml et une requête xpath */
+				drv_name = node.parent().attr( 'so' );
+				if( node.parent().attr( 'ip' ) ) {
+					drv_name += ' [' + node.parent().attr( 'ip' ) + ':' + node.parent().attr( 'port' ) + ']';
+				}
+
 				$(data).find( 'driver' ).each( function() {
 					
+					var cur_drv_name = $(this).attr( 'so' );
 					var sel = "";
-					if( $(this).attr( 'so' ) == node.parent().attr( 'so' ) ) sel = "SELECTED";
+			
+					if( $(this).attr( 'ip' ) != null ) {
+						cur_drv_name += ' [' + $(this).attr( 'ip' ) + ':' + $(this).attr( 'port' ) + ']';
+					}
+					
+					if( cur_drv_name == drv_name ) sel = "SELECTED";
 
-					content += '<option value="' + $(this).attr( 'so' ) + '" ' + sel + '>';
-					content += $(this).attr( 'so' );
+					content += '<option value="' + cur_drv_name + '" ' + sel + '>';
+					content += cur_drv_name;
 					content += '</option>';
 				} );
 
 				content += '</select>';
 
 				content += '<p>Nom capteur :</p>';
-				content += '<input type="text" name="name" value="' + node.text() + '" class="text" />';
+				content += '<input type="text" id="name" name="name" value="' + node.text() + '" class="text" />';
 
 				content += "<p>Identifiant :</p>";
-				content += '<input type="text" name="new_id" value="' + node.attr( 'id' ) + '" class="text" />';
-
-				content += '<p>Type : </p>';
-				content += '<select name="type" class="text">';
-
-				/* Récupération des types de capteur contenu dans sensor_types.xml */
-				$.ajax( {
-					async: false,
-					type: "GET",
-					dataType: "xml",
-					url: "data/sensor_types.xml",
-					success: function( data ) {
-						$(data).find( 'type' ).each( function() {
-
-							var sel = "";
-							if( $(this).text() == node.attr( 'type' ) ) sel = "SELECTED";
-
-							content += '<option value="' + $(this).text() + '" ' + sel + '>' + $(this).text() + '</option>';
-						} );
-					},
-					error: function() {
-						content += '<option value="' + node.attr( 'type' ) + '">Indisponible</option>';
-					}
-				} );
-
-				content += '</select>';
+				content += '<input type="text" id="new_id" name="new_id" value="' + node.attr( 'id' ) + '" class="text" />';
 
 				content += '<p>Etat : </p>';
-				content += '<select name="state" class="text">';
+				content += '<select id="state" name="state" class="text">';
 				
 				var is_on  = "";
 				var is_off = "";
@@ -186,6 +178,16 @@ function edit_device_info( id ) {
 				content += "</div>";
 
 				$("#dialog").html( content );
+
+				/* Et on affiche la dialog */
+				$("#dialog").dialog( {
+					title: dialog_title,
+					width: 450,
+					resizable: false,
+					buttons: { "Enregistrer": function() { if( save_device_info( drv_name, id ) == 1 ) $(this).dialog( "close" ); },
+						   "Annuler": function() { $(this).dialog( "close" ); },
+						 }
+				});
 			}
 			else {
 				dialog_title = 'Oups !';
@@ -195,6 +197,16 @@ function edit_device_info( id ) {
 				content += '</div>';
 
 				$("#dialog").html( content );
+
+				/* Et on affiche la dialog */
+				$("#dialog").dialog( {
+					title: dialog_title,
+					width: 350,
+					resizable: false,
+					buttons: { 
+						   "Ok": function() { $(this).dialog( "close" ); },
+						 }
+				});
 			}
 		},
 		error: function( data ) {
@@ -205,26 +217,79 @@ function edit_device_info( id ) {
 			content += '</div>';
 
 			$("#dialog").html( content );
+
+			/* Et on affiche la dialog */
+			$("#dialog").dialog( {
+				title: dialog_title,
+				width: 350,
+				resizable: false,
+				buttons: { 
+					   "Ok": function() { $(this).dialog( "close" ); },
+					 }
+			});
 		}
 	} );
-
-	/* Et on affiche la dialog */
-	$("#dialog").dialog( {
-		title: dialog_title,
-		width: 400,
-		resizable: false,
-		buttons: { "Enregistrer": function() { if( save_device_info() == 1 ) $(this).dialog( "close" ); },
-			   "Annuler": function() { $(this).dialog( "close" ); },
-			 }
-	});
 }
 
 /**
 Enregistrement des données saisies par l'utilisateur
 */
-function save_device_info() {
+function save_device_info( old_driver, old_id ) {
 
-	alert( 'Time to save !' );
+	var wrong_data = false;
+
+	/* On commence par vérifier que l'on a toutes les infos nécessaires */
+	$( "#new_driver" ).css( 'background', '#33FF66').css( 'color', '#000000' );
+
+	if( $( "#name" ).attr( 'value' ).length == 0 ) {
+		$( "#name" ).css( 'background', '#B00000').css( 'color', '#FFFFFF' );
+		wrong_data = true;
+	}
+	else {
+		$( "#name" ).css( 'background', '#33FF66').css( 'color', '#000000' );
+	}
+
+	if( $( "#new_id" ).attr( 'value' ).length == 0 ) {
+		$( "#new_id" ).css( 'background', '#B00000').css( 'color', '#FFFFFF' );
+		wrong_data = true;
+	}
+	else {
+		$( "#new_id" ).css( 'background', '#33FF66').css( 'color', '#000000' );
+	}
+
+	if( $( "#state" ).attr( 'value' ).length == 0 ) {
+		$( "#state" ).css( 'background', '#B00000').css( 'color', '#FFFFFF' );
+		wrong_data = true;
+	}
+	else {
+		$( "#state" ).css( 'background', '#33FF66').css( 'color', '#000000' );
+	}
+
+	/* Si une donnée est pas bonne, on s'arrête là. */
+	if( wrong_data == true )
+		return 0;
+
+	/* Stockage des données */
+	var new_driver 	= $( "#new_driver" ).attr( 'value' );
+	var name 	= $( "#name" ).attr( 'value' );
+	var new_id	= $( "#new_id" ).attr( 'value' );
+	var state	= $( "#state" ).attr( 'value' );
+
+
+	/* Et maintenant on envoie tout au php qui va computer tout ça */
+	$.ajax( {
+		async: false,
+		type: "POST",
+		dataType: "json",
+		url: "ajax/sensors.php",
+		data: "action=edit&id="+old_id+"&drv="+old_driver+"&new_drv="+new_driver+"&new_id="+new_id+"&name="+name+"&state="+state,
+		success: function( data ) {
+			alert( data.mesg );
+		},
+		error: function( j, t, e ) {
+			alert( 'Une erreur est survenue lors de l\'enregistrement des données. Veuillez réessayer plus tard.\n' + t + ' - ' + e );
+		}
+	} );
 
 	return 0;
 }
@@ -245,7 +310,7 @@ function new_device( driver_name ) {
 	content += '<form id="edit_sensor" class="edit_sensor">';
 
 	content += '<p>Driver :</p>';
-	content += '<select name="new_driver" class="text">';
+	content += '<select id="new_driver" name="new_driver" class="text">';
 
 	/* On récupére dans le xml la liste des drivers */
 	$.ajax( {
@@ -261,11 +326,18 @@ function new_device( driver_name ) {
 				/* Récupération de l'ensemble des drivers disponibles via le xml et une requête xpath */
 				$(data).find( 'driver' ).each( function() {
 				
+					var cur_drv_name = $(this).attr( 'so' );
 					var sel = "";
-					if( driver_name == $(this).attr( 'so' ) ) sel = "SELECTED";
+			
+					if( $(this).attr( 'ip' ) != null ) {
+						cur_drv_name += ' [' + $(this).attr( 'ip' ) + ':' + $(this).attr( 'port' ) + ']';
+					}
+
+					var sel = "";
+					if( driver_name == cur_drv_name ) sel = "SELECTED";
 	
-					content += '<option value="' + $(this).attr( 'so' ) + '" ' + sel + '>';
-					content += $(this).attr( 'so' );
+					content += '<option value="' + cur_drv_name + '" ' + sel + '>';
+					content += cur_drv_name;
 					content += '</option>';
 				} );
 		}
@@ -274,36 +346,13 @@ function new_device( driver_name ) {
 	content += '</select>';
 
 	content += '<p>Nom capteur :</p>';
-	content += '<input type="text" name="name" value="Nouveau capteur" class="text" />';
+	content += '<input type="text" id="name" name="name" value="Nouveau capteur" class="text" />';
 
 	content += "<p>Identifiant :</p>";
-	content += '<input type="text" name="new_id" class="text" />';
-
-	content += '<p>Type : </p>';
-	content += '<select name="type" class="text">';
-	content += '<option />';
-
-	/* Récupération des types de capteur contenu dans sensor_types.xml */
-	$.ajax( {
-		async: false,
-		type: "GET",
-		dataType: "xml",
-		url: "data/sensor_types.xml",
-		success: function( data ) {
-			$(data).find( 'type' ).each( function() {
-				content += '<option value="' + $(this).text() + '">' + $(this).text() + '</option>';
-			} );
-		},
-		error: function() {
-			alert( 'Impossible de récupérer les types des capteurs. Veuillez réessayer ultérieurement.' );
-			show_dialog = false;
-		}
-	} );
-
-	content += '</select>';
+	content += '<input type="text" id="new_id" name="new_id" class="text" />';
 
 	content += '<p>Etat : </p>';
-	content += '<select name="state" class="text">';
+	content += '<select id="state" name="state" class="text">';
 				
 	content += '<option value="OFF">OFF</option>';
 	content += '<option value="ON">ON</option>';
@@ -321,7 +370,7 @@ function new_device( driver_name ) {
 
 		$("#dialog").dialog( {
 			title: dialog_title,
-			width: 400,
+			width: 450,
 			resizable: false,
 			buttons: { "Enregistrer": function() { if( save_device_info() == 1 ) $(this).dialog( "close" ); },
 				   "Annuler": function() { $(this).dialog( "close" ); },
@@ -398,18 +447,37 @@ function update_driver_data() {
 				str += '<div class="driver_list">';
 
 				str += '<a href="#" class="collapse expanded"><img src="img/collapse.gif" /></a>';
-				str += '<span class="driver_name">' + $(this).attr( 'so' ) + "</span>";
-				str += '<a href="#" class="add" alt="' + $(this).attr( 'so' ) + '"><img src="img/button/add.png" class="tiny_btn"/></a>';
+				str += '<span class="driver_name">';
+
+				/* Formattage du nom du driver en fonction de s'il y a une IP ou pas */
+				str += $(this).attr( 'so' );
+				if( $(this).attr( 'ip' ) != null ) {
+					str += ' [' + $(this).attr( 'ip' ) + ':' + $(this).attr( 'port' ) + ']';
+				}
+				str += "</span>";
+
+				str += '<a href="#" class="tiny_link add" alt="';
+
+				/* Formattage du nom du driver en fonction de s'il y a une IP ou pas */
+				str += $(this).attr( 'so' );
+				if( $(this).attr( 'ip' ) != null ) {
+					str += ' [' + $(this).attr( 'ip' ) + ':' + $(this).attr( 'port' ) + ']';
+				}
+				str += '"><span><img src="img/button/add.png" />Ajouter capteur</span></a>';
 				str += '<div class="device_list">';
 
 				$(this).find( 'capteur' ).each( function() {
 					id = $(this).attr( 'id' );
 
+					str += '<div class="row">';
+					str += '<div class="cell">';
 					str += '<span>' + $(this).text() + '</span>'
-					str += '<a href="#" class="view" alt="' + id + '"><img src="img/button/view.png" class="tiny_btn"/></a>'
-					str += '<a href="#" class="edit" alt="' + id + '"><img src="img/button/edit.png" class="tiny_btn"/></a>'
-					str += '<a href="#" class="del"  alt="' + id + '"><img src="img/button/delete.png" class="tiny_btn"/></a>'
-					str += '<br />';
+					str += '</div><div class="cell">';
+					str += '<a href="#" class="tiny_link view" alt="' + id + '"><span><img src="img/button/view.png" class="tiny_btn"/>Voir</span></a>'
+					str += '<a href="#" class="tiny_link edit" alt="' + id + '"><span><img src="img/button/edit.png" class="tiny_btn"/>Editer</span></a>'
+					str += '<a href="#" class="tiny_link del"  alt="' + id + '"><span><img src="img/button/delete.png" class="tiny_btn"/>Supprimer</span></a>'
+					str += '</div>';
+					str += '</div>';
 				} );
 
 				str += '</div>';
