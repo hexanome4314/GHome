@@ -460,7 +460,7 @@ void free_rules(Rule* rules)
 	Alert *alert, *new_alert;
 	Condition *condition, *new_condition;
 	rule = rules;
-	while(rules)
+	while(rule)
 	{
 		free(rule->name);
 		action = rule->actions;
@@ -486,7 +486,6 @@ void free_rules(Rule* rules)
 			condition = new_condition;
 		}
 		new_rule = rule->next;
-		free(rule->name);
 		free(rule);
 		rule = new_rule;
 	}

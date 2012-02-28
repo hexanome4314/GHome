@@ -221,7 +221,8 @@ int start_remote_control( unsigned int port )
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_addr.s_addr = INADDR_ANY;
 	server_addr.sin_port = htons( port );
-
+	int a=1;
+	setsockopt(fd_sock, SOL_SOCKET, SO_REUSEADDR, &a, sizeof(a));
 	if( bind( fd_sock, (struct sockaddr *) &server_addr, sizeof(server_addr) ) < 0) 
 	{
               	return RCTRL_CANNOT_BIND_SOCKET;
