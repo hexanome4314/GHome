@@ -36,17 +36,11 @@ Handle du thread de la collecte de données
 static pthread_t collect_thread;
 
 /**
-Mutex sur les données pour éviter les accès concurrents ainsi que sur la condition d'arrêt
+Mutex sur les données pour éviter les accès concurrents
 */
 static pthread_mutex_t data_mutex  = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t stop_mutex  = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t table_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t hdler_mutex = PTHREAD_MUTEX_INITIALIZER; 
-
-/**
-Condition d'arrêt de la collecte
-*/
-static int stop_collect;
 
 struct ios_data_handler_value
 {
@@ -89,10 +83,9 @@ void* ios_data_collector_callback( void* ptr )
 	stop = 0;
 	while( stop == 0 )
 	{
-		/* Réception des données des périphériques sans blocage */
+		/* Réception des données des périphériques */
                 memset( &buffer, 0, sizeof(struct msg_drv_notify) );
-                res = msgrcv( msgq_id, (void*) &buffer, buffer_len, DRV_MSG_TYPE, IPC_NOWAIT );
-
+                res = msgrcv( msgq_id, (void*) &buffer, buffer_len, DRV_MSG_TYPE, 0);
 
 		/* Si on a reçu un message, on raffraichit la table et on call le handler, sous condition que le flag est valide */
 		if( buffer.flag_value >= 0 && buffer.flag_value < DRV_LAST_VALUE && res > 0 )
@@ -147,11 +140,9 @@ void* ios_data_collector_callback( void* ptr )
 				}
 			}
 		}
-
 		/* On regarde s'il faut s'arrêter */
-		pthread_mutex_lock( &stop_mutex );
-		stop = stop_collect;
-		pthread_mutex_unlock( &stop_mutex );
+		if(res > 0 && buffer.flag_value == -1)
+			stop = 1;
 	}
 
 	fprintf( drv_output, "%s::%s -> Collector exiting.\n", __FILE__, __FUNCTION__ );
@@ -187,7 +178,6 @@ int ios_data_init()
 	global_handler = NULL;
 
 	/* Lance le thread de collecte des données */
-	stop_collect = 0;
 	res = pthread_create( &collect_thread, NULL, ios_data_collector_callback, NULL );
 
 
@@ -200,10 +190,11 @@ Libère les données et la collecte
 void ios_data_release()
 {
 	/* Arrête la collecte */
-	pthread_mutex_lock( &stop_mutex );
-	stop_collect = 1;
-	pthread_mutex_unlock( &stop_mutex );
+	struct msg_drv_notify stop_msg;
 
+	stop_msg.msg_type = DRV_MSG_TYPE;
+	stop_msg.flag_value = -1;
+	msgsnd(msgq_id, (const void*) &stop_msg, sizeof(struct msg_drv_notify) - sizeof(long), 0);
 	pthread_join( collect_thread, NULL );
 
 	/* Libère la message queue */
