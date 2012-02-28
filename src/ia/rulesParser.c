@@ -430,13 +430,13 @@ Rule * get_rules(const char *filename, infos_sensor *sensor_list)
     
 	if(doc == NULL || !DTDValidation(doc, "config/rules.dtd", 0)) {
 		fprintf(stderr, "Invalid rule file\n");
-		return (Rule*)-1;
+		return (Rule*)NULL;
 	}
 
 	// Récupération de la racine
 	racine = xmlDocGetRootElement(doc);
 	if (racine == NULL) {
-		fprintf(stderr, "Warning : Rules file empty\n");
+		fprintf(stderr, "Rules file empty\n");
 		xmlFreeDoc(doc);
 		return NULL;
 	}

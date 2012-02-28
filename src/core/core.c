@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <time.h>
@@ -12,8 +11,9 @@
 #include "ios_api.h"
 #include "engine.h"
 #include "fields.h"
-#include "core.h"
 #include "remote-control.h"
+#include "sensor-parse.h"
+#include "core.h"
 
 /* ------------------------------------------------------------------- GLOBALS */
 
@@ -36,36 +36,6 @@ FIELDS
 void stop_handler(int signum)
 {
 	sem_post(&stop_sem);
-}
-
-
-/* ------------------------------------------------------- OUTILS POUR xmllib2 */
- 
-/* Those blabla_XML_ELEMENT_NODE allow to write readable xml files
- * by removing the fake TEXT_ELEMENT_NODE created by \n and \t */
-
-/**
- * it return the first :father children which is a real XML_ELEMENT_NODE 
- * \param father the xmlNodePtr of the node your intrested in finding it's children
-*/
-xmlNodePtr children_XML_ELEMENT_NODE(xmlNodePtr father){
-	xmlNodePtr child = father->children;
-	while(child != NULL && child->type != XML_ELEMENT_NODE){
-		child = child->next;
-	}
-	return child;
-}
-
-/**
- * it return the first :node successor which is a real XML_ELEMENT_NODE 
- * \param node the xmlNodePtr of the node your intrested in finding it's next node
-*/
-xmlNodePtr next_XML_ELEMENT_NODE(xmlNodePtr node){
-	node = node->next;
-	while(node != NULL && node->type != XML_ELEMENT_NODE){
-		node = node->next;
-	}
-	return node;
 }
 
 
@@ -97,40 +67,7 @@ void print_sensors(){
 	fprint_sensors(stdout->_fileno);
 }
 
-
-/* -------------------------------------------------------------- TELNET */
-
-/**
- * Commande telnet d'arrêt
- */
-int remote_stop_cmd(int fd, const char* cmd)
-{
-	char* msg = "GHome is stopping. Goodbye !\n";
-	write(fd, msg, strlen(msg));
-	sem_post(&stop_sem);
-	return 0;
-}
-
-/**
- * Commande telnet de listage de capteurs
- */
-int list_sensors_cmd(int fd, const char* cmd)
-{
-	fprint_sensors(fd);
-	return 1;
-}
-
-/**
- * Commande telnet de listage de règles
- */
-int list_rules_cmd(int fd, const char* cmd)
-{
-//	fprint_rules(fd);
-	return 1;
-}
-
-/* ----------------------------------------------------------- FAT FONCTIONS :) */
-
+/* -------------------------------------------- HANDLER TRANSMISSION DONNÉES CAPTEUR */
 /**
  *   
 */
@@ -177,84 +114,75 @@ void process_data(int device, unsigned int field, float val)
 	fclose(raw_data);
 }
 
-/**
- * Charge les drivers et ajoute les capteurs selon un fichier de
- * configuration xml
- * \param path chemin du fichier de configuration
- * \return <0 si erreur
- */
-int init_sensors(const char* path)
-{
-	xmlDocPtr capteurs_doc;
-	xmlNodePtr drivers_node;
-	xmlNodePtr driver_node;
-	xmlNodePtr capteur_node;
-	
-	capteurs_doc = xmlParseFile(path);
-	if (capteurs_doc == NULL)
-	{
-		perror("xmlParseFile");
-		return -1;
-	}
-	/* the first xml element node of the file */
-	drivers_node = next_XML_ELEMENT_NODE(capteurs_doc->children);
 
-	/* init, install drivers and add all the capteurs */
-	ios_init();
-	int i;
-	for(i=0; i < MAX_NUMBER_OF_SENSORS ; i++)
-	{
-		sensor[i].fd=0;
-		sensor[i].id=0;
-		sensor[i].name=NULL;
-		sensor[i].used_fields=0;
-	}
-	int driver_counter = 0;	
-	int capteur_counter = 0;
-	for( 	driver_node = children_XML_ELEMENT_NODE(drivers_node);
-		driver_node != NULL;
-		driver_node = next_XML_ELEMENT_NODE(driver_node))
-	{
-		/* install a driverX/ */
-		xmlChar* drv_so_name = xmlGetProp(driver_node,(const xmlChar*)"so");
-		xmlChar* drv_ip = xmlGetProp(driver_node,(const xmlChar*)"ip");
-		xmlChar* drv_port = xmlGetProp(driver_node,(const xmlChar*)"port");
-		unsigned int port;
-		sscanf((char*) drv_port, "%u", &port);
-		printf("DEBUG unsigned int = %u\n", port); 
-		drv[driver_counter].id = ios_install_driver((char*) drv_so_name, (char*) drv_ip, port);
-		drv[driver_counter].name = drv_so_name;
-		xmlFree(drv_ip);
-		xmlFree(drv_port);
-		if( drv[driver_counter].id < 0 )
-		{	
-			ios_release();
-			perror("Driver loading error");
-			return drv[driver_counter].id;
-		}
-		for( 	capteur_node = children_XML_ELEMENT_NODE(driver_node);
-			capteur_node != NULL;
-			capteur_node = next_XML_ELEMENT_NODE(capteur_node))
-		{
-			/* install a driverX/capteurY/ */
-			xmlChar* etat = xmlGetProp(capteur_node,(const xmlChar*)"etat");
-			if(etat[0] == 'O' && etat[1] == 'N'){
-				sensor[capteur_counter].name = xmlNodeGetContent(capteur_node);
-				printf("\tname = %s\n", (char*)sensor[capteur_counter].name);
-				xmlChar* id = xmlGetProp(capteur_node,(const xmlChar*)"id");
-				int id_int;
-				sscanf((char*)id, "%X", &id_int);
-				sensor[capteur_counter].fd = ios_add_device( drv[driver_counter].id,id_int);
-				sensor[capteur_counter].id = id_int;
-				xmlFree(id);
-			}
-			xmlFree(etat);
-			capteur_counter++;
-		}
-		driver_counter++;
-	}
-	xmlFreeDoc(capteurs_doc);
+
+/* -------------------------------------------------------------- TELNET */
+
+/**
+ * Commande telnet d'arrêt
+ */
+int remote_stop_cmd(int fd, const char* cmd)
+{
+	char* msg = "GHome is stopping. Goodbye !\n";
+	write(fd, msg, strlen(msg));
+	sem_post(&stop_sem);
 	return 0;
+}
+
+/**
+ * Commande telnet de listage de capteurs
+ */
+int list_sensors_cmd(int fd, const char* cmd)
+{
+	fprint_sensors(fd);
+	return 1;
+}
+
+/**
+ * Commande telnet de listage de règles
+ */
+int list_rules_cmd(int fd, const char* cmd)
+{
+	fprint_rules(fd);
+	return 1;
+}
+
+/**
+ * Commande telnet de rechargement des règles
+ */
+int reload_rules_cmd(int fd, const char* cmd)
+{
+	ios_detach_global_handler();
+	if(reload_rules(sensor) < 0)
+	{
+		char message[] = "Malformed rule file. Correct it and reload rules again\n";
+		write(fd, message, strlen(message));
+	}
+	else
+	{
+		fprint_rules(fd);
+		ios_attach_global_handler(process_data);
+	}
+	return 1;
+}
+
+/**
+ * Commande telnet de rechargement des informations de capteurs
+ */
+int reload_sensors_cmd(int fd, const char* cmd)
+{
+	ios_detach_global_handler();
+	if(read_sensors("config/sensors.xml", sensor, drv) < 0)
+	{
+		char message[] = "Malformed sensor description file. Correct it and reload sensor description file\n";
+		write(fd, message, strlen(message));
+	}
+	else
+	{
+		fprint_sensors(fd);
+		ios_attach_global_handler(process_data);
+	}
+	return 1;
 }
 
 /**
@@ -281,6 +209,9 @@ int free_drv_array()
 	return 0;
 }
 
+
+/* ----------------------------------------------------------- FAT FONCTIONS :) */
+
 int main()
 {
 	sem_init(&stop_sem, 0, 0);
@@ -298,7 +229,7 @@ int main()
 		return -1;
 	}
 	/* Chargement du fichier de configuration des capteurs */
-	if ((status = init_sensors("config/sensors.xml")) < 0)
+	if ((status = read_sensors("config/sensors.xml", sensor, drv)) < 0)
 	{
 		perror("Initialisation error\n");
 		return status;
@@ -317,7 +248,8 @@ int main()
 	add_command("stop-server", "Stop the GHome server and cut the connection", &remote_stop_cmd);
 	add_command("list-sensors", "Print the list of configured sensors", &list_sensors_cmd);
 	add_command("list-rules", "Print the list of applied rules", &list_rules_cmd);
-
+	add_command("reload-rules", "Reload the rules to apply", &reload_rules_cmd);
+	add_command("reload-sensors", "Reload the configuration of the sensors", &reload_sensors_cmd);
 	/* Association du handler d'arrivée d'informations de capteurs */
 	ios_attach_global_handler(process_data);
 
