@@ -142,7 +142,7 @@ int drv_init( const char* remote_addr, int remote_port )
 	}
 
 	/* get the sensors_id from "sensors_file" */
-	/* sensors = read_sensors_list_file(&nbDev); */
+	sensors = read_sensors_list_file(&nbDev);
 	/* Initialization of semaphores used to synchronize the two threads */
 	initialisation_for_listener();
 	return 0;

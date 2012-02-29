@@ -298,6 +298,8 @@ void _interpretAndSend1BS(enocean_data_structure* a_RPS_message, int* msgq_id){
 	id += a_RPS_message->ID_BYTE1;
 	id = id << 8;
 	id += a_RPS_message->ID_BYTE0;
+	msg.id_sensor=id;
+	msg.msg_type = DRV_MSG_TYPE;
 
 	switch (a_RPS_message->DATA_BYTE0)
 	{
