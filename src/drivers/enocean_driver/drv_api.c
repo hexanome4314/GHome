@@ -153,7 +153,8 @@ int drv_add_sensor( unsigned int id_sensor){
 	sprintf(new_sensor->sensor, "%.8X", id_sensor);
 	new_sensor->next = sensors->next;
 	sensors->next = new_sensor;
-	printf("DEBUG drv_add_sensor %s\n",new_sensor->sensor);
+	if(DEBUG_MODE)
+		printf("drv_api - DEBUG drv_add_sensor %s\n",new_sensor->sensor);
 	return 0;
 }
 
@@ -215,7 +216,7 @@ int drv_send_data( unsigned int id_sensor, char commande )
 	ID3 = ID3>>24;
 	ID2 = ID2>>16;
 	ID1 = ID1>>8;
-	printf("COMMANDE :%d\n", (int)commande);
+	printf("drv_api - COMMANDE :%d\n", (int)commande);
 	/* On verifie si on allume ou on eteint l'actionneur */
 	if ((int)commande  == 116)
 	{
@@ -230,7 +231,7 @@ int drv_send_data( unsigned int id_sensor, char commande )
 
 	checkSum = (hSEQ_LEN + org + dataByte3 + dataByte2 + dataByte1 + dataByte0 + ID3 + ID2 + ID1 + ID0 + status) % 256;
 
-	printf("%X %X\nDataBytes : %X %X %X %X\nID : %X %X %X %X\nStatus : %X\nCheckSume : %X\n", hSEQ_LEN, org, dataByte3, dataByte2, dataByte1, dataByte0, ID3, ID2, ID1, ID0, status, checkSum);
+	printf("drv_api - %X %X\nDataBytes : %X %X %X %X\nID : %X %X %X %X\nStatus : %X\nCheckSume : %X\n", hSEQ_LEN, org, dataByte3, dataByte2, dataByte1, dataByte0, ID3, ID2, ID1, ID0, status, checkSum);
 	
 	/* Fabrication de la tramme */
 	trame[0] = 'A';
