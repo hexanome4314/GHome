@@ -242,7 +242,7 @@ function edit_device_info( id, drv ) {
 					resizable: false,
 					show: 'drop',
 					hide: 'drop',
-					buttons: { "Enregistrer": function() { if( save_device_info( drv_name, id ) == 1 ) $(this).dialog( "close" ); else $( ".ui-dialog" ).effect( "shake", { times: 1 }, 75 ); },
+					buttons: { "Enregistrer": function() { if( save_device_info( drv_name, id, node.text() ) == 1 ) $(this).dialog( "close" ); else $( ".ui-dialog" ).effect( "shake", { times: 1 }, 75 ); },
 						   "Annuler": function() { $(this).dialog( "close" ); },
 						 }
 				});
@@ -296,7 +296,7 @@ function edit_device_info( id, drv ) {
 /**
 Enregistrement des données saisies par l'utilisateur
 */
-function save_device_info( old_driver, old_id ) {
+function save_device_info( old_driver, old_id, old_name ) {
 
 	var wrong_data = false;
 
@@ -327,15 +327,45 @@ function save_device_info( old_driver, old_id ) {
 		$( "#state" ).css( 'background', '#33FF66').css( 'color', '#000000' );
 	}
 
-	/* Si une donnée est pas bonne, on s'arrête là. */
-	if( wrong_data == true )
-		return 0;
-
 	/* Stockage des données */
 	var new_driver 	= $( "#new_driver" ).attr( 'value' );
 	var name 	= $( "#name" ).attr( 'value' );
 	var new_id	= $( "#new_id" ).attr( 'value' );
 	var state	= $( "#state" ).attr( 'value' );
+
+	/* On vérifie que l'on a pas d'autres capteurs avec le même nom */
+	if( (old_name == void 0) || old_name != name ) {
+
+		$.ajax( {
+			async: false,
+			type: "GET",
+			dataType: "xml",
+			url: "data/sensors.xml",
+			success: function( data ) {
+				
+				/* Tentative de récupérer le capteur (ID,nom) via xpath */
+				var doublons = $(data).find( "capteur:contains('" + name + "')" );
+				
+				if( doublons != null && doublons.length > 0 ) {
+					
+					alert( "Ce nom de capteur est déjà utilisé." );
+
+					$( "#name" ).css( 'background', '#B00000').css( 'color', '#FFFFFF' );
+
+					wrong_data = true;
+				}
+			},
+			error: function( x, t, e ) {
+				alert( 'Une erreur a eu lieu lors de la vérification des données.' );
+
+					wrong_data = true;
+			}
+		} );
+	}
+
+	/* Si une donnée est pas bonne, on s'arrête là. */
+	if( wrong_data == true )
+		return 0;
 
 	/* On regarde si on est dans une édition ou un ajout afin de fixer les bons paramètres */
 	var param = "";
@@ -363,6 +393,7 @@ function save_device_info( old_driver, old_id ) {
 		},
 		error: function( j, t, e ) {
 			alert( 'Une erreur est survenue lors de l\'enregistrement des données. Veuillez réessayer plus tard.\n' + t + ' - ' + e + '\n' + j.responseText );
+			res = 1;
 		}
 	} );
 
