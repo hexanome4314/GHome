@@ -8,7 +8,6 @@
       <alert recipient="web">Temperature bases : allumage du chauffage.</alert>
     </actions>
     <conditions>
-      <!-- <condition device="temp_chambre" field="TEMPERATURE" type="inf">20</condition> -->
       <condition device="interrupteur ambiance disco" field="BUTTON_1" type="equ">1</condition>
     </conditions>
   </rule>
@@ -48,7 +47,7 @@
       <alert recipient="web">Dehors il fait très chaud, met ton maillot !</alert>
     </actions>
     <conditions>
-      <condition device="temp_chambre" field="TEMPERATURE" type="sup">35</condition>
+      <condition device="temperature exterieur" field="TEMPERATURE" type="sup">35</condition>
     </conditions>
   </rule>
   
@@ -57,7 +56,7 @@
       <alert recipient="web">Dehors il fait très frisquet, met ton bonnet !</alert>
     </actions>
     <conditions>
-      <condition device="temp_chambre" field="TEMPERATURE" type="inf">10</condition>
+      <condition device="temperature exterieur" field="TEMPERATURE" type="inf">10</condition>
     </conditions>
   </rule>
 </rules>
