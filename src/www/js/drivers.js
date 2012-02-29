@@ -615,7 +615,7 @@ function update_driver_data() {
 
 		},
 		error: function( xhr, str, error) {
-			alert( "Impossible de charger les données relatives aux pilotes." );
+			alert( "Impossible de charger les données relatives aux pilotes.\n" + str + ' - ' + error );
 
 			$( '#driver_data' ).html( '<img src="img/error.png" /><span><i>Impossible de charger les donn&eacute;es relatives aux pilotes.</span>' );
 		}
