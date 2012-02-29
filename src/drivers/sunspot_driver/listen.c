@@ -343,7 +343,7 @@ void _interpretAndSend4BS(sunspot_data_structure* a_RPS_message, int* msgq_id){
 
 	// Info du capteur de type temperature.
 	msgTemp.flag_value = DRV_FIELD_TEMPERATURE;
-	msg2.flag_value = DRV_FIELD_LIGHTING;
+	msg2.flag_value = DRV_FIELD_BRIGHTNESS;
 	msg3.flag_value = DRV_FIELD_VOLTAGE;
 
 	// On calcule la temperature du capteur.

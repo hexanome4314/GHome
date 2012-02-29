@@ -240,8 +240,6 @@ int ios_register_device( int major, int id )
 	if( added_devices_count + 1 >= DEV_MAX_COUNT )
 		return IOS_TOO_MANY_DEVICES_PLUGGED;
 
-	if( id <= 0 )
-		return IOS_INVALID_DEVICE_ID;
 
 	/* Si aucun périphérique n'a encore été ajouté, on assigne directement le 0 au lieu de faire le parcours */
 	if( added_devices_count == 0 )

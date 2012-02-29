@@ -54,52 +54,6 @@ int message_box;
 pthread_t filter_thread;
 pthread_t interprets_and_sends_thread;
 
-/* ---------- Methodes privees du pilote ---------- */
-
-/**
-Lit le fichier sensors_file pour y récuperer automatiquement la *
-liste de nos capteurs
-/param a_number_of_sensor un pointeur vers l'entier dans lequel ecrire le nombre de capteur lu
- */
-
-sensors_queue* read_sensors_list_file(int* a_number_of_sensor){
-
-	FILE* sensors_file;
-	int loop_counter1;
-	int loop_counter2;
-	sensors_file = fopen(SENSORS_FILE,"rt");
-	fseek(sensors_file,0L,SEEK_END);
-	int size = ftell(sensors_file);
-	fseek(sensors_file,0L,SEEK_SET);
-	*(a_number_of_sensor) = size/9;
-
-	sensors_queue* sensors;
-	sensors_queue* current_sensor;
-
-	/* init for loop */
-	current_sensor = (sensors_queue*)malloc(sizeof(sensors_queue));
-	for(loop_counter2=0 ; loop_counter2 < 8 ; loop_counter2++){
-				current_sensor->sensor[loop_counter2] = fgetc(sensors_file);
-	}
-	fgetc(sensors_file);
-	current_sensor-> next = NULL;
-	sensors = current_sensor;
-
-	/* loop */
- 	for(loop_counter1=1 ; loop_counter1 < *(a_number_of_sensor) ; loop_counter1++){
- 		sensors_queue* new_sensor = (sensors_queue*)malloc(sizeof(sensors_queue));
- 		for(loop_counter2=0 ; loop_counter2 < 8 ; loop_counter2++){
-			new_sensor->sensor[loop_counter2] = fgetc(sensors_file);
-		}
- 		fgetc(sensors_file);
- 		new_sensor->next = NULL;
- 		current_sensor->next = new_sensor;
-		current_sensor = new_sensor;
-	}
-	return sensors;
-}
-
-
 /* ---------- Methodes public du pilote ---------- */
 
 int main(){
@@ -140,9 +94,8 @@ int drv_init( const char* remote_addr, int remote_port )
 	}else{ /* politeness */
 		send(sock,"Hi from Hx4314's driver!",25,0);
 	}
-
-	/* get the sensors_id from "sensors_file"*/
-	sensors = read_sensors_list_file(&nbDev);
+	sensors = malloc(sizeof(sensors_queue));
+	sensors->next = NULL;
 	/* Initialization of semaphores used to synchronize the two threads */
 	initialisation_for_listener();
 	return 0;
@@ -197,10 +150,11 @@ void drv_stop( void ){
 */
 int drv_add_sensor( unsigned int id_sensor){
 	sensors_queue* new_sensor = malloc(sizeof(sensors_queue));
-	new_sensor->next = sensors;
 	sprintf(new_sensor->sensor, "%.8X", id_sensor);
-	printf("DEBUG drv_add_sensor %s\n",new_sensor->sensor);
-	sensors = new_sensor;
+	new_sensor->next = sensors->next;
+	sensors->next = new_sensor;
+	if(DEBUG_MODE)
+		printf("drv_api - DEBUG drv_add_sensor %s\n",new_sensor->sensor);
 	return 0;
 }
 
@@ -213,11 +167,6 @@ void drv_remove_sensor( unsigned int id_sensor ){
 	sensors_queue* current_sensor = sensors;
 	char* char_id_sensor = "00000000";
 	sprintf(char_id_sensor, "%u",id_sensor);
-	/* initialisation case */
-	if(current_sensor->sensor == char_id_sensor){
-		sensors = sensors->next;
-		free(sensors);
-	}
 	/* regular case */
 	while(current_sensor != NULL && current_sensor->next != NULL){
 		if(current_sensor->next->sensor == char_id_sensor){
@@ -267,9 +216,9 @@ int drv_send_data( unsigned int id_sensor, char commande )
 	ID3 = ID3>>24;
 	ID2 = ID2>>16;
 	ID1 = ID1>>8;
-
+	printf("drv_api - COMMANDE :%d\n", (int)commande);
 	/* On verifie si on allume ou on eteint l'actionneur */
-	if (commande  == 0)
+	if ((int)commande  == 116)
 	{
 		/* Pour activer l'actionneur. */
 		dataByte3 = 0x50;
@@ -282,7 +231,7 @@ int drv_send_data( unsigned int id_sensor, char commande )
 
 	checkSum = (hSEQ_LEN + org + dataByte3 + dataByte2 + dataByte1 + dataByte0 + ID3 + ID2 + ID1 + ID0 + status) % 256;
 
-	printf("%X %X\nDataBytes : %X %X %X %X\nID : %X %X %X %X\nStatus : %X\nCheckSume : %X\n", hSEQ_LEN, org, dataByte3, dataByte2, dataByte1, dataByte0, ID3, ID2, ID1, ID0, status, checkSum);
+	printf("drv_api - %X %X\nDataBytes : %X %X %X %X\nID : %X %X %X %X\nStatus : %X\nCheckSume : %X\n", hSEQ_LEN, org, dataByte3, dataByte2, dataByte1, dataByte0, ID3, ID2, ID1, ID0, status, checkSum);
 	
 	/* Fabrication de la tramme */
 	trame[0] = 'A';
@@ -293,7 +242,7 @@ int drv_send_data( unsigned int id_sensor, char commande )
 	trame[5] = 'B';
 	trame[6] = '0';
 	trame[7] = '5';
-	if (commande == 0)
+	if (commande == 't')
 	{
 		/* Pour activer l'actionneur. */
 		trame[8] = '5';

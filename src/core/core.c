@@ -102,7 +102,7 @@ void process_data(int device, unsigned int field, float val)
 				{
 					float value = 0;
 					ios_read(sensor[i].fd, f, &value);
-					fprintf(raw_data, ",\n   \"%s\": \"%f\"", Fields[f], value);
+					fprintf(raw_data, ",\n   \"%s\": \"%.2f\"", Fields[f], value);
 				}
 				
 			}

@@ -8,3 +8,4 @@ all:
 clean:
 	for i in $(SUBDIRS); do (cd $$i; $(MAKE) clean); done
 	rm -f lib/*.a
+	rm -f drivers/*.so

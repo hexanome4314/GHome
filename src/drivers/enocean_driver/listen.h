@@ -8,7 +8,7 @@
 #ifndef LISTEN_H_
 #define LISTEN_H_
 
-#define SIMULATION 1
+#define SIMULATION 0
 
 /************************************************** TYPES */
 
@@ -74,8 +74,8 @@ typedef char id_sensor[9];
 
 /*------------------ logs */
 
-#define DEBUG_MODE 1
-#define LOG 1
+#define DEBUG_MODE 0
+#define LOG 0
 
 /*--------------- network */
 
