@@ -283,7 +283,7 @@ void _interpretAndSend4BS(enocean_data_structure* a_RPS_message, int* msgq_id){
 	id += a_RPS_message->ID_BYTE0;
 
 	// Info du capteur de type temperature.
-	msg2.flag_value = DRV_FIELD_LIGHTING;
+	msg2.flag_value = DRV_FIELD_BRIGHTNESS;
 	msg3.flag_value = DRV_FIELD_VOLTAGE;
 	msg2.msg_type = DRV_MSG_TYPE;
 	msg3.msg_type = DRV_MSG_TYPE;
