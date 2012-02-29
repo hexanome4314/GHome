@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <time.h>
 
 #include "sys/msg.h"
 #include "listen.h"
@@ -50,6 +51,7 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 	/* Un message pour chaque etat de bouton a mettre a jour */
 	struct msg_drv_notify msg;
 	struct msg_drv_notify msg2;
+	
 
 	unsigned int id; /* Id du capteur */
 	
@@ -218,7 +220,6 @@ void _interpretAndSend1BS(enocean_data_structure* a_RPS_message, int* msgq_id){
 
 	struct msg_drv_notify msg; /* Message pour l'etat du capteur */
 	unsigned int id; /* Id du capteur */
-	int resp; /* Reponse pour l'envoie du message */
 
 	/* Reconstruction de l'id du capteur a partir des ID_BYTE */
 	id = a_RPS_message->ID_BYTE3;
@@ -262,7 +263,7 @@ void _interpretAndSend1BS(enocean_data_structure* a_RPS_message, int* msgq_id){
 		}
 	}
 
-	resp = msgsnd( *(msgq_id), (const void*) &msg, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+	msgsnd( *(msgq_id), (const void*) &msg, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
 }
 
 void _interpretAndSend4BS(enocean_data_structure* a_RPS_message, int* msgq_id){
@@ -350,6 +351,11 @@ int listenAndFilter(listen_and_filter_params* params)
 		/* LOOP filter */
 		printf("FILTRE ");
 		sensors_queue* p_sensor;
+		while(sensors == NULL)
+		{
+			sleep(1);
+			printf("la liste géré par le driver enocean est vide\n");
+		}
 		for(p_sensor = sensors ; (sensors_queue*)p_sensor->next != NULL ; p_sensor = p_sensor->next){
 			/*printf("%c%c %c%c %c%c %c%c == %c%c %c%c %c%c %c%c ?\n",
 					p_sensor->sensor[0],p_sensor->sensor[1],p_sensor->sensor[2],p_sensor->sensor[3],
