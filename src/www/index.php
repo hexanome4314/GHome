@@ -42,10 +42,10 @@ force_authentication();
                                                 url: "ajax/auth.php",
                                                 data: "action=logoff" ,
                                                 success: function( data ) {
-							$(location).attr( 'href', '/' );
+							location.reload();
 						},
 						error: function( ) {
-							$(location).attr( 'href', '/' );
+							location.reload();
 						}						
 					} );
 

@@ -54,7 +54,7 @@ if( is_authenticated() )
 				                        else {
 								$(".content").hide( "puff", {  }, 1000 );
 
-								$(".content").promise().done( function() { $(location).attr( 'href', '/' ); } );
+								$(".content").promise().done( function() { location.reload(); } );
 				                        }
 				                },
 				                error: function( j, t, e) {
