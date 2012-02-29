@@ -345,28 +345,24 @@ int listenAndFilter(listen_and_filter_params* params)
 
 		/* LOOP filter */
 		printf("FILTRE ");
-		sensors_queue* p_sensor;
+		sensors_queue* p_sensor = sensors->next;
 		while(sensors == NULL)
 		{
 			sleep(1);
 			printf("la liste géré par le driver enocean est vide\n");
 		}
-		for(p_sensor = sensors ; (sensors_queue*)p_sensor->next != NULL ; p_sensor = p_sensor->next){
-			/*printf("%c%c %c%c %c%c %c%c == %c%c %c%c %c%c %c%c ?\n",
-					p_sensor->sensor[0],p_sensor->sensor[1],p_sensor->sensor[2],p_sensor->sensor[3],
-					p_sensor->sensor[4],p_sensor->sensor[5],p_sensor->sensor[6],p_sensor->sensor[7],
-					char_buffer[16],char_buffer[17],char_buffer[18],char_buffer[19],
-					char_buffer[20],char_buffer[21],char_buffer[22],char_buffer[23]);
-			*/
-			if(   (char)p_sensor->sensor[0] == (char) char_buffer[16]
+		while(p_sensor != NULL)
+		{
+			if((char)p_sensor->sensor[0] == (char) char_buffer[16]
 			   && (char)p_sensor->sensor[1] == (char) char_buffer[17]
 			   && (char)p_sensor->sensor[2] == (char) char_buffer[18]
 			   && (char)p_sensor->sensor[3] == (char) char_buffer[19]
-        	   && (char)p_sensor->sensor[4] == (char) char_buffer[20]
-		       && (char)p_sensor->sensor[5] == (char) char_buffer[21]
-               && (char)p_sensor->sensor[6] == (char) char_buffer[22]
-		       && (char)p_sensor->sensor[7] == (char) char_buffer[23]
-			){
+			   && (char)p_sensor->sensor[4] == (char) char_buffer[20]
+			   && (char)p_sensor->sensor[5] == (char) char_buffer[21]
+			   && (char)p_sensor->sensor[6] == (char) char_buffer[22]
+			   && (char)p_sensor->sensor[7] == (char) char_buffer[23]
+				)
+			{
 				sem_wait(&to_send_receive);
 				/*if(sem_wait(&to_send_receive) == 0){
 					int val;
@@ -390,8 +386,9 @@ int listenAndFilter(listen_and_filter_params* params)
 				}*/
 				break;
 			}
+			p_sensor = p_sensor->next;
 		}
-		if(p_sensor->next == NULL && interesting_frame != char_buffer){
+		if(p_sensor == NULL && interesting_frame != char_buffer){
 			printf("listen - message i don't care about \n");
 		}
 		printf("FIN FILTRE \n");
