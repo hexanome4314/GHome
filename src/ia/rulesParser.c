@@ -9,6 +9,8 @@ FIELDS
 #undef X
 };
 
+#define DEBUG_MODE 0
+
 #define RECIPIENTS_SIZE 2
 static char* Recipients[RECIPIENTS_SIZE] = {"Web", "Unknown_Recipient"};
 
@@ -195,7 +197,11 @@ void addRule(char *name)
 	rule->conditions = NULL;
 	lastRule->next = rule;
 	lastRule = rule;
-	printf("New rule addedd : %s\n", name);
+    
+    if(DEBUG_MODE == 1)
+    {    
+        printf("New rule addedd : %s\n", name);
+    }
 }
 
 void addAction(char *device, char *state, char *field) {
@@ -216,7 +222,10 @@ void addAction(char *device, char *state, char *field) {
 		lastAction->next = action;
 	}
 
-	printf("New action added : %s -> %s\n", device, getStateName(getState(state)));
+	if(DEBUG_MODE == 1)
+    {
+        printf("New action added : %s -> %s\n", device, getStateName(getState(state)));
+    }
 }
 
 void addAlert(char *recipient, char *message)
@@ -236,7 +245,11 @@ void addAlert(char *recipient, char *message)
 	{
 		lastAlert->next = alert;
 	}
-	printf("New alert added : %s -> %s\n", recipient, message);
+    
+    if(DEBUG_MODE == 1)
+    { 
+        printf("New alert added : %s -> %s\n", recipient, message);
+    }
 }
 
 void addCondition(char *device, char *field, char *type, char *value)
@@ -266,7 +279,11 @@ void addCondition(char *device, char *field, char *type, char *value)
 	{
 		lastCondition->next = condition;
 	}
-	printf("New condition added : %s->%s %s %f\n", device, field, type, condition->value);
+    
+    if(DEBUG_MODE == 1)
+    {
+        printf("New condition added : %s->%s %s %f\n", device, field, type, condition->value);
+    }
 }
 
 void fillRules(xmlNodePtr node)
@@ -348,6 +365,8 @@ void ftraceRules(Rule *rules, int output)
 	int i=0, j;
 	char msg[1024];
     
+    printf("\n==========[[ Regles chargees ]]==========\n");
+    
 	for(r = rules; r != NULL; r = r->next)
 	{
 		sprintf(msg, "\n\033[31mRule n°%d :\033[00m %s\n", ++i, r->name);        
@@ -410,7 +429,9 @@ void ftraceRules(Rule *rules, int output)
 			}
 		}
 	}
-}
+    
+    printf("\n=========================================\n");    
+}                       
 
 void traceRules(Rule *rules)
 {
@@ -442,10 +463,16 @@ Rule * get_rules(const char *filename, infos_sensor *sensor_list)
 	}
     
     // Parcours
-    printf("Starting to browse...\n");
+    if(DEBUG_MODE == 1)
+    {
+        printf("Starting to browse %d...\n");
+    }
 	lastRule=rules;
 	nodeBrowser(racine, fillRules);
-    printf("Browsing end reached!\n");
+    if(DEBUG_MODE == 1)
+    {    
+        printf("Browsing end reached!\n");
+    }
     
 	// Libération de la mémoire
 	xmlFreeDoc(doc);
