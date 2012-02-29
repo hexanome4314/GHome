@@ -77,7 +77,7 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 		{
 			if (LOG)
 			{
-				printf("Capteur : %X Bouton gauche en bas !!!!\n", id);
+				printf("listen - Capteur : %X Bouton gauche en bas !!!!\n", id);
 			}
 			msg.flag_value = DRV_FIELD_BUTTON1;
 			msg.value = -1;
@@ -91,7 +91,7 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 		{
 			if (LOG)
 			{
-				printf("Capteur : %X Bouton gauche en haut !!!!\n", id);
+				printf("listen - Capteur : %X Bouton gauche en haut !!!!\n", id);
 			}
 
 			msg.flag_value = DRV_FIELD_BUTTON1;
@@ -106,7 +106,7 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 		{
 			if (LOG)
 			{
-				printf("Capteur : %X Bouton droite en bas !!!!\n", id);
+				printf("listen - Capteur : %X Bouton droite en bas !!!!\n", id);
 			}
 
 			msg.flag_value = DRV_FIELD_BUTTON1;
@@ -121,7 +121,7 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 		{
 			if (LOG)
 			{
-				printf("Capteur : %X Bouton droit en haut !!!!\n", id);
+				printf("listen - Capteur : %X Bouton droit en haut !!!!\n", id);
 			}
 
 			msg.flag_value = DRV_FIELD_BUTTON1;
@@ -136,7 +136,7 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 		{
 			if (LOG)
 			{
-				printf("Capteur : %X Bouton gauche et droite en haut !!!!\n", id);
+				printf("listen - Capteur : %X Bouton gauche et droite en haut !!!!\n", id);
 			}
 
 			msg.flag_value = DRV_FIELD_BUTTON1;
@@ -151,7 +151,7 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 		{
 			if (LOG)
 			{
-				printf("Capteur : %X Bouton gauche et droite en bas !!!!\n", id);
+				printf("listen - Capteur : %X Bouton gauche et droite en bas !!!!\n", id);
 			}
 
 			msg.flag_value = DRV_FIELD_BUTTON1;
@@ -166,7 +166,7 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 		{
 			if (LOG)
 			{
-				printf("Capteur : %X Bouton gauche en bas et droite en haut !!!!\n", id);
+				printf("listen - Capteur : %X Bouton gauche en bas et droite en haut !!!!\n", id);
 			}
 
 			msg.flag_value = DRV_FIELD_BUTTON1;
@@ -181,7 +181,7 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 		{
 			if (LOG)
 			{
-				printf("Capteur : %X Bouton gauche en haut et droite en bas !!!!\n", id);
+				printf("listen - Capteur : %X Bouton gauche en haut et droite en bas !!!!\n", id);
 			}
 
 			msg.flag_value = DRV_FIELD_BUTTON1;
@@ -196,7 +196,7 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 		{
 			if (LOG)
 			{
-				printf("Capteur : %X Bouton gauche et droite non appuyes !!!!\n", id);
+				printf("listen - Capteur : %X Bouton gauche et droite non appuyes !!!!\n", id);
 			}
 
 			msg.flag_value = DRV_FIELD_BUTTON1;
@@ -239,7 +239,7 @@ void _interpretAndSend1BS(enocean_data_structure* a_RPS_message, int* msgq_id){
 		{
 			if (LOG)
 			{
-				printf("Capteur : %X Contact ouvert !!!!\n", id);
+				printf("listen - Capteur : %X Contact ouvert !!!!\n", id);
 			}
 
 			msg.flag_value = DRV_FIELD_BUTTON1;
@@ -250,7 +250,7 @@ void _interpretAndSend1BS(enocean_data_structure* a_RPS_message, int* msgq_id){
 		{
 			if (LOG)
 			{
-				printf("Capteur : %X Contact ferme !!!!\n", id);
+				printf("listen - Capteur : %X Contact ferme !!!!\n", id);
 			}
 
 			msg.flag_value = DRV_FIELD_BUTTON1;
@@ -299,9 +299,9 @@ void _interpretAndSend4BS(enocean_data_structure* a_RPS_message, int* msgq_id){
 
 	if (LOG)
 	{
-		printf("Capteur : %X Temperature : %f !!!!\n", id, msgTemp.value);
-		printf("Capteur : %X Luminosite : %f !!!!\n", id, msg2.value);
-		printf("Capteur : %X Voltage : %f !!!!\n", id, msg3.value);
+		printf("listen - Capteur : %X Temperature : %f !!!!\n", id, msgTemp.value);
+		printf("listen - Capteur : %X Luminosite : %f !!!!\n", id, msg2.value);
+		printf("listen - Capteur : %X Voltage : %f !!!!\n", id, msg3.value);
 	}
 
 	resp = msgsnd( (msgqnum_t)msgq_id, (const void*) &msgTemp, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
@@ -349,57 +349,36 @@ int listenAndFilter(listen_and_filter_params* params)
 		}
 
 		/* LOOP filter */
-		printf("FILTRE ");
 		sensors_queue* p_sensor;
 		while(sensors == NULL)
 		{
 			sleep(1);
-			printf("la liste géré par le driver enocean est vide\n");
+			printf("listen - la liste géré par le driver enocean est vide\n");
 		}
 		for(p_sensor = sensors ; (sensors_queue*)p_sensor->next != NULL ; p_sensor = p_sensor->next){
-			/*printf("%c%c %c%c %c%c %c%c == %c%c %c%c %c%c %c%c ?\n",
-					p_sensor->sensor[0],p_sensor->sensor[1],p_sensor->sensor[2],p_sensor->sensor[3],
-					p_sensor->sensor[4],p_sensor->sensor[5],p_sensor->sensor[6],p_sensor->sensor[7],
-					char_buffer[16],char_buffer[17],char_buffer[18],char_buffer[19],
-					char_buffer[20],char_buffer[21],char_buffer[22],char_buffer[23]);
-			*/
+			
 			if(   (char)p_sensor->sensor[0] == (char) char_buffer[16]
 			   && (char)p_sensor->sensor[1] == (char) char_buffer[17]
 			   && (char)p_sensor->sensor[2] == (char) char_buffer[18]
 			   && (char)p_sensor->sensor[3] == (char) char_buffer[19]
-        	   && (char)p_sensor->sensor[4] == (char) char_buffer[20]
-		       && (char)p_sensor->sensor[5] == (char) char_buffer[21]
-               && (char)p_sensor->sensor[6] == (char) char_buffer[22]
-		       && (char)p_sensor->sensor[7] == (char) char_buffer[23]
+        	   	   && (char)p_sensor->sensor[4] == (char) char_buffer[20]
+		           && (char)p_sensor->sensor[5] == (char) char_buffer[21]
+		           && (char)p_sensor->sensor[6] == (char) char_buffer[22]
+			   && (char)p_sensor->sensor[7] == (char) char_buffer[23]
 			){
-				sem_wait(&to_send_receive);
-				/*if(sem_wait(&to_send_receive) == 0){
-					int val;
-					sem_getvalue(&to_send,&val);
-					printf("listen - SEM GET to_send_receive %d\n",val);
-				}else{
-					printf("error during SEM GET to_send_receive %d",errno);
-				}*/
+				/* this message is from one of our sensors ! */
+				sem_wait(&to_send_receive); /* sychronisation with the interpret&send thread */
 				printf("listen - message from one of ours sensors! \n");
 				interesting_frame = char_buffer;
 				sem_post(&to_send);
 				char_buffer = (char*)malloc(28);
 				memset(char_buffer,0,sizeof(char_buffer));
-
-				/*if(sem_post(&to_send) == 0){
-					int val;
-					sem_getvalue(&to_send,&val);
-					printf("listen - SEM PUT to_send %d\n",val);
-				}else{
-					printf("error during SEM PUT to_send %d",errno);
-				}*/
-				break;
+				break; /* no need to go throw the end of the list */
 			}
 		}
 		if(p_sensor->next == NULL && interesting_frame != char_buffer){
 			printf("listen - message i don't care about \n");
 		}
-		printf("FIN FILTRE \n");
 	} /* end RECEIVE&FILTER THREAD LOOP */
 }
 /**
@@ -411,28 +390,16 @@ void interpretAndSend(int* msgq_id){
 	enocean_data_structure* message;
 
 	for(;;){ /* begin INTERPRET&SEND THREAD LOOP */
-		//printf("interpret&send --------------------- start of a loop ! \n");
+
 		/* get the new message */
 		message = malloc(sizeof(enocean_data_structure));
 		char* buffer = NULL;
 		sem_wait(&to_send);
-		/*if(sem_wait(&to_send) == 0){
-			int val;
-			sem_getvalue(&to_send,&val);
-			printf("interpret&send - SEM GET to_send %d\n",val);
-		}else{
-			printf("error during SEM GET to_send %d",errno);
-		}*/
-		buffer = interesting_frame;
-		interesting_frame = NULL;
+		{
+			buffer = interesting_frame;
+			interesting_frame = NULL;
+		}
 		sem_post(&to_send_receive);
-		/*if(sem_post(&to_send_receive) == 0){
-			int val;
-			sem_getvalue(&to_send,&val);
-			printf("interpret&send - SEM PUT to_send_receive %d\n",val);
-		}else{
-			printf("error during SEM PUT to_send_receive %d",errno);
-		}*/
 		parser(buffer,message);
 		free(buffer);
 
