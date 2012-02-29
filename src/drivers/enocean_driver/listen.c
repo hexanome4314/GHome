@@ -50,14 +50,6 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 	/* Un message pour chaque etat de bouton a mettre a jour */
 	struct msg_drv_notify msg;
 	struct msg_drv_notify msg2;
-	struct msg_drv_notify msg3;
-	struct msg_drv_notify msg4;
-
-	/* Une reponse pour chaque envoie des messages */
-	int resp;
-	int resp2;
-	int resp3;
-	int resp4;
 
 	unsigned int id; /* Id du capteur */
 	
@@ -76,12 +68,6 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 	msg2.msg_type = DRV_MSG_TYPE;
 	msg2.id_sensor = id;
 
-	msg3.msg_type = DRV_MSG_TYPE;
-	msg3.id_sensor = id;
-
-	msg4.msg_type = DRV_MSG_TYPE;
-	msg4.id_sensor = id;
-
 	switch (a_RPS_message->DATA_BYTE3)
 	{
 		/* Bouton gauche en bas */
@@ -92,16 +78,10 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 				printf("Capteur : %X Bouton gauche en bas !!!!\n", id);
 			}
 			msg.flag_value = DRV_FIELD_BUTTON1;
-			msg.value = 1;
+			msg.value = -1;
 
 			msg2.flag_value = DRV_FIELD_BUTTON2;
 			msg2.value = 0;
-
-			msg3.flag_value = DRV_FIELD_BUTTON3;
-			msg3.value = 0;
-
-			msg4.flag_value = DRV_FIELD_BUTTON4;
-			msg4.value = 0;
 		} break;
 
 		/* Bouton gauche en haut */
@@ -113,16 +93,10 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 			}
 
 			msg.flag_value = DRV_FIELD_BUTTON1;
-			msg.value = 0;
+			msg.value = 1;
 
 			msg2.flag_value = DRV_FIELD_BUTTON2;
-			msg2.value = 1;
-
-			msg3.flag_value = DRV_FIELD_BUTTON3;
-			msg3.value = 0;
-
-			msg4.flag_value = DRV_FIELD_BUTTON4;
-			msg4.value = 0;
+			msg2.value = 0;
 		} break;
 
 		/* Bouton droite en bas */
@@ -137,34 +111,22 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 			msg.value = 0;
 
 			msg2.flag_value = DRV_FIELD_BUTTON2;
-			msg2.value = 0;
-
-			msg3.flag_value = DRV_FIELD_BUTTON3;
-			msg3.value = 1;
-
-			msg4.flag_value = DRV_FIELD_BUTTON4;
-			msg4.value = 0;
+			msg2.value = -1;
 		} break;
 
-		/* Bouton gauche en haut */
+		/* Bouton droit en haut */
 		case 0x70 :
 		{
 			if (LOG)
 			{
-				printf("Capteur : %X Bouton gauche en haut !!!!\n", id);
+				printf("Capteur : %X Bouton droit en haut !!!!\n", id);
 			}
 
 			msg.flag_value = DRV_FIELD_BUTTON1;
 			msg.value = 0;
 
 			msg2.flag_value = DRV_FIELD_BUTTON2;
-			msg2.value = 0;
-
-			msg3.flag_value = DRV_FIELD_BUTTON3;
-			msg3.value = 0;
-
-			msg4.flag_value = DRV_FIELD_BUTTON4;
-			msg4.value = 1;
+			msg2.value = 1;
 		} break;
 
 		/* Bouton gauche et droite en haut */
@@ -176,16 +138,10 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 			}
 
 			msg.flag_value = DRV_FIELD_BUTTON1;
-			msg.value = 0;
+			msg.value = 1;
 
 			msg2.flag_value = DRV_FIELD_BUTTON2;
 			msg2.value = 1;
-
-			msg3.flag_value = DRV_FIELD_BUTTON3;
-			msg3.value = 0;
-
-			msg4.flag_value = DRV_FIELD_BUTTON4;
-			msg4.value = 1;
 		} break;
 
 		/* Bouton gauche et droite en bas */
@@ -197,16 +153,10 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 			}
 
 			msg.flag_value = DRV_FIELD_BUTTON1;
-			msg.value = 1;
+			msg.value = -1;
 
 			msg2.flag_value = DRV_FIELD_BUTTON2;
-			msg2.value = 0;
-
-			msg3.flag_value = DRV_FIELD_BUTTON3;
-			msg3.value = 1;
-
-			msg4.flag_value = DRV_FIELD_BUTTON4;
-			msg4.value = 0;
+			msg2.value = -1;
 		} break;
 
 		/* Bouton gauche en bas et droite en haut */
@@ -218,16 +168,10 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 			}
 
 			msg.flag_value = DRV_FIELD_BUTTON1;
-			msg.value = 1;
+			msg.value = -1;
 
 			msg2.flag_value = DRV_FIELD_BUTTON2;
-			msg2.value = 0;
-
-			msg3.flag_value = DRV_FIELD_BUTTON3;
-			msg3.value = 0;
-
-			msg4.flag_value = DRV_FIELD_BUTTON4;
-			msg4.value = 1;
+			msg2.value = 1;
 		} break;
 
 		/* Bouton gauche en haut et droite en bas */
@@ -239,16 +183,10 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 			}
 
 			msg.flag_value = DRV_FIELD_BUTTON1;
-			msg.value = 0;
+			msg.value = 1;
 
 			msg2.flag_value = DRV_FIELD_BUTTON2;
-			msg2.value = 1;
-
-			msg3.flag_value = DRV_FIELD_BUTTON3;
-			msg3.value = 1;
-
-			msg4.flag_value = DRV_FIELD_BUTTON4;
-			msg4.value = 0;
+			msg2.value = -1;
 		} break;
 
 		/* Bouton gauche et droite non appuyes */
@@ -264,12 +202,6 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 
 			msg2.flag_value = DRV_FIELD_BUTTON2;
 			msg2.value = 0;
-
-			msg3.flag_value = DRV_FIELD_BUTTON3;
-			msg3.value = 0;
-
-			msg4.flag_value = DRV_FIELD_BUTTON4;
-			msg4.value = 0;
 		} break;
 
 		default :
@@ -278,10 +210,8 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 		}
 	}
 
-	resp = msgsnd( *(msgq_id), (const void*) &msg, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
-	resp2 = msgsnd( *(msgq_id), (const void*) &msg2, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
-	resp3 = msgsnd( *(msgq_id), (const void*) &msg3, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
-	resp4 = msgsnd( *(msgq_id), (const void*) &msg4, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+	msgsnd( *(msgq_id), (const void*) &msg, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+	msgsnd( *(msgq_id), (const void*) &msg2, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
 }
 
 void _interpretAndSend1BS(enocean_data_structure* a_RPS_message, int* msgq_id){
