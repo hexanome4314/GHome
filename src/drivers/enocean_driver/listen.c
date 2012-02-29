@@ -94,13 +94,13 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 			msg.flag_value = DRV_FIELD_BUTTON1;
 			msg.value = 1;
 
-			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.flag_value = DRV_FIELD_BUTTON2;
 			msg2.value = 0;
 
-			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.flag_value = DRV_FIELD_BUTTON3;
 			msg3.value = 0;
 
-			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.flag_value = DRV_FIELD_BUTTON4;
 			msg4.value = 0;
 		} break;
 
@@ -115,13 +115,13 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 			msg.flag_value = DRV_FIELD_BUTTON1;
 			msg.value = 0;
 
-			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.flag_value = DRV_FIELD_BUTTON2;
 			msg2.value = 1;
 
-			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.flag_value = DRV_FIELD_BUTTON3;
 			msg3.value = 0;
 
-			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.flag_value = DRV_FIELD_BUTTON4;
 			msg4.value = 0;
 		} break;
 
@@ -136,13 +136,13 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 			msg.flag_value = DRV_FIELD_BUTTON1;
 			msg.value = 0;
 
-			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.flag_value = DRV_FIELD_BUTTON2;
 			msg2.value = 0;
 
-			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.flag_value = DRV_FIELD_BUTTON3;
 			msg3.value = 1;
 
-			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.flag_value = DRV_FIELD_BUTTON4;
 			msg4.value = 0;
 		} break;
 
@@ -157,13 +157,13 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 			msg.flag_value = DRV_FIELD_BUTTON1;
 			msg.value = 0;
 
-			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.flag_value = DRV_FIELD_BUTTON2;
 			msg2.value = 0;
 
-			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.flag_value = DRV_FIELD_BUTTON3;
 			msg3.value = 0;
 
-			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.flag_value = DRV_FIELD_BUTTON4;
 			msg4.value = 1;
 		} break;
 
@@ -178,13 +178,13 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 			msg.flag_value = DRV_FIELD_BUTTON1;
 			msg.value = 0;
 
-			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.flag_value = DRV_FIELD_BUTTON2;
 			msg2.value = 1;
 
-			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.flag_value = DRV_FIELD_BUTTON3;
 			msg3.value = 0;
 
-			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.flag_value = DRV_FIELD_BUTTON4;
 			msg4.value = 1;
 		} break;
 
@@ -199,13 +199,13 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 			msg.flag_value = DRV_FIELD_BUTTON1;
 			msg.value = 1;
 
-			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.flag_value = DRV_FIELD_BUTTON2;
 			msg2.value = 0;
 
-			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.flag_value = DRV_FIELD_BUTTON3;
 			msg3.value = 1;
 
-			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.flag_value = DRV_FIELD_BUTTON4;
 			msg4.value = 0;
 		} break;
 
@@ -220,13 +220,13 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 			msg.flag_value = DRV_FIELD_BUTTON1;
 			msg.value = 1;
 
-			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.flag_value = DRV_FIELD_BUTTON2;
 			msg2.value = 0;
 
-			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.flag_value = DRV_FIELD_BUTTON3;
 			msg3.value = 0;
 
-			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.flag_value = DRV_FIELD_BUTTON4;
 			msg4.value = 1;
 		} break;
 
@@ -241,13 +241,13 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 			msg.flag_value = DRV_FIELD_BUTTON1;
 			msg.value = 0;
 
-			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.flag_value = DRV_FIELD_BUTTON2;
 			msg2.value = 1;
 
-			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.flag_value = DRV_FIELD_BUTTON3;
 			msg3.value = 1;
 
-			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.flag_value = DRV_FIELD_BUTTON4;
 			msg4.value = 0;
 		} break;
 
@@ -262,13 +262,13 @@ void _interpretAndSendRPS(enocean_data_structure* a_RPS_message, int* msgq_id){
 			msg.flag_value = DRV_FIELD_BUTTON1;
 			msg.value = 0;
 
-			msg2.flag_value = DRV_FIELD_BUTTON1;
+			msg2.flag_value = DRV_FIELD_BUTTON2;
 			msg2.value = 0;
 
-			msg3.flag_value = DRV_FIELD_BUTTON1;
+			msg3.flag_value = DRV_FIELD_BUTTON3;
 			msg3.value = 0;
 
-			msg4.flag_value = DRV_FIELD_BUTTON1;
+			msg4.flag_value = DRV_FIELD_BUTTON4;
 			msg4.value = 0;
 		} break;
 
