@@ -33,9 +33,6 @@ force_authentication();
 				update_rules_data();
 				setInterval( update_sensor_data, 30000 );
 
-
-				alert( 'éé' );
-
 				$("#main").show( "puff", 1000 );
 				
 				/* Logging off */
