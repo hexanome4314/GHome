@@ -11,7 +11,7 @@ if( is_authenticated() )
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" >
   <head>
     <title>.:: GHome - Authentification ::.</title>
-    <meta http-equiv="Content-Type" content="text/html; utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="js/jquery-ui-1.8.18.custom.min.js"></script>
     <script type="text/javascript" src="js/SHA1.js"></script>
