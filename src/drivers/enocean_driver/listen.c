@@ -283,30 +283,25 @@ void _interpretAndSend4BS(enocean_data_structure* a_RPS_message, int* msgq_id){
 	id += a_RPS_message->ID_BYTE0;
 
 	// Info du capteur de type temperature.
-	msgTemp.flag_value = DRV_FIELD_TEMPERATURE;
-	msg2.flag_value = DRV_FIELD_LIGHTING;
+	msg2.flag_value = DRV_FIELD_BRIGHTNESS;
 	msg3.flag_value = DRV_FIELD_VOLTAGE;
+	msg2.msg_type = DRV_MSG_TYPE;
+	msg3.msg_type = DRV_MSG_TYPE;
 
-	// On calcule la temperature du capteur.
-	msgTemp.value = a_RPS_message->DATA_BYTE1 * 40/255;
-	msgTemp.id_sensor = id;
-
-	msg2.value = a_RPS_message->DATA_BYTE2 * 510/255;
+	msg2.value = a_RPS_message->DATA_BYTE2 * 510.0/256.0;
 	msg2.id_sensor = id;
 
-	msg3.value = a_RPS_message->DATA_BYTE3 * 5.1/255;
+	msg3.value = a_RPS_message->DATA_BYTE3 * 5.1/256.0;
 	msg3.id_sensor = id;
 
 	if (LOG)
 	{
-		printf("listen - Capteur : %X Temperature : %f !!!!\n", id, msgTemp.value);
-		printf("listen - Capteur : %X Luminosite : %f !!!!\n", id, msg2.value);
-		printf("listen - Capteur : %X Voltage : %f !!!!\n", id, msg3.value);
+		printf("Capteur : %X Luminosite : %f !!!!\n", id, msg2.value);
+		printf("Capteur : %X Voltage : %f !!!!\n", id, msg3.value);
 	}
 
-	resp = msgsnd( (msgqnum_t)msgq_id, (const void*) &msgTemp, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
-	resp = msgsnd( (msgqnum_t)msgq_id, (const void*) &msg2, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
-	resp = msgsnd( (msgqnum_t)msgq_id, (const void*) &msg3, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+	resp = msgsnd( *msgq_id, (const void*) &msg2, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+	resp = msgsnd( *msgq_id, (const void*) &msg3, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
 }
 
 /********************************************* PUBLICS FUNCTIONS */
@@ -349,25 +344,26 @@ int listenAndFilter(listen_and_filter_params* params)
 		}
 
 		/* LOOP filter */
-		sensors_queue* p_sensor;
+		printf("FILTRE ");
+		sensors_queue* p_sensor = sensors->next;
 		while(sensors == NULL)
 		{
 			sleep(1);
 			printf("listen - la liste géré par le driver enocean est vide\n");
 		}
-		for(p_sensor = sensors ; (sensors_queue*)p_sensor->next != NULL ; p_sensor = p_sensor->next){
-			
-			if(   (char)p_sensor->sensor[0] == (char) char_buffer[16]
+		while(p_sensor != NULL)
+		{
+			if((char)p_sensor->sensor[0] == (char) char_buffer[16]
 			   && (char)p_sensor->sensor[1] == (char) char_buffer[17]
 			   && (char)p_sensor->sensor[2] == (char) char_buffer[18]
 			   && (char)p_sensor->sensor[3] == (char) char_buffer[19]
-        	   	   && (char)p_sensor->sensor[4] == (char) char_buffer[20]
-		           && (char)p_sensor->sensor[5] == (char) char_buffer[21]
-		           && (char)p_sensor->sensor[6] == (char) char_buffer[22]
+			   && (char)p_sensor->sensor[4] == (char) char_buffer[20]
+			   && (char)p_sensor->sensor[5] == (char) char_buffer[21]
+			   && (char)p_sensor->sensor[6] == (char) char_buffer[22]
 			   && (char)p_sensor->sensor[7] == (char) char_buffer[23]
-			){
-				/* this message is from one of our sensors ! */
-				sem_wait(&to_send_receive); /* sychronisation with the interpret&send thread */
+				)
+			{
+				sem_wait(&to_send_receive);
 				printf("listen - message from one of ours sensors! \n");
 				interesting_frame = char_buffer;
 				sem_post(&to_send);
@@ -375,8 +371,9 @@ int listenAndFilter(listen_and_filter_params* params)
 				memset(char_buffer,0,sizeof(char_buffer));
 				break; /* no need to go throw the end of the list */
 			}
+			p_sensor = p_sensor->next;
 		}
-		if(p_sensor->next == NULL && interesting_frame != char_buffer){
+		if(p_sensor == NULL && interesting_frame != char_buffer){
 			printf("listen - message i don't care about \n");
 		}
 	} /* end RECEIVE&FILTER THREAD LOOP */
@@ -431,5 +428,3 @@ void interpretAndSend(int* msgq_id){
 		}
 	}/* end INTERPRET&SEND THREAD LOOP */
 }
-
-

@@ -54,53 +54,6 @@ int message_box;
 pthread_t filter_thread;
 pthread_t interprets_and_sends_thread;
 
-/* ---------- Methodes privees du pilote ---------- */
-
-/**
- * DEPRECATED depuis itération 1
- * Lit le fichier sensors_file pour y récuperer la 
- * liste de nos capteurs
- * /param a_number_of_sensor un pointeur vers l'entier dans lequel ecrire le nombre de capteur lu
- */
-
-sensors_queue* read_sensors_list_file(int* a_number_of_sensor){
-
-	FILE* sensors_file;
-	int loop_counter1;
-	int loop_counter2;
-	sensors_file = fopen(SENSORS_FILE,"rt");
-	fseek(sensors_file,0L,SEEK_END);
-	int size = ftell(sensors_file);
-	fseek(sensors_file,0L,SEEK_SET);
-	*(a_number_of_sensor) = size/9;
-
-	sensors_queue* sensors;
-	sensors_queue* current_sensor;
-
-	/* init for loop */
-	current_sensor = (sensors_queue*)malloc(sizeof(sensors_queue));
-	for(loop_counter2=0 ; loop_counter2 < 8 ; loop_counter2++){
-				current_sensor->sensor[loop_counter2] = fgetc(sensors_file);
-	}
-	fgetc(sensors_file);
-	current_sensor-> next = NULL;
-	sensors = current_sensor;
-
-	/* loop */
- 	for(loop_counter1=1 ; loop_counter1 < *(a_number_of_sensor) ; loop_counter1++){
- 		sensors_queue* new_sensor = (sensors_queue*)malloc(sizeof(sensors_queue));
- 		for(loop_counter2=0 ; loop_counter2 < 8 ; loop_counter2++){
-			new_sensor->sensor[loop_counter2] = fgetc(sensors_file);
-		}
- 		fgetc(sensors_file);
- 		new_sensor->next = NULL;
- 		current_sensor->next = new_sensor;
-		current_sensor = new_sensor;
-	}
-	return sensors;
-}
-
-
 /* ---------- Methodes public du pilote ---------- */
 
 int main(){
@@ -142,6 +95,7 @@ int drv_init( const char* remote_addr, int remote_port )
 		send(sock,"Hi from Hx4314's driver!",25,0);
 	}
 	sensors = malloc(sizeof(sensors_queue));
+	sensors->next = NULL;
 	/* Initialization of semaphores used to synchronize the two threads */
 	initialisation_for_listener();
 	return 0;
