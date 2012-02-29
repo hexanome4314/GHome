@@ -199,7 +199,7 @@ int drv_add_sensor( unsigned int id_sensor){
 	sprintf(new_sensor->sensor, "%.8X", id_sensor);
 	new_sensor->next = sensors->next;
 	sensors->next = new_sensor;
-	if(DEBUG)
+	if(DEBUG_MODE)
 		printf("drv_api - DEBUG drv_add_sensor %s\n",new_sensor->sensor);
 	return 0;
 }
