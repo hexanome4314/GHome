@@ -27,6 +27,8 @@ if( is_authenticated() )
 
                         function() {
 
+				$( "#main" ).fadeIn( 1000 );
+
 				$("#auth_button").click( function() {
 
 					var res = false;
@@ -52,9 +54,9 @@ if( is_authenticated() )
 								$("#error_msg").slideDown();
 							}
 				                        else {
-								$(".content").hide( "puff", {  }, 1000 );
+								$("#main").hide( "puff", {  }, 1000 );
 
-								$(".content").promise().done( function() { location.reload(); } );
+								$("#main").promise().done( function() { location.reload(); } );
 				                        }
 				                },
 				                error: function( j, t, e) {
@@ -72,7 +74,8 @@ if( is_authenticated() )
 		);
 	</script>
 
-	<div id="main" class="main">
+	<center>
+	<div id="main" class="main hidden">
 
 	<h4>GHome Project</h4>
 	<div id="logout"></div>
@@ -109,6 +112,7 @@ if( is_authenticated() )
 	</div>
 
 	</div>
+	</center>
 
   </body>
 </html>

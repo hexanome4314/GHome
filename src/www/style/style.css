@@ -44,8 +44,13 @@ img {
 	font-size: 14px;
 }
 
+.hidden {
+	display: none;
+}
+
 #main {
 	margin: 0px auto 0px auto;
+	padding: auto;
 	width: 800px;
 
 	text-align: center;

@@ -36,6 +36,16 @@ switch( $_POST['action'] ) {
 			/* On désérialise le nom du driver */
 			list($drv, $ip, $port) = parse_driver_name( $_POST['new_drv'] );
 
+			/* Quelque tests préliminaires pour voir si le fichier XML a les bons droits */
+			if( is_readable( $sensors_xml ) == false ) {
+				$log_mgr->write( "Critical", "Le fichier '".$sensors_xml."' ne peut pas être lu (droits iOS). (user=".get_username().")" );
+				die( '{ "type": "fail", "mesg": "Le fichier de configuration du serveur distant n\'est pas accessible. (+x)" }' );
+			}
+			if( is_writable( $sensors_xml ) == false ) {
+				$log_mgr->write( "Critical", "Le fichier '".$sensors_xml."' ne peut pas être modifié (droits iOS). (user=".get_username().")" );
+				die( '{ "type": "fail", "mesg": "Le fichier de configuration du serveur distant n\'est pas accessible (+w)." }' );
+			}
+
 			/* Parsing du XML */
 			$xml_content = file_get_contents( $sensors_xml );
 			$drivers = new SimpleXMLElement( $xml_content );
@@ -57,7 +67,7 @@ switch( $_POST['action'] ) {
 			}
 
 			/* On averti le core */
-			$res = /*"ok"; //*/ send_ract_request( "RELOAD_DRIVERS" );
+			$res = /* "ok"; //*/ send_ract_request( "RELOAD_DRIVERS" );
 
 			exit( '{ "type": "success", "mesg": "'.$res.'" }' );
 		}
@@ -80,6 +90,16 @@ switch( $_POST['action'] ) {
 
 			/* On désérialise le nom du driver */
 			list($drv, $ip, $port) = parse_driver_name( $_POST['drv'] );
+
+			/* Quelque tests préliminaires pour voir si le fichier XML a les bons droits */
+			if( is_readable( $sensors_xml ) == false ) {
+				$log_mgr->write( "Critical", "Le fichier '".$sensors_xml."' ne peut pas être lu (droits iOS). (user=".get_username().")" );
+				die( '{ "type": "fail", "mesg": "Le fichier de configuration du serveur distant n\'est pas accessible. (+x)" }' );
+			}
+			if( is_writable( $sensors_xml ) == false ) {
+				$log_mgr->write( "Critical", "Le fichier '".$sensors_xml."' ne peut pas être modifié (droits iOS). (user=".get_username().")" );
+				die( '{ "type": "fail", "mesg": "Le fichier de configuration du serveur distant n\'est pas accessible (+w)." }' );
+			}
 
 			/* Parsing du XML */
 			$xml_content = file_get_contents( $sensors_xml );
@@ -154,6 +174,16 @@ switch( $_POST['action'] ) {
 			
 			/* On désérialise le nom du driver */
 			list($drv, $ip, $port) = parse_driver_name( $_POST['drv'] );
+
+			/* Quelque tests préliminaires pour voir si le fichier XML a les bons droits */
+			if( is_readable( $sensors_xml ) == false ) {
+				$log_mgr->write( "Critical", "Le fichier '".$sensors_xml."' ne peut pas être lu (droits iOS). (user=".get_username().")" );
+				die( '{ "type": "fail", "mesg": "Le fichier de configuration du serveur distant n\'est pas accessible. (+x)" }' );
+			}
+			if( is_writable( $sensors_xml ) == false ) {
+				$log_mgr->write( "Critical", "Le fichier '".$sensors_xml."' ne peut pas être modifié (droits iOS). (user=".get_username().")" );
+				die( '{ "type": "fail", "mesg": "Le fichier de configuration du serveur distant n\'est pas accessible (+w)." }' );
+			}
 
 			/* Parsing du XML */
 			$xml_content = file_get_contents( $sensors_xml );

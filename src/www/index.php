@@ -32,6 +32,9 @@ force_authentication();
 				update_driver_data();
 				update_rules_data();
 				setInterval( update_sensor_data, 30000 );
+
+
+				$("#main").show( "puff", 1000 );
 				
 				/* Logging off */
 				$( "#logout span" ).click( function() {
@@ -42,10 +45,12 @@ force_authentication();
                                                 url: "ajax/auth.php",
                                                 data: "action=logoff" ,
                                                 success: function( data ) {
-							location.reload();
+
+							$( "#main" ).fadeOut( 1500, location.reload() );
 						},
 						error: function( ) {
-							location.reload();
+
+							$( "#main" ).fadeOut( 1500, location.reload() );
 						}						
 					} );
 
@@ -96,7 +101,8 @@ force_authentication();
 		);
 	</script>
 
-	<div id="main" class="main">
+	<center>
+	<div id="main" class="main hidden">
 
 	<h4>GHome Project</h4>
 	<div id="logout"><span>[D&eacute;connexion]</span></div>
@@ -180,6 +186,7 @@ force_authentication();
 	</div>
 
 	</div>
+	</center>
 
 
   </body>
