@@ -141,8 +141,8 @@ int drv_init( const char* remote_addr, int remote_port )
 		send(sock,"Hi from Hx4314's driver!",25,0);
 	}
 
-	/* get the sensors_id from "sensors_file"*/
-	sensors = read_sensors_list_file(&nbDev);
+	/* get the sensors_id from "sensors_file" */
+	/* sensors = read_sensors_list_file(&nbDev); */
 	/* Initialization of semaphores used to synchronize the two threads */
 	initialisation_for_listener();
 	return 0;
