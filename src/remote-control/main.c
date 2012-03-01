@@ -4,8 +4,8 @@
 
 main()
 {
-	if( start_remote_control( 1100 ) == 0 )
-		sleep( 35 );
+	if( start_remote_control( 1100, "pass" ) == 0 )
+		sleep( 25 );
 
 	printf( "Closing....\n" );
 	stop_remote_control();
