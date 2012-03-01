@@ -2,8 +2,10 @@ package GHome;
 
 import com.sun.spot.io.j2me.radiogram.RadiogramConnection;
 import com.sun.spot.peripheral.ota.OTACommandServer;
+import com.sun.spot.util.Utils;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -22,7 +24,7 @@ public class Host {
     private ServerSocket welcomeSocket;
     private Socket client;
     private Datagram dg;
-    private DataOutputStream outStream;
+    private OutputStreamWriter outStream;
     
     
     private boolean connectToSensors(int remote_port) {
@@ -56,7 +58,7 @@ public class Host {
         try {
             client = welcomeSocket.accept();
             client.setReuseAddress(true);
-            outStream = new DataOutputStream(client.getOutputStream());
+            outStream = new OutputStreamWriter(client.getOutputStream());
         } catch (IOException ex) {
             Logger.getLogger(Host.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -74,7 +76,11 @@ public class Host {
                         System.out.println("Nouveau message recu.");
                         Message msg = new Message(dg);
                         try
-                        {outStream.write(msg.getFormattedMessage());}
+                        {
+                            outStream.write(msg.getFormattedMessage());
+                            outStream.flush();
+                            System.out.println("msg sent: "+msg.getFormattedMessage());
+                        }
                         catch (IOException ex)
                         {System.out.println("Perte de la connexion client. Reconnexion en cours..."); reconnectToDriver();}
                     }

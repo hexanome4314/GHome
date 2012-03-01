@@ -6,53 +6,30 @@ import java.util.logging.Logger;
 import javax.microedition.io.Datagram;
 
 public class Message {
-    private byte idProbe;  // Identifiant de la sonde (1 octet)
-    private double value;  // Valeur de la sonde (8 octets)
-    private byte[] address = new byte[8]; // Addresse en hexa du capteur (8 octets)
+    private int light;
+    private float temperature;
+    private String address;  
     
     public Message(Datagram datagram) {
         try {
-            parseAddress(datagram.getAddress().substring(10));
-            this.idProbe = datagram.readByte();
-            this.value = datagram.readDouble();
+            this.address = parseAddress(datagram.getAddress());
+            this.light = datagram.readInt();
+            this.temperature = datagram.readFloat();
         } catch (IOException ex) {
             Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-    private void parseAddress(String str) {
-        address[0] = (byte) (((char) Integer.parseInt(String.valueOf(str.charAt(0)), 16)) & 0x0F);
-        address[1] = (byte) (((char) Integer.parseInt(String.valueOf(str.charAt(1)), 16)) & 0x0F);
-        address[2] = (byte) (((char) Integer.parseInt(String.valueOf(str.charAt(2)), 16)) & 0x0F);
-        address[3] = (byte) (((char) Integer.parseInt(String.valueOf(str.charAt(3)), 16)) & 0x0F);
-        address[4] = (byte) (((char) Integer.parseInt(String.valueOf(str.charAt(5)), 16)) & 0x0F);
-        address[5] = (byte) (((char) Integer.parseInt(String.valueOf(str.charAt(6)), 16)) & 0x0F);
-        address[6] = (byte) (((char) Integer.parseInt(String.valueOf(str.charAt(7)), 16)) & 0x0F);
-        address[7] = (byte) (((char) Integer.parseInt(String.valueOf(str.charAt(8)), 16)) & 0x0F);
+    
+    //Translate 7F00.0001.0000.1001 to 00001001
+    private String parseAddress(String str) {
+        return str.substring(10).replaceAll("\\.", "");
     }    
     
-    public byte[] getFormattedMessage() {
-        long longValue = Double.doubleToRawLongBits(value);
-
-        return new byte[] {
-            (byte) 0xA5,
-            (byte) 0x5A,
-            (byte) 0x0B,
-            (byte) idProbe,
-            (byte)((longValue >> 56) & 0xff),
-            (byte)((longValue >> 48) & 0xff),
-            (byte)((longValue >> 40) & 0xff),
-            (byte)((longValue >> 32) & 0xff),
-            (byte)((longValue >> 24) & 0xff),
-            (byte)((longValue >> 16) & 0xff),
-            (byte)((longValue >> 8) & 0xff),
-            (byte)((longValue >> 0) & 0xff),
-            (byte)((address[0] << 4) | address[1]),
-            (byte)((address[2] << 4) | address[3]),
-            (byte)((address[4] << 4) | address[5]),
-            (byte)((address[6] << 4) | address[7]),         
-            (byte) 0x00,
-            (byte) 0x00
-        };
+    //3,402823e+38 max
+    //1,401298e-45 min
+    //0,000000e+00 0
+    //6,666600e+01 
+    public String getFormattedMessage() {
+        return address+" "+String.format("%010d", light)+" "+String.format("%E", temperature).replace(",", ".");
     }
 }
