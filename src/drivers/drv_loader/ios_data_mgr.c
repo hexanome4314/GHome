@@ -132,7 +132,7 @@ void* ios_data_collector_callback( void* ptr )
 					(*handler)( buffer.flag_value, buffer.value );
 				if( g_handler != NULL )
 				{
-					pthread_t new_thread;
+					/*pthread_t new_thread;
 					struct ios_data_handler_value* values;
 
 					values = (struct ios_data_handler_value*) malloc( sizeof(struct ios_data_handler_value) );
@@ -141,7 +141,9 @@ void* ios_data_collector_callback( void* ptr )
 					values->flag_value = buffer.flag_value;
 					values->value = buffer.value;
 
-					pthread_create( &new_thread, NULL, ios_data_handler_evt, values );
+					pthread_create( &new_thread, NULL, ios_data_handler_evt, values );*/
+					(*g_handler)( fd, buffer.flag_value, buffer.value );
+					
 				}
 			}
 		}
