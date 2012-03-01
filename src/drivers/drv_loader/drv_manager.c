@@ -176,6 +176,9 @@ int drv_manager_init()
 
 	drv_verbose_init();
 
+	FILE* log_fd = fopen("GHome_ios.log", "w+");
+	drv_set_verbose(log_fd);
+
 	return DRV_OK;
 }
 
