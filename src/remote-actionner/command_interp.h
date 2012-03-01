@@ -16,12 +16,12 @@ struct command_struct
 /**
 Initialise les commandes
 */
-void init_command();
+void act_init_command();
 
 /**
 Libère les commandes de la mémoire
 */
-void release_command();
+void act_release_command();
 
 /**
 Ajoute une nouvelle commande avec son handler
@@ -29,14 +29,14 @@ Ajoute une nouvelle commande avec son handler
 	handler		Le handler associé à la commande (il doit retourner RACT_COMMAND_OK ou RACT_COMMAND_ERROR)
 \return	RACT_OK si tout est ok, RACT_CANNOT_ADD_COMMAND sinon
 */
-int add_command( char* command_name, int (*handler)( int, const char* ) );
+int add_actionner_command( char* command_name, int (*handler)( int, const char* ) );
 
 /**
 Teste si la chaîne de caractère est une commande
 \param cmd	La chaîne à tester
 \return 1 si l'on est en présence d'une commande, 0 sinon
 */
-int is_command( const char* cmd );
+int act_is_command( const char* cmd );
 
 /**
 Interprète la commande passée en paramètre
@@ -44,6 +44,6 @@ Interprète la commande passée en paramètre
 	cmd	La commande à interpreter
 \return	RACT_COMMAND_OK si tout est ok, RACT_COMMAND_LOGOUT si l'utilisateur doit être déconnecté après l'appel
 */
-int command_interpret( int fd, const char* cmd );
+int act_command_interpret( int fd, const char* cmd );
 
 #endif
