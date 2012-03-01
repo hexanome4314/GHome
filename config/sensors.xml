@@ -9,7 +9,7 @@
   </driver> -->
   
   <!-- enOcean -->
-  <driver so="libenocean.so" ip="127.0.0.1" port="2012">
+  <driver so="libenocean.so" ip="134.214.105.28" port="5000">
     <capteur id="0089337F" etat="ON">temperature exterieur</capteur>
     <capteur id="0021CC31" etat="ON">interrupteur ambiance disco</capteur>
     <capteur id="00053F16" etat="ON">luminosite et presence salon</capteur>
