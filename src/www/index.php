@@ -17,6 +17,7 @@ force_authentication();
     <script type="text/javascript" src="js/drivers.js"></script>
     <script type="text/javascript" src="js/rules.js"></script>
     <script type="text/javascript" src="js/utils.js"></script>
+    <script type="text/javascript" src="js/ajaxfileupload.js"></script>
     <link rel="stylesheet" href="style/style.css" type="text/css" media="screen" />
     <link rel="stylesheet" href="style/jquery-ui-1.8.18.custom.css" type="text/css" media="screen" />
   </head>
