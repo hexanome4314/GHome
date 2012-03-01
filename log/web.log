@@ -8,3 +8,4 @@
 26-02-2012 19:38:42	[Info] Authentification réussie (username: admin).   [127.0.0.1] [/var/www/ajax/auth.php]
 26-02-2012 19:38:48	[Info] Authentification réussie (username: admin).   [127.0.0.1] [/var/www/ajax/auth.php]
 26-02-2012 19:46:27	[Info] Authentification réussie (username: admin).   [127.0.0.1] [/var/www/ajax/auth.php]
+2-03-2012 00:11:18	[Critical] Le fichier '../../../config/sensors.xml' ne peut pas être modifié (droits iOS). (user=admin)   [::1] [/home/kallys/GHome/GHome/src/www/ajax/sensors.php]

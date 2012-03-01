@@ -2,8 +2,6 @@ package GHome;
 
 import com.sun.spot.io.j2me.radiogram.RadiogramConnection;
 import com.sun.spot.peripheral.ota.OTACommandServer;
-import com.sun.spot.util.Utils;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
@@ -25,7 +23,6 @@ public class Host {
     private Socket client;
     private Datagram dg;
     private OutputStreamWriter outStream;
-    
     
     private boolean connectToSensors(int remote_port) {
         try {

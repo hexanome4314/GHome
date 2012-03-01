@@ -109,6 +109,7 @@ Fonction appelée par le gestionnaire de drivers juste avant de décharger la li
 */
 void drv_stop( void )
 {
+    printf("dying...");
 	/* stop the two thread */
     if(filter_thread != 0)
     {

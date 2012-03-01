@@ -1,13 +1,11 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE drivers SYSTEM "drivers.dtd">
-
 <drivers>
   <!-- SunSpot -->
-<!--  <driver so="libsunspot.so" ip="127.0.0.1" port="5001">
-    <capteur id="00000003" etat="ON">temp_chambre</capteur>
-    <capteur id="00000004" etat="ON">chauffage</capteur>
+  <driver so="libsunspot.so" ip="127.0.0.1" port="6666">
+    <capteur id="00006AEE" etat="ON">chauffage</capteur>
   </driver> 
--->  
+  
   
   <!-- enOcean -->
 <!--
@@ -22,7 +20,9 @@
 -->
 
   <!-- monDriver -->
+<!--
   <driver so="mon_driver.so.1.0.1" ip="localhost" port="888">
     <capteur id="4" etat="ON">temperature</capteur>
   </driver>
+-->
 </drivers>
