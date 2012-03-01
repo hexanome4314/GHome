@@ -298,7 +298,7 @@ void _interpretAndSend4BS(enocean_data_structure* a_RPS_message, int* msgq_id){
 	msgVolt.value = a_RPS_message->DATA_BYTE3 * 5.1/256.0;
 	msgVolt.id_sensor = id;
 
-	if (a_RPS_message->DATA_BYTE1 != 0)
+	if ((a_RPS_message->DATA_BYTE2 == 0) && (a_RPS_message->DATA_BYTE3 == 0))
 	{
 		msgsnd( *msgq_id, (const void*) &msgTemp, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
 		
@@ -307,17 +307,22 @@ void _interpretAndSend4BS(enocean_data_structure* a_RPS_message, int* msgq_id){
 			printf("Capteur : %X Temperature : %f !!!!\n", id, msgTemp.value);	
 		}
 	}
-	if (a_RPS_message->DATA_BYTE2 != 0)
+	else
 	{
+		msgsnd( *msgq_id, (const void*) &msgTemp, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+		
+		if (LOG)
+		{
+			printf("Capteur : %X Temperature : %f !!!!\n", id, msgTemp.value);	
+		}
+
 		msgsnd( *msgq_id, (const void*) &msgLumi, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
 		
 		if (LOG)
 		{
 			printf("Capteur : %X Luminosite : %f !!!!\n", id, msgLumi.value);
 		}
-	}
-	if (a_RPS_message->DATA_BYTE3 != 0)
-	{
+
 		msgsnd( *msgq_id, (const void*) &msgVolt, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
 		
 		if (LOG)
@@ -325,6 +330,7 @@ void _interpretAndSend4BS(enocean_data_structure* a_RPS_message, int* msgq_id){
 			printf("Capteur : %X Voltage : %f !!!!\n", id, msgVolt.value);
 		}
 	}
+
 }
 
 /********************************************* PUBLICS FUNCTIONS */
