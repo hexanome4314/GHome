@@ -50,7 +50,7 @@ int read_sensors(const char* path, infos_sensor* sensor, infos_drv* drv)
 		return -1;
 	}
 	/* the first xml element node of the file */
-	drivers_node = next_XML_ELEMENT_NODE(capteurs_doc->children);
+	drivers_node = children_XML_ELEMENT_NODE(capteurs_doc);
 
 	/* init, install drivers and add all the capteurs */
 	ios_init();

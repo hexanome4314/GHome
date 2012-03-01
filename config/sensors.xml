@@ -3,11 +3,11 @@
 
 <drivers>
   <!-- SunSpot -->
-<!--
-  <driver so="libsunspot.so" ip="127.0.0.1" port="6666">
-    <capteur id="00001001" etat="ON">temp_chambre</capteur>
-  </driver>
--->
+<!--  <driver so="libsunspot.so" ip="127.0.0.1" port="5001">
+    <capteur id="00000003" etat="ON">temp_chambre</capteur>
+    <capteur id="00000004" etat="ON">chauffage</capteur>
+  </driver> 
+-->  
   
   <!-- enOcean -->
 <!--
