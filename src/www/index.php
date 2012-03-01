@@ -16,6 +16,7 @@ force_authentication();
     <script type="text/javascript" src="js/sensors.js"></script>
     <script type="text/javascript" src="js/drivers.js"></script>
     <script type="text/javascript" src="js/rules.js"></script>
+    <script type="text/javascript" src="js/users.js"></script>
     <script type="text/javascript" src="js/utils.js"></script>
     <script type="text/javascript" src="js/ajaxfileupload.js"></script>
     <link rel="stylesheet" href="style/style.css" type="text/css" media="screen" />
@@ -32,7 +33,8 @@ force_authentication();
 				update_sensor_data( true );
 				update_driver_data();
 				update_rules_data();
-				setInterval( function() { update_sensor_data( true ); update_rules_data(); update_driver_data();  } , 300 );
+				update_users_data();
+				setInterval( function() { update_users_data(); update_sensor_data( true ); update_rules_data(); update_driver_data();  } , 300 );
 
 				$("#main").show( "puff", 1000 );
 				
@@ -158,7 +160,10 @@ force_authentication();
 
 				<div id="remote" class="under_content">
 					<h5>Acc&egrave;s distant</h5>
-					<p>Controle &agrave; distance</p>
+
+					<div id="users_data">
+					&nbsp;
+					</div>
 				</div>
 			</div>	
 

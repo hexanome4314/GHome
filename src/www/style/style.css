@@ -319,6 +319,19 @@ img.tiny_btn {
 	margin-right: 40px;
 }
 
+div.user_list {
+	margin-top: 5px;
+}
+
+.user_name  {
+	margin-left: 40px;
+	margin-right: 40px;
+
+	font-family: "Courier New", Arial, Helvetica, sans-serif;
+	font-style: oblique;
+	letter-spacing: -3px;	
+}
+
 .tiny_link img {
 	width: 16px;
 	height: 16px;
@@ -439,7 +452,7 @@ form.edit_sensor .text {
 	font-size: 14px;
 }
 
-form.edit_rule .text {
+.text {
 
         margin: auto;
         background: #EEEEEE;

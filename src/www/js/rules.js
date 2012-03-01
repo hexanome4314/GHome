@@ -350,9 +350,9 @@ $.ajax( {
 		
 		str = "";
 
-		str += '<a href="#" class="tiny_link add_rule">';
+		/*str += '<a href="#" class="tiny_link add_rule">';
 		str += '<span><img src="img/button/add.png" />Ajouter une nouvelle r&egrave;gle</span>';
-		str += '</a><br /><br />';
+		str += '</a><br /><br />';*/
 
 		str += '<div class="rules_list">';
 
