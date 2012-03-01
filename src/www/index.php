@@ -32,7 +32,7 @@ force_authentication();
 				update_sensor_data( true );
 				update_driver_data();
 				update_rules_data();
-				setInterval( update_sensor_data, 30000 );
+				setInterval( function() { update_sensor_data( true ); update_rules_data(); update_driver_data();  } , 300 );
 
 				$("#main").show( "puff", 1000 );
 				

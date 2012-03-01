@@ -16,11 +16,14 @@ function send_ract_request( $command ) {
 	global $ract_host;
 	global $ract_port;
 
+	set_time_limit( 15 );
+
+
 	/* Il faut supprimer l'entrée dans le fichier xml... funky ! */
-        $sock = @socket_create( AF_INET, SOCK_STREAM, SOL_TCP ) or die( '{ "type": "error", "mesg": "Le serveur rencontre un problème. Veuillez réessayer ultèrieurement. (socket_create)" }' );
+        $sock = socket_create( AF_INET, SOCK_STREAM, SOL_TCP ) or die( '{ "type": "error", "mesg": "Le serveur rencontre un problème. Veuillez réessayer ultèrieurement. (socket_create)" }' );
 
         //Connexion au serveur
-        @socket_connect( $sock, $ract_host, $ract_port ) or die( '{ "type": "error", "mesg": "Le serveur ne peut pas se connecter au noyau central. Veuillez réessayer ultèrieurement. (socket_connect)" }' );
+        socket_connect( $sock, $ract_host, $ract_port ) or die( '{ "type": "error", "mesg": "Le serveur ne peut pas se connecter au noyau central. Veuillez réessayer ultèrieurement. (socket_connect)" }' );
 
         // Création du paquet
 	$command .= "\r\n";
