@@ -4,8 +4,10 @@
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 
-#include "sensor-parse.h"
+#include "config.h"
 #include "ios_api.h"
+
+#define AUTH_FILE "config/auth.xml"
 
 /* ------------------------------------------------------- OUTILS POUR xmllib2 */
  
@@ -50,7 +52,7 @@ int read_sensors(const char* path, infos_sensor* sensor, infos_drv* drv)
 		return -1;
 	}
 	/* the first xml element node of the file */
-	drivers_node = children_XML_ELEMENT_NODE(capteurs_doc);
+	drivers_node = children_XML_ELEMENT_NODE((xmlNodePtr)capteurs_doc);
 
 	/* init, install drivers and add all the capteurs */
 	ios_init();
@@ -108,4 +110,30 @@ int read_sensors(const char* path, infos_sensor* sensor, infos_drv* drv)
 	}
 	xmlFreeDoc(capteurs_doc);
 	return 0;
+}
+
+xmlChar* read_auth(unsigned int* port_remote_control, unsigned int* port_actionner){
+
+	xmlDocPtr doc;
+	xmlNodePtr auth_node;
+	xmlNodePtr user_node;
+	xmlNodePtr telnet_node;
+	xmlNodePtr actionner_node;
+	xmlKeepBlanksDefault(0); // Ignore les noeuds texte composant la mise en forme
+	doc = xmlParseFile("config/auth.xml");
+	if (doc == NULL)
+	{
+		perror("read_auth xmlParseFile");
+		return NULL;
+	}
+
+	auth_node = children_XML_ELEMENT_NODE((xmlNodePtr)doc);
+	user_node = auth_node->children->children;
+	telnet_node = auth_node->children->next;
+	actionner_node = telnet_node->next;
+	xmlChar* port_rc = xmlGetProp(telnet_node,(const xmlChar*)"port");
+	xmlChar* port_a = xmlGetProp(actionner_node,(const xmlChar*)"port");
+	sscanf((char*) port_rc, "%u", port_remote_control);
+	sscanf((char*) port_a, "%u", port_actionner);
+	return xmlGetProp(telnet_node,(xmlChar*)"pass");
 }

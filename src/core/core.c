@@ -13,7 +13,7 @@
 #include "fields.h"
 #include "remote-control.h"
 #include "remote-actionner.h"
-#include "sensor-parse.h"
+#include "config.h"
 #include "core.h"
 
 #define SENSORS_FILE "config/sensors.xml"
@@ -278,8 +278,15 @@ int main()
 		return status;
 	}
 	
+	/* Lecture du fichier auth.xml */
+	unsigned int port_remote_control;
+	unsigned int port_actionner;
+	xmlChar* passwd = NULL;
+	passwd = read_auth( &port_remote_control , &port_actionner); 
+
 	/* Lancement du contrôle telnet */
-	start_remote_control(1101, "pass");
+	start_remote_control(port_remote_control, passwd);
+	xmlFree(passwd);
 	add_command("stop-server", "Stop the GHome server and cut the connection", &remote_stop_cmd);
 	add_command("list-sensors", "Print the list of configured sensors", &list_sensors_cmd);
 	add_command("list-rules", "Print the list of applied rules", &list_rules_cmd);
@@ -287,7 +294,7 @@ int main()
 	add_command("reload-sensors", "Reload the configuration of the sensors", &reload_sensors_cmd);
 
 	/* Lancement du contrôle du seveur web */
-	start_remote_actionner(1100);
+	start_remote_actionner(port_actionner);
 	add_actionner_command("RELOAD_DRIVERS", &reload_sensors_web);
 	add_actionner_command("RELOAD_RULES", &reload_rules_web);
 	
