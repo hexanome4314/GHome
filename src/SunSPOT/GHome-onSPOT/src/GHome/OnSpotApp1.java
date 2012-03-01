@@ -1,4 +1,4 @@
-package GHome;
+/*package GHome;
 
 import com.sun.spot.io.j2me.radiogram.RadiogramConnection;
 import com.sun.spot.resources.Resources;
@@ -11,10 +11,15 @@ import javax.microedition.io.Datagram;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
-public class OnSpotApp extends MIDlet {
+public class OnSpotApp1 extends MIDlet {
+
     private static final int HOST_PORT = 67;
+    private static final byte PROBE_LIGHT = 0;
+    private static final byte PROBE_TEMPERATURE = 0x07;
     private static final int SAMPLE_PERIOD = 3 * 1000;  // in milliseconds
     private static final int BUFFER_SIZE = 19 + 8 + 1; // Addresse + value + idProbe
+    private int lastLight;
+    private double lastTemperature;
     
     protected void startApp() throws MIDletStateChangeException {
         RadiogramConnection rCon = null;
@@ -50,16 +55,26 @@ public class OnSpotApp extends MIDlet {
                 led.setOn();
                 Utils.sleep(50);
                 led.setOff();
-                
-                dg.reset();
-                //dg.writeChar(0);
-                dg.writeInt(light);// Send lightValue to the base
-                dg.writeFloat(new Double(temperature).floatValue());// Send temperatureInput to the base
-                rCon.send(dg);
-                
-                System.out.println("New light value = " + light);                
-                System.out.println("New temperature value = " + temperature+"\n");
 
+                // Send lightValue to the base if it has changed
+                if(light != lastLight) {
+                    lastLight = light;
+                    dg.reset();
+                    dg.writeByte(PROBE_LIGHT);
+                    dg.writeDouble(new Integer(light).doubleValue());
+                    rCon.send(dg);
+                    System.out.println("New light value = " + light);
+                }
+                
+                // Send temperatureInput to the base if it has changed
+                if(temperature != lastTemperature) {
+                    lastTemperature = temperature;
+                    dg.reset();
+                    dg.writeByte(PROBE_TEMPERATURE);
+                    dg.writeDouble(temperature);
+                    rCon.send(dg);
+                    System.out.println("New temperature value = " + temperature);
+                }                
 
                 // Go to sleep to conserve battery
                 Utils.sleep(SAMPLE_PERIOD - (System.currentTimeMillis() - now));
@@ -77,3 +92,4 @@ public class OnSpotApp extends MIDlet {
         // Only called if startApp throws any exception other than MIDletStateChangeException
     }
 }
+*/
