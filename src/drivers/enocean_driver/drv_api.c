@@ -51,8 +51,8 @@ sensors_queue* sensors; /* liste chainée des capteurs */
 int nbDev; /* Nombre de capteurs installes */
 int sock;
 int message_box;
-pthread_t filter_thread;
-pthread_t interprets_and_sends_thread;
+pthread_t filter_thread = 0;
+pthread_t interprets_and_sends_thread = 0;
 
 /* ---------- Methodes public du pilote ---------- */
 
@@ -90,7 +90,7 @@ int drv_init( const char* remote_addr, int remote_port )
 	sock = connect_to(inet_addr(remote_addr), remote_port, 0);
 	if(sock == -1){
 		perror("listen - Start driver fail due to socket connection");
-		return -1;
+		return 1;
 	}else{ /* politeness */
 		send(sock,"Hi from Hx4314's driver!",25,0);
 	}
@@ -120,7 +120,7 @@ int drv_run(int msgq_id){
 	/* start second thread */
 	int* msgid = (int*)malloc(sizeof(int));
 	*(msgid) = msgq_id;
-    void (*p_function_to_interpret_and_send);
+	void (*p_function_to_interpret_and_send);
 	p_function_to_interpret_and_send = &interpretAndSend;
 	pthread_create(&interprets_and_sends_thread,NULL,p_function_to_interpret_and_send,&message_box);
 
@@ -133,8 +133,10 @@ Fonction appelée par le gestionnaire de drivers juste avant de décharger la li
 void drv_stop( void ){
 
 	/* stop the two thread */
-	pthread_cancel(filter_thread);
-	pthread_cancel(interprets_and_sends_thread);
+	if(filter_thread != 0)
+		pthread_cancel(filter_thread);
+	if(interprets_and_sends_thread != 0)
+		pthread_cancel(interprets_and_sends_thread);
 
 	/* free the allocated memory */
 	sensors_queue* last_sensors = sensors;
