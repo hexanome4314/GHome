@@ -34,11 +34,17 @@ static pthread_mutex_t client_mutex = PTHREAD_MUTEX_INITIALIZER;
 Descripteur de la socket cliente en cours
 */
 static int fd_client_sock;
+static int current_user_logged;
 
 /**
 Descripteur du socket serveur
 */
 static int fd_sock;
+
+/**
+Mot de passe permettant d'accèder à la console
+*/
+static char telnet_password_access[255];
 
 
 
@@ -79,6 +85,7 @@ void* client_callback( void* ptr )
 {
 	int current_sock;
 	int new_sock;
+	int is_logged;
 	char buffer[255];
 	int res;
 	register int stop = 0;
@@ -101,15 +108,26 @@ void* client_callback( void* ptr )
 		/* Actualisation du fd courant */
 		pthread_mutex_lock( &client_mutex );
 		current_sock = fd_client_sock;
+		is_logged = current_user_logged;
 		pthread_mutex_unlock( &client_mutex );
 
+		/* L'utilisateur n'est pas authentifié */
+		if( is_logged == 0 ) 
+		{
+			print( current_sock, "Enter password: " );
+		}
 		/* Affichage du prompt et on attend une entrée de l'utilisateur */
-		print( current_sock, "$> " );
+		else
+		{
+			print( current_sock, "$> " );
+		}
+
 		res = read( current_sock, buffer, 255 );
 
 		/* On vérifie que le fd n'a pas changé, sinon c'est qu'on a un nouveau client */
 		pthread_mutex_lock( &client_mutex );
 		new_sock = fd_client_sock;
+		is_logged = current_user_logged;
 		pthread_mutex_unlock( &client_mutex );
 
 		if( new_sock != current_sock )
@@ -122,17 +140,39 @@ void* client_callback( void* ptr )
 		/* Sinon on récupère la commande (-2 pour enlever le \r\n) */
 		buffer[res-2] = 0;
 
-		/* On check que c'est bien une commande sinon on pète une erreur */
-		if( is_command( buffer ) == RCTRL_UNKNOWN_COMMAND )
+		/* L'utilisateur n'est pas authentifié */
+		if( is_logged == 0 )
 		{
-			print( current_sock, "Unrecognized command : \"%s\".\n", buffer );
-			continue;
-		}
+			if( strcmp( buffer, telnet_password_access ) == 0 )
+			{
+				pthread_mutex_lock( &client_mutex );
+				current_user_logged = 1;
+				pthread_mutex_unlock( &client_mutex );
 
-		/* Et on interprete */
-		res = command_interpret( current_sock, buffer );
-		if( res == RCTRL_COMMAND_LOGOUT )
-			stop = 1;
+				print( current_sock, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" );
+				print_motd( current_sock );
+			}
+			else
+			{
+				print( current_sock, "\aYou failed.\n" );
+				stop = 1;
+			}
+			
+		}
+		else
+		{
+			/* On check que c'est bien une commande sinon on pète une erreur */
+			if( is_command( buffer ) == RCTRL_UNKNOWN_COMMAND )
+			{
+				print( current_sock, "Unrecognized command : \"%s\".\n", buffer );
+				continue;
+			}
+
+			/* Et on interprete */
+			res = command_interpret( current_sock, buffer );
+			if( res == RCTRL_COMMAND_LOGOUT )
+				stop = 1;
+		}
 	}
 
 	/* Déconnexion du client */
@@ -169,6 +209,7 @@ void* accept_callback( void* ptr )
 		/* Sinon, on vérifie si un client est déjà connecté */
 		pthread_mutex_lock( &client_mutex );
 		old_sock = fd_client_sock;
+		current_user_logged = 0;
 		pthread_mutex_unlock( &client_mutex );
 
 		if( old_sock <= 0 )
@@ -197,16 +238,21 @@ void* accept_callback( void* ptr )
 
 /**
 Démarre le mode télécommande
-\param  port    Port sur lequel écouter
+\param  port    	Port sur lequel écouter
+	password	Mot de passe permettant d'accèder à la console
 \return 0 si tout est ok
 */
-int start_remote_control( unsigned int port )
+int start_remote_control( unsigned int port, const char* password )
 {
 	static struct sockaddr_in server_addr;
 	int res;
 
 	/* Pas de client à l'initialisation */
 	fd_client_sock = -1;
+	/* Et il est encore moins loggé */
+	current_user_logged = 0;
+	/* On conserve le mot de passe */
+	strcpy( telnet_password_access, password );
 
 	/* Ouverture d'un socket en mode flux */
 	fd_sock = socket( AF_INET, SOCK_STREAM, 0 );
