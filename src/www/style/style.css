@@ -244,12 +244,6 @@ ul.under_tabs li a.active {
 	letter-spacing: -3px;
 }
 
-#rules_data .rule_cond {
-	border-left: 1px dotted #464C54;
-	margin-left: 5px;
-	padding-left: 30px;
-}
-
 #content_2, #content_3 {
 	display: none;
 }
@@ -318,6 +312,10 @@ img.tiny_btn {
 }
 
 .driver_list span {
+	margin-right: 40px;
+}
+
+.rules_list span {
 	margin-right: 40px;
 }
 
@@ -441,3 +439,23 @@ form.edit_sensor .text {
 	font-size: 14px;
 }
 
+form.edit_rule .text {
+
+        margin: auto;
+        background: #EEEEEE;
+        padding: 3px 10px 3px 10px;
+        margin-top: 5px;
+        text-align: center;
+
+        border: 1px solid #DDDDDD;
+        border-radius: 10px;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+
+	margin-left: 20px;
+	font-size: 14px;
+}
+
+#dialog button {
+	font-size: 14px;
+}

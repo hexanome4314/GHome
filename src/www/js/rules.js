@@ -82,9 +82,9 @@ function show_rule_info( rule ) {
 						show: 'drop',
 						hide: 'drop',
 						resizable: false,
-						buttons: { "Ok": function() { $(this).dialog( "close" ); },
+						buttons: { "Ok": function() { $(this).dialog( "close" ); }/*,
 							   "Modifier": function() { $(this).dialog( "close" ); edit_rule_info( rule ); },
-							   "Supprimer": function() { $(this).dialog( "close" ); confirm_remove_rule( rule ); }
+							   "Supprimer": function() { $(this).dialog( "close" ); confirm_remove_rule( rule ); }*/
 							 }
 					});
 				}
@@ -180,7 +180,7 @@ function edit_rule_info( rule ) {
 						hide: 'drop',
 						resizable: false,
 						buttons: { "Ok": function() { $(this).dialog( "close" ); },
-							   "Modifier": function() { $(this).dialog( "close" ); edit_rule_info( rule ); },
+							   "Modifier": function() { $(this).dialog( "close" ); edit_rule_info( rule ); }
 							 }
 					});
 				}
@@ -196,6 +196,88 @@ function edit_rule_info( rule ) {
 		error: function( x, t, e ) {
 			alert( 'Une erreur est survenue lors de l\'envoi de la requête au serveur. Veuillez retenter plus tard.' );
 		}
+	});
+}
+
+/**
+Permet l'ajout d'une règle
+*/
+function new_rule() {
+
+	/* Préparation de la dialog */
+	var content = '<div class="content">';
+
+	content += "<h3>Ajouter une nouvelle règle</h3>";
+
+	content += '<form action="ajax/upload.php" class="edit_rule" method="post" enctype="multipart/form-data">';
+
+	content += '<p>Nom :</p>';
+	content += '<input type="text" name="name" class="text" />';
+
+	/*content += '<p>Menu :</p>';
+	content += '<div id="menu">';
+	content += '<button id="capteurs">Capteurs</button>';
+	content += '<button id="attributs">Attributs</button>';
+	content += '<button id="ops">Opérateurs</button>';
+	content += '<button id="funcs">Fonctions</button>';
+	content += '</div>';*/
+
+	content += '<input type="file" id="file" name="file" class="text" />';
+
+	content += '<input type="submit" value="Ok" />';
+
+	content += '</form>';
+
+	content += '</div>';
+
+	$("#dialog").html( content ); 
+
+	$("#dialog form").iframePostForm ( {
+		json: true,
+		post: function() {
+			alert( 'p' );
+		},
+		error: function( x, t, e ) {
+			alert( t + ' - ' + e );
+		},
+		complete: function() {
+			alert( 'ok' );
+		}
+	} );
+
+	/* Et on affiche la dialog */
+	$("#dialog").dialog( {
+		title: 'Ajouter une règle',
+		width: 600,
+		show: 'drop',
+		hide: 'drop',
+		resizable: false,
+		buttons: { "Ok": function() { $(this).dialog( "close" ); },
+			   "Modifier": function() { 
+					/*$.ajaxFileUpload( {
+						url:'/contents/ajaxfileupload/doajaxfileupload.php',
+						fileElementId:'fileToUpload',
+						dataType: 'json',
+						success: function (data, status)
+						{
+							if(typeof(data.error) != 'undefined')
+							{
+								if(data.error != '')
+								{
+									alert(data.error);
+								}else
+								{
+									alert(data.msg);
+								}
+							}
+						},
+						error: function (data, status, e)
+						{
+							alert(e);
+						}
+					} );*/
+				}
+			 }
 	});
 }
 
@@ -284,8 +366,8 @@ $.ajax( {
 
 			str += '<a href="#" class="tiny_link view" rule="' + $(this).attr( 'name' ) + '" >';
 			str += '<span><img src="img/button/view.png" />Voir</span></a>';
-			str += '<a href="#" class="tiny_link edit" rule="' + $(this).attr( 'name' ) + '" >';
-			str += '<span><img src="img/button/edit.png" />&Eacute;diter</span></a>';
+			/*str += '<a href="#" class="tiny_link edit" rule="' + $(this).attr( 'name' ) + '" >';
+			str += '<span><img src="img/button/edit.png" />&Eacute;diter</span></a>';*/
 			str += '<a href="#" class="tiny_link del" rule="' + $(this).attr( 'name' ) + '" >';
 			str += '<span><img src="img/button/delete.png" />Supprimer</span></a>';
 
@@ -298,7 +380,8 @@ $.ajax( {
 
 
 		$( 'div#rules_data .add_rule' ).click( function() {
-			alert( 'add' );
+			new_rule();
+			return false;
 		} );
 
 		$( 'div#rules_data .view' ).click( function() {
