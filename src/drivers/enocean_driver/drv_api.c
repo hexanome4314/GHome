@@ -51,8 +51,8 @@ sensors_queue* sensors; /* liste chainée des capteurs */
 int nbDev; /* Nombre de capteurs installes */
 int sock;
 int message_box;
-pthread_t filter_thread;
-pthread_t interprets_and_sends_thread;
+pthread_t filter_thread = 0;
+pthread_t interprets_and_sends_thread = 0;
 
 /* ---------- Methodes public du pilote ---------- */
 
@@ -133,8 +133,10 @@ Fonction appelée par le gestionnaire de drivers juste avant de décharger la li
 void drv_stop( void ){
 
 	/* stop the two thread */
-	pthread_cancel(filter_thread);
-	pthread_cancel(interprets_and_sends_thread);
+	if(filter_thread != 0)
+		pthread_cancel(filter_thread);
+	if(interprets_and_sends_thread != 0)
+		pthread_cancel(interprets_and_sends_thread);
 
 	/* free the allocated memory */
 	sensors_queue* last_sensors = sensors;
