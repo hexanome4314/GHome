@@ -55,10 +55,13 @@ static void* client_callback( void* ptr )
 	current_sock = (long) ptr;
 
 	/* Le client doit envoyer la commande en premier (laquelle doit terminer par \r\n)*/
+	printf( "[Actionner] Reading...\n", buffer );
 	res = read( current_sock, buffer, 255 );
 
 	/* On récupère la commande (-2 pour enlever le \r\n) */
 	buffer[res-2] = 0;
+
+	printf( "[Actionner] Recv %s\n", buffer );
 
 	/* On check que c'est bien une commande sinon on pète une erreur */
 	if( act_is_command( buffer ) == RACT_UNKNOWN_COMMAND )
@@ -105,7 +108,9 @@ static void* accept_callback( void* ptr )
 	{
 
 		/* En attente de connexion */
+		printf( "[Actionner] Wait request.\n" );
      		new_sock = accept( fd_sock, (struct sockaddr *) &client_addr, &client_len );	
+		printf( "[Actionner] Recv request.\n" );
 
 		/* Si le socket server a été fermé, on quitte */
 		if( new_sock < 0 )

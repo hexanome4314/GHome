@@ -386,8 +386,16 @@ function save_device_info( old_driver, old_id, old_name ) {
 			if( data.type != "success" ) {
 				alert( data.mesg );
 			}
+			else if( data.mesg == "OK" ) {
+				//update_driver_data();
+
+				$("#dialog").delay(1000);
+
+				res = 1;
+			}
 			else {
-				update_driver_data();
+				alert( data.mesg );
+				//update_driver_data();
 				res = 1;
 			}
 		},
@@ -587,6 +595,7 @@ function update_driver_data() {
 				str += '<div class="device_list">';
 
 				$(this).find( 'capteur' ).each( function() {
+
 					id = $(this).attr( 'id' );
 
 					str += '<div class="row">';

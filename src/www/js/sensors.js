@@ -52,7 +52,8 @@ function update_sensor_data( hide_notif ) {
                 },
 		error: function( ) {
                                         
-                        show_notifier_box( 'erreur.png', "Erreur lors de l'actualisation des donn&eacute;es." );
+			if( hide_notif == false )
+	                        show_notifier_box( 'erreur.png', "Erreur lors de l'actualisation des donn&eacute;es." );
                 }
         } );
 }
