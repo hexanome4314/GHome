@@ -242,7 +242,7 @@ Démarre le mode télécommande
 	password	Mot de passe permettant d'accèder à la console
 \return 0 si tout est ok
 */
-int start_remote_control( unsigned int port, const char* password )
+int start_remote_control( unsigned int port, char* password )
 {
 	static struct sockaddr_in server_addr;
 	int res;

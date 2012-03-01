@@ -282,10 +282,10 @@ int main()
 	unsigned int port_remote_control;
 	unsigned int port_actionner;
 	xmlChar* passwd = NULL;
-	read_auth(passwd , &port_remote_control , &port_actionner);
+	passwd = read_auth( &port_remote_control , &port_actionner); 
 
 	/* Lancement du contrôle telnet */
-	start_remote_control(port_remote_control, (const char*)passwd);
+	start_remote_control(port_remote_control, passwd);
 	xmlFree(passwd);
 	add_command("stop-server", "Stop the GHome server and cut the connection", &remote_stop_cmd);
 	add_command("list-sensors", "Print the list of configured sensors", &list_sensors_cmd);
