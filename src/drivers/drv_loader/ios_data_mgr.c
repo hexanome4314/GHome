@@ -56,10 +56,15 @@ void* ios_data_handler_evt( void* ptr )
 {
 	struct ios_data_handler_value* values = (struct ios_data_handler_value*) ptr;
 
-	/* Appel du handler global en le protégeant */
+	/* Récupération de la routine à appeler */
+	void (*handler)( int, unsigned int, float );
+
 	pthread_mutex_lock( &hdler_mutex );
-	(*global_handler)( values->fd, values->flag_value, values->value );
+	handler = global_handler;
 	pthread_mutex_unlock( &hdler_mutex );
+
+	/* Appel du handler global en le protégeant */
+	(*global_handler)( values->fd, values->flag_value, values->value );
 
 	/* Ne pas oublier ! */
 	free( values );

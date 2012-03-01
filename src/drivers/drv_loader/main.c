@@ -47,9 +47,9 @@ int main()
 
 	ios_attach_handler( fd1, h1 );
 
-	for( i = 0; i < 5; i++ )
+	for( i = 0; i < 60; i++ )
 	{
-		sleep( 2 );
+		sleep( 10 );
 
 		ios_read( fd1, DRV_FIELD_TEMPERATURE, &value1 );
 		ios_read( fd2, DRV_FIELD_TEMPERATURE, &value2 );
