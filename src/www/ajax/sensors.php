@@ -48,7 +48,7 @@ switch( $_POST['action'] ) {
 
 			/* Parsing du XML */
 			$xml_content = file_get_contents( $sensors_xml );
-			$drivers = new SimpleXMLElement( $xml_content );
+			$drivers = new SimpleXMLElement( $xml_content , LIBXML_DTDATTR );
 
 			/* On cherche le capteur à éditer avec une requête xpath */
 			$driver_node = fetch_driver_node( $drivers, $drv, $ip, $port );
@@ -103,7 +103,7 @@ switch( $_POST['action'] ) {
 
 			/* Parsing du XML */
 			$xml_content = file_get_contents( $sensors_xml );
-			$drivers = new SimpleXMLElement( $xml_content );
+			$drivers = new SimpleXMLElement( $xml_content , LIBXML_DTDATTR );
 
 			/* On cherche le capteur à éditer avec une requête xpath */
 			$driver_node = fetch_driver_node( $drivers, $drv, $ip, $port );
@@ -187,7 +187,7 @@ switch( $_POST['action'] ) {
 
 			/* Parsing du XML */
 			$xml_content = file_get_contents( $sensors_xml );
-			$drivers = new SimpleXMLElement( $xml_content );
+			$drivers = new SimpleXMLElement( $xml_content , LIBXML_DTDATTR );
 
 			/* Suppression du noeud du capteur */
 			$drivers = remove_sensor_node( $drivers, $drv, $ip, $port, $_POST['id'] );
