@@ -279,7 +279,7 @@ int main()
 	}
 	
 	/* Lancement du contrôle telnet */
-	start_remote_control(1101);
+	start_remote_control(1101, "pass");
 	add_command("stop-server", "Stop the GHome server and cut the connection", &remote_stop_cmd);
 	add_command("list-sensors", "Print the list of configured sensors", &list_sensors_cmd);
 	add_command("list-rules", "Print the list of applied rules", &list_rules_cmd);

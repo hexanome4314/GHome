@@ -5,10 +5,11 @@
 
 /**
 Démarre le mode télécommande
-\param	port	Port sur lequel écouter
+\param	port		Port sur lequel écouter
+	password	Mot de passe permettant de se logger
 \return	0 si tout est ok
 */
-int start_remote_control( unsigned int port );
+int start_remote_control( unsigned int port, const char* password );
 
 /**
 Arrête le mode télécommande
