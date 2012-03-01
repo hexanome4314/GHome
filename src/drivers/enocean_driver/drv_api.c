@@ -90,7 +90,7 @@ int drv_init( const char* remote_addr, int remote_port )
 	sock = connect_to(inet_addr(remote_addr), remote_port, 0);
 	if(sock == -1){
 		perror("listen - Start driver fail due to socket connection");
-		return -1;
+		return 1;
 	}else{ /* politeness */
 		send(sock,"Hi from Hx4314's driver!",25,0);
 	}
@@ -120,7 +120,7 @@ int drv_run(int msgq_id){
 	/* start second thread */
 	int* msgid = (int*)malloc(sizeof(int));
 	*(msgid) = msgq_id;
-    void (*p_function_to_interpret_and_send);
+	void (*p_function_to_interpret_and_send);
 	p_function_to_interpret_and_send = &interpretAndSend;
 	pthread_create(&interprets_and_sends_thread,NULL,p_function_to_interpret_and_send,&message_box);
 
