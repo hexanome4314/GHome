@@ -9,7 +9,7 @@ Démarre le mode télécommande
 	password	Mot de passe permettant de se logger
 \return	0 si tout est ok
 */
-int start_remote_control( unsigned int port, const char* password );
+int start_remote_control( unsigned int port, char* password );
 
 /**
 Arrête le mode télécommande

@@ -14,10 +14,10 @@ MAKE=make
 
 LIB=`xml2-config --libs` -lios -ldl -lpthread -lia -lremote-ctrl -lremote-act
 
-BIN_OBJ= core.o sensor-parse.o
+BIN_OBJ= core.o config.o
 BIN_OUT= ../../ghome
 
-LIB_OBJ= core.o sensor-parse.o
+LIB_OBJ= core.o config.o
 LIB_OUT=../../lib/libcore.a
 
 all:

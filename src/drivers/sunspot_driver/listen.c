@@ -73,19 +73,19 @@ int listenAndFilter(listen_and_filter_params* params)
 	char_buffer = (char*)malloc(MESSAGE_LEN+1);
 	memset(char_buffer,0,sizeof(char_buffer));
 
-	for(;;){ /* begin RECEIVE&FILTER THREAD LOOP */
-
-		//printf("listen ---------------- I'm listening\n");
+	for(;;)
+    { /* begin RECEIVE&FILTER THREAD LOOP */
 
 		/* LOOP get a new frame */
 		if(recv(sock, char_buffer, MESSAGE_LEN, MSG_WAITALL)==-1)
+        {
 			perror("listen - recv fail");
-		printf("\nlisten - recv: %s \n",char_buffer);
-		/*if(SIMULATION){
-			char backslash_n;
-			recv(sock, &backslash_n, 1, MSG_WAITALL);
-			printf("listen - SIMULATION backslash_n %c ",backslash_n);
-		}*/
+            printf("Le driver arrete d'ecouter...\n");
+            return 1;
+        }
+        
+        if(DEBUG_MODE)
+            printf("\nlisten - recv: %s \n",char_buffer);
 
 		/* LOOP filter */
 		sensors_queue* p_sensor = sensors->next;
@@ -100,7 +100,8 @@ int listenAndFilter(listen_and_filter_params* params)
                 if(strlen(char_buffer) >= SENSORNAME_LEN && memcmp(p_sensor->sensor, char_buffer, SENSORNAME_LEN))
                 {
                     sem_wait(&to_send_receive);
-                    printf("listen - message from one of ours sensors! \n");
+                    if(DEBUG_MODE)
+                        printf("listen - message from one of ours sensors! \n");
                     interesting_frame = char_buffer;
                     sem_post(&to_send);
                     char_buffer = (char*)malloc(MESSAGE_LEN);
@@ -109,7 +110,7 @@ int listenAndFilter(listen_and_filter_params* params)
                 }
                 p_sensor = p_sensor->next;
             }
-            if(p_sensor == NULL && interesting_frame != char_buffer){
+            if(p_sensor == NULL && interesting_frame != char_buffer && DEBUG_MODE){
                 printf("listen - message i don't care about \n");
             }
         }
