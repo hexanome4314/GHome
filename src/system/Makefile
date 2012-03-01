@@ -12,7 +12,7 @@ BIN_OBJ=memory.o memory_test.o
 BIN_OUT=memory_test
 
 SO_OBJ=memory.o
-SO_OUT=memory.so
+SO_OUT=../../lib/memory.so
 
 all:
 	$(MAKE)	$(BIN_OUT)

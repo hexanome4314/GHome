@@ -12,8 +12,12 @@
 #include "engine.h"
 #include "fields.h"
 #include "remote-control.h"
+#include "remote-actionner.h"
 #include "sensor-parse.h"
 #include "core.h"
+
+#define SENSORS_FILE "config/sensors.xml"
+#define RULES_FILE "config/rules.xml"
 
 /* ------------------------------------------------------------------- GLOBALS */
 
@@ -198,7 +202,7 @@ int reload_sensors_cmd(int fd, const char* cmd)
 	ios_detach_global_handler();
 	free_sensor_array();
 	free_drv_array();
-	if(read_sensors("config/sensors.xml", sensor, drv) < 0)
+	if(read_sensors(SENSORS_FILE, sensor, drv) < 0)
 	{
 		char message[] = "Malformed sensor description file. Correct it and reload sensor description file\n";
 		write(fd, message, strlen(message));
@@ -208,6 +212,35 @@ int reload_sensors_cmd(int fd, const char* cmd)
 		fprint_sensors(fd);
 		ios_attach_global_handler(process_data);
 	}
+	return 1;
+}
+
+/**
+ * Commande web de rechargement du fichier de règles
+ */
+int reload_rules_web(int fd, const char* cmd)
+{
+	ios_detach_global_handler();
+	if(reload_rules(sensor) < 0)
+		printf("Web server generated bad rules.xml file");
+	else
+		ios_attach_global_handler(process_data);
+	return 1;
+}
+
+/**
+ * Commande web de rechargement des informations de capteurs
+ */
+int reload_sensors_web(int fd, const char* cmd)
+{
+	ios_detach_global_handler();
+	free_sensor_array();
+	free_drv_array();
+	if(read_sensors(SENSORS_FILE, sensor, drv) == 0)
+		ios_attach_global_handler(process_data);
+	else
+		printf("Web server generated bad sensors.xml file");
+
 	return 1;
 }
 
@@ -231,14 +264,14 @@ int main()
 		return -1;
 	}
 	/* Chargement du fichier de configuration des capteurs */
-	if ((status = read_sensors("config/sensors.xml", sensor, drv)) < 0)
+	if ((status = read_sensors(SENSORS_FILE, sensor, drv)) < 0)
 	{
 		perror("Initialisation error");
 		return status;
 	}
 	print_sensors();
 	/* Chargement du fichier de configuration du moteur de règles */
-	status = init_engine("config/rules.xml", sensor);
+	status = init_engine(RULES_FILE, sensor);
 	if (status < 0)
 	{
 		printf("Rule loading error\n");
@@ -246,12 +279,18 @@ int main()
 	}
 	
 	/* Lancement du contrôle telnet */
-	start_remote_control(1233);
+	start_remote_control(1101);
 	add_command("stop-server", "Stop the GHome server and cut the connection", &remote_stop_cmd);
 	add_command("list-sensors", "Print the list of configured sensors", &list_sensors_cmd);
 	add_command("list-rules", "Print the list of applied rules", &list_rules_cmd);
 	add_command("reload-rules", "Reload the rules to apply", &reload_rules_cmd);
 	add_command("reload-sensors", "Reload the configuration of the sensors", &reload_sensors_cmd);
+
+	/* Lancement du contrôle du seveur web */
+	start_remote_actionner(1100);
+	add_actionner_command("RELOAD_DRIVERS", &reload_sensors_web);
+	add_actionner_command("RELOAD_RULES", &reload_rules_web);
+	
 	/* Association du handler d'arrivée d'informations de capteurs */
 	ios_attach_global_handler(process_data);
 

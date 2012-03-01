@@ -1,5 +1,5 @@
 COMPILE=gcc
-C_FLAGS=-c -I../../../include
+C_FLAGS=-c -I../../../include -ggdb3
 LINKER=gcc
 L_FLAGS=-L../../../lib
 LIB=-lpthread
@@ -11,6 +11,7 @@ MAKE=make
 OBJECT=command_interp.o remote-actionner.o console.o main.o
 OUTPUT=remote-actionner
 
+AR_OBJ=command_interp.o remote-actionner.o console.o
 AR_OUT=../../lib/libremote-act.a
 
 all: 

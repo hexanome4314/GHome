@@ -36,12 +36,12 @@ static int fd_sock;
 /**
 Petit hack qui permet de quitter le read()
 */
-void client_alarm_handler( int sig ) { }
+static void client_alarm_handler( int sig ) { }
 
 /**
 Routine du thread qui écoute l'unique client
 */
-void* client_callback( void* ptr )
+static void* client_callback( void* ptr )
 {
 	int current_sock;
 	char buffer[255];
@@ -61,26 +61,26 @@ void* client_callback( void* ptr )
 	buffer[res-2] = 0;
 
 	/* On check que c'est bien une commande sinon on pète une erreur */
-	if( is_command( buffer ) == RACT_UNKNOWN_COMMAND )
+	if( act_is_command( buffer ) == RACT_UNKNOWN_COMMAND )
 	{
-		print( current_sock, "UNKNOWN_COMMAND\r\n" );
+		act_print( current_sock, "UNKNOWN_COMMAND\r\n" );
 		close( current_sock );
 		return NULL;
 	}
 
 	/* Et on interprete */
-	res = command_interpret( current_sock, buffer );
+	res = act_command_interpret( current_sock, buffer );
 	switch( res )
 	{
 		case RACT_COMMAND_OK :
-			print( current_sock, "OK\r\n" );
+			act_print( current_sock, "OK\r\n" );
 			break;
 		case RACT_COMMAND_PONG :
-			print( current_sock, "PONG\r\n" );
+			act_print( current_sock, "PONG\r\n" );
 			break;
 		case RACT_COMMAND_ERROR :
 		default :
-			print( current_sock, "ERROR\r\n" );		
+			act_print( current_sock, "ERROR\r\n" );		
 			break;
 	}
 
@@ -92,7 +92,7 @@ void* client_callback( void* ptr )
 /**
 Routine du thread qui accepte les nouvelles connexions
 */
-void* accept_callback( void* ptr )
+static void* accept_callback( void* ptr )
 {
 	long new_sock;
 	int old_sock;
@@ -152,7 +152,7 @@ int start_remote_actionner( unsigned int port )
 	}
 
 	/* Autorise un certain nombre de connexions */
-	listen( fd_sock, MAX_REMOTE_CONNECTIONS_ALLOWED );
+	listen( fd_sock, MAX_ACTIONNER_CONNECTIONS_ALLOWED );
 
 	/* Création des nouveaux threads */
 	res = pthread_create( &accept_thread, NULL, accept_callback, NULL );
@@ -161,7 +161,7 @@ int start_remote_actionner( unsigned int port )
 		return RACT_CANNOT_LAUNCH_ACCEPT_THREAD;
 
 	/* Initialisation des commandes */
-	init_command();
+	act_init_command();
 
 	/* Tout est ok */
 	return RACT_OK;
@@ -177,5 +177,5 @@ void stop_remote_actionner()
 
 	pthread_cancel( accept_thread );
 
-	release_command();
+	act_release_command();
 }
