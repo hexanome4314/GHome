@@ -4,4 +4,6 @@
   <web>
     <user name="admin" passwd="d033e22ae348aeb5660fc2140aec35850c4da997" />
   </web>
+  <telnet port="1101" pass="bulletproof" />
+  <actionner port="1100"/>
 </auth>
