@@ -260,13 +260,13 @@ int main()
 	if((sigaction(SIGINT, &stop_action, NULL) < 0) ||
 	   (sigaction(SIGTERM, &stop_action, NULL) < 0))
 	{
-		perror("Internal Error\n");
+		perror("Internal Error");
 		return -1;
 	}
 	/* Chargement du fichier de configuration des capteurs */
 	if ((status = read_sensors(SENSORS_FILE, sensor, drv)) < 0)
 	{
-		perror("Initialisation error\n");
+		perror("Initialisation error");
 		return status;
 	}
 	print_sensors();
