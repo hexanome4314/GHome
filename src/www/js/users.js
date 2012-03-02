@@ -443,7 +443,7 @@ function update_users_data() {
 			str += '<span>Mot de passe :</span>';
 			str += '</div><div class="cell">';
 			str += '<input type="text" name="pwd_telnet" value="';
-			str += $( data ).find( 'telnet' ).attr( 'passwd' );
+			str += $( data ).find( 'telnet' ).attr( 'pass' );
 			str += '" size="10" class="text" />';
 			str += '</div></div>';
 			str += '</div>';
@@ -517,9 +517,9 @@ function update_users_data() {
 
 		},
 		error: function( xhr, str, error) {
-			alert( "Impossible de charger les données relatives aux pilotes.\n" + str + ' - ' + error );
+			alert( "Impossible de charger les données relatives à l'accès à distance.\n" + str + ' - ' + error );
 
-			$( '#driver_data' ).html( '<img src="img/error.png" /><span><i>Impossible de charger les donn&eacute;es relatives aux pilotes.</span>' );
+			$( '#driver_data' ).html( '<img src="img/error.png" /><span><i>Impossible de charger les donn&eacute;es relatives aux connexions distantes.</span>' );
 		}
 	} );
 }
