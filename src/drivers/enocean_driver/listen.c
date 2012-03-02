@@ -365,20 +365,18 @@ int listenAndFilter(listen_and_filter_params* params)
 		/* LOOP get a new frame */
 		if(recv(sock, char_buffer, 28,MSG_WAITALL)==-1)
 			perror("listen - recv fail");
-		printf("listen - recv: %s \n",char_buffer);
+		if(LOG) printf("listen - recv: %s \n",char_buffer);
 		if(SIMULATION){
 			char backslash_n;
 			recv(sock, &backslash_n,1,MSG_WAITALL);
-			printf("listen - SIMULATION backslash_n %c ",backslash_n);
+			if(LOG) printf("listen - SIMULATION backslash_n %c ",backslash_n);
 		}
 
 		/* LOOP filter */
-		printf("FILTRE ");
 		sensors_queue* p_sensor = sensors->next;
 		while(sensors == NULL)
 		{
 			sleep(1);
-			printf("listen - la liste géré par le driver enocean est vide\n");
 		}
 		while(p_sensor != NULL)
 		{
@@ -393,7 +391,6 @@ int listenAndFilter(listen_and_filter_params* params)
 				)
 			{
 				sem_wait(&to_send_receive);
-				printf("listen - message from one of ours sensors! \n");
 				interesting_frame = char_buffer;
 				sem_post(&to_send);
 				char_buffer = (char*)malloc(28);
@@ -402,7 +399,7 @@ int listenAndFilter(listen_and_filter_params* params)
 			}
 			p_sensor = p_sensor->next;
 		}
-		if(p_sensor == NULL && interesting_frame != char_buffer){
+		if(LOG && p_sensor == NULL && interesting_frame != char_buffer){
 			printf("listen - message i don't care about \n");
 		}
 	} /* end RECEIVE&FILTER THREAD LOOP */
@@ -444,7 +441,7 @@ void interpretAndSend(int* msgq_id){
 			case 0x58: if(LOG) printf("interpret&send - It's an acquitment!\n");
 			if (message->H_SEQ_LENGTH == 0x8B)
 			{
-				printf("interpret&send - Acquitement recu !\n");
+				if(LOG) printf("interpret&send - Acquitement recu !\n");
 			}
 			break;
 			default: if(LOG) printf("interpret&send - Don't know what this f42king message is about\n");
@@ -452,7 +449,7 @@ void interpretAndSend(int* msgq_id){
 			free(message);
 			message = NULL;
 		}else{
-			printf("interpret&send - Tango Charlie :\n");
+			/* wait for new activity */
 			sleep(5);
 		}
 	}/* end INTERPRET&SEND THREAD LOOP */

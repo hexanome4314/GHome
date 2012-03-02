@@ -13,7 +13,7 @@ struct Slot {
 	Slot* next; // pointeur vers slot suivant
 	size_t size; // en octets
 	char free; // 1 si la zone est libre, 0 sinon
-	char stoupid[4];
+	char align[4]; // alignement pour avoir un multiple de 8 (32b)
 };
 
 static Slot* slotlist = NULL;
@@ -43,7 +43,6 @@ Affiche une erreur si un slot n'est pas valide d'un point de vue de l'alignement
 #ifdef ALIGNMENT_DEBUG
 static void check_align(Slot* slot, char* caller)
 {
-//	printf("%s", caller);
 	if((unsigned long)slot%ALIGNMENT != 0)
 		printf("Alignment error (%s) : slot 0x%x is at wrong place\n", caller, (int)slot);
 	if(slot->size%ALIGNMENT != 0)
@@ -68,7 +67,6 @@ static Slot* slice_slot(Slot* slot, size_t size)
 {
 	// Slot suivant (situé après le header et les données du slot courant)
 	Slot* newslot;
-//	size = size+size%ALIGNMENT;
 	check_align(slot, "slice_slot demande");
 	newslot= (Slot*)(sizeof(Slot)+(int)slot+size);
 	newslot->next = slot->next;
@@ -253,29 +251,6 @@ void* grealloc(void* ptr, size_t size)
 			return NULL; // not found...
 		slot = slot->next;
 	}
-	// Test si c'est du raccourcissement avec la place d'ajouter un slot
-	// bog
-	/*if (slot->size - size > sizeof(Slot))
-	{
-		slice_slot(slot, size);
-		slot->next->free = 1;
-		if (slot->next->next && slot->next->next->free)
-			merge_slots(slot->next);
-		return slot+1;
-	}
-	// Raccourcissement sans la place d'ajouter un slot
-	else if(slot->size >= size)
-	{
-		return(slot+1);
-		}*/
-	// Test si il n'y a pas besoin de le déplacer (bug?)
-/*	if (slot->next && slot->next->free && slot->next->size+sizeof(Slot) >= size - slot->size)
-	{
-		merge_slots(slot);
-		if(slot->size > size+sizeof(Slot))
-			slice_slot(slot, size);
-		return slot+1;
-		}*/
 	new_area = gmalloc(size);
 	cpy_size = size < slot->size ? size : slot->size;
 	for(i=0; i<cpy_size; i++)

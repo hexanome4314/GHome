@@ -1,6 +1,7 @@
 #ifndef __ENGINE_TYPES_H
 #define __ENGINE_TYPES_H
 
+// Les types de comparaison
 enum Condition_type
 {
 	Equ,
@@ -8,6 +9,7 @@ enum Condition_type
 	Inf
 };
 
+// Un envoi à un capteur
 typedef struct Action Action;
 struct Action
 {
@@ -17,6 +19,7 @@ struct Action
 	Action* next;
 };
 
+// Une alerte à donner
 typedef struct Alert Alert;
 struct Alert
 {
@@ -25,6 +28,7 @@ struct Alert
 	Alert* next;
 };
 
+// Une condition à respecter
 typedef struct Condition Condition;
 struct Condition
 {
@@ -35,6 +39,8 @@ struct Condition
 	Condition* next;
 };
 
+// Une règle (ensemble d'actions, d'alertes
+// de conditions)
 typedef struct Rule Rule;
 struct Rule {
 	char* name;

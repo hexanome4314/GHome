@@ -1,0 +1,10 @@
+Folders :
+
+core/             : Configuration loading, application initialisation, main.
+ia/               : Rule engine
+drivers/          : Driver management and drivers
+remote-control/   : telnet control
+remote-actionner/ : web server control
+SunSPOT/          : embedded java for sunspot
+system/           : memory management
+www/              : web server files

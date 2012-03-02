@@ -218,7 +218,7 @@ int drv_send_data( unsigned int id_sensor, char commande )
 	ID3 = ID3>>24;
 	ID2 = ID2>>16;
 	ID1 = ID1>>8;
-	printf("drv_api - COMMANDE :%d\n", (int)commande);
+	if(LOG) printf("drv_api - COMMANDE :%d\n", (int)commande);
 	/* On verifie si on allume ou on eteint l'actionneur */
 	if ((int)commande  == 116)
 	{
@@ -233,7 +233,7 @@ int drv_send_data( unsigned int id_sensor, char commande )
 
 	checkSum = (hSEQ_LEN + org + dataByte3 + dataByte2 + dataByte1 + dataByte0 + ID3 + ID2 + ID1 + ID0 + status) % 256;
 
-	printf("drv_api - %X %X\nDataBytes : %X %X %X %X\nID : %X %X %X %X\nStatus : %X\nCheckSume : %X\n", hSEQ_LEN, org, dataByte3, dataByte2, dataByte1, dataByte0, ID3, ID2, ID1, ID0, status, checkSum);
+	if(LOG) printf("drv_api - %X %X\nDataBytes : %X %X %X %X\nID : %X %X %X %X\nStatus : %X\nCheckSume : %X\n", hSEQ_LEN, org, dataByte3, dataByte2, dataByte1, dataByte0, ID3, ID2, ID1, ID0, status, checkSum);
 	
 	/* Fabrication de la tramme */
 	trame[0] = 'A';
@@ -299,10 +299,8 @@ int drv_send_data( unsigned int id_sensor, char commande )
 	snprintf(idHexa,2,"%X", id);
 	trame[27] = *idHexa;
 	free(idHexa);
-	printf("\n");
 	trame[28]='\0';
-	printf("drv_api - trame envoyé: %s\n", trame);
-	printf("\n");
+	if(LOG) printf("drv_api - trame envoyé: %s\n", trame);
 
 	/* Envoyer la trame */
 	if(send(sock,trame,28,0)<0){
