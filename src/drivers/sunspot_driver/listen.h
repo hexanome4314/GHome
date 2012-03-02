@@ -2,7 +2,7 @@
  * ecoute.h
  *
  *  Created on: 13 janv. 2012
- *      Author: Raphael CLAUDE
+ *      Author: Raphael CLAUDE && Léo LEFEBVRE
  */
 
 #ifndef LISTEN_H_
@@ -19,14 +19,15 @@
 
 #include <stdint.h>
 
-//eg: 00001001 0000000012 6,666600e+01
+// Structure des messages SunSpot analysés par le driver
 typedef struct sunspot_data_structure {
-    int address; // 8 char
-    int light; // 10 char
-    float temperature; // 12 char
-    int voltage; // 3 char
+    int address; // Adresse du sunspot - 8 char
+    int light; // luminosité - 10 char
+    float temperature; // temperature - 12 char
+    int voltage; // niveau de batterie - 3 char
 } sunspot_data_structure;
 
+// Taille en caractères de messages reçus
 #define MESSAGE_LEN 36 // 8+10+12+3+3 (espaces)
 
 /**

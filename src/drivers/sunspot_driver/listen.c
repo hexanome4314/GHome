@@ -22,6 +22,7 @@ char* interesting_frame;
 
 /********************************************* PRIVATES FUNCTIONS */
 
+// Interpret a message in ordre to send it to ios
 void interpret(sunspot_data_structure* message, int* msgq_id){
 	struct msg_drv_notify msgTemp;/* Message pour la temperature. */
 	struct msg_drv_notify msgLumi;/* Message pour la luminosite. */
@@ -63,16 +64,17 @@ void interpret(sunspot_data_structure* message, int* msgq_id){
 
 /********************************************* PUBLICS FUNCTIONS */
 
+// Init semaphores
 void initialisation_for_listener(){
 	sem_init(&to_send,0,0);
 	sem_init(&to_send_receive,0,1); /* 1 as the init value in order not to block in the first loop */
 }
+
 /**
  * First thread: Receive the flow filter frame we are interested in
  * and give them to second thread
  * \param socket from which arrive the flow of frame
  */
-
 int listenAndFilter(listen_and_filter_params* params)
 {
 	/* make the params local */
@@ -109,7 +111,6 @@ int listenAndFilter(listen_and_filter_params* params)
         {            
             while(p_sensor != NULL)
             {
-                printf("%s == %s ?\n",p_sensor->sensor,char_buffer);
                 if(strlen(char_buffer) >= SENSORNAME_LEN-1 && memcmp(p_sensor->sensor, char_buffer, SENSORNAME_LEN-1) == 0)
                 {
                     sem_wait(&to_send_receive);
@@ -129,6 +130,7 @@ int listenAndFilter(listen_and_filter_params* params)
         }
 	} /* end RECEIVE&FILTER THREAD LOOP */
 }
+
 /**
  * Second thread: interpret the frame and sem post
  * \param the semaphore where to put

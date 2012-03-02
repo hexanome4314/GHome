@@ -172,7 +172,7 @@ max_length Taille maximale du buffer
 */
 int drv_fetch_data( unsigned int id_sensor, unsigned int id_trame, char* buffer, int max_length )
 {
-    return 0;
+    return 0; // Not yet implemented
 }
 
 
@@ -184,7 +184,7 @@ id_trame Identifiant de la trame à envoyer
 */
 int drv_send_data( unsigned int id_sensor, char commande )
 {
-	return 0;
+	return 0; // Not yet implemented
 }
 
 /**
