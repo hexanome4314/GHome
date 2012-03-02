@@ -1,0 +1,91 @@
+Buildfile: /home/kallys/GHome/GHome/src/SunSPOT/GHome-onDesktop/build.xml
+
+-pre-init:
+
+-do-init:
+
+-post-init:
+
+-warn-jar-file:
+
+init:
+
+-set-selector-for-host-run:
+
+-override-warning-find-spots:
+
+-prepare-conditions-for-find-spots:
+
+-find-shared-basestation:
+     [echo] Checking for shared basestation...
+     [java] Looking for basestation on host: 127.0.0.1
+     [echo] Shared basestation result: false
+
+-run-spotfinder:
+     [exec] WARNING: Your Linux installation does not
+     [exec] include the 'hal-device' application. The
+     [exec] spotfinder utility will treat all devices
+     [exec] matching the pattern:
+     [exec]      /dev/ttyACM*
+     [exec] as Sun SPOT devices. If no Sun SPOT device
+     [exec] is connected but another device matching this
+     [exec] pattern is available, that device will be 
+     [exec] selected automatically.
+     [exec] 
+     [exec] 
+
+-check-spotfinder-result:
+
+-decide-whether-to-run-spotselector:
+
+-run-spotselector:
+     [java] Preferred port /dev/ttyACM1 does not have a connected SPOT.
+     [java] Please wait while connected Sun SPOTs are examined...
+     [java] Experimental:  JNI_OnLoad called.
+
+-collect-spotselector-result:
+     [echo] 
+     [echo] Using Sun SPOT basestation on port /dev/ttyACM0
+
+-clean-up-spotselector-output-file:
+   [delete] Deleting: /home/kallys/SunSPOT/sdk/temp/spotselector-1221104209
+
+-spotselector-fail:
+
+-decide-whether-to-start-basestation-manager:
+
+-start-new-basestation-manager:
+     [echo] Starting new shared basestation...
+
+-start-shared-basestation:
+
+-do-find-spots:
+
+-pre-host-compile:
+
+-do-host-compile:
+    [javac] Compiling 1 source file to /home/kallys/GHome/GHome/src/SunSPOT/GHome-onDesktop/build
+    [javac] warning: [options] bootstrap class path not set in conjunction with -source 1.5
+    [javac] 1 warning
+
+-post-host-compile:
+
+host-compile:
+
+-pre-host-run:
+
+-do-host-run:
+     [java] [radiogram] Adding: Server on port 8
+     [java] [radiogram] Adding: Server on port 67
+     [java] mars 01, 2012 7:49:34 PM GHome.Host connectToDriver
+     [java] Grave: null
+     [java] java.net.BindException: Adresse déjà utilisée
+     [java] 	at java.net.PlainSocketImpl.socketBind(Native Method)
+     [java] 	at java.net.AbstractPlainSocketImpl.bind(Unknown Source)
+     [java] 	at java.net.ServerSocket.bind(Unknown Source)
+     [java] 	at java.net.ServerSocket.<init>(Unknown Source)
+     [java] 	at java.net.ServerSocket.<init>(Unknown Source)
+     [java] 	at GHome.Host.connectToDriver(Host.java:45)
+     [java] 	at GHome.Host.run(Host.java:69)
+     [java] 	at GHome.Host.main(Host.java:101)
+     [java] 

@@ -12,7 +12,7 @@
 #include "sys/msg.h"
 #include "listen.h"
 #include "utils.h"
-#include "../drv_api.h"
+#include "drv_api.h"
 
 /* Thread's communication */
 sem_t to_send;

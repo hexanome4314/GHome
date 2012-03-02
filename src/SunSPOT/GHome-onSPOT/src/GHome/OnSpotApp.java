@@ -1,6 +1,7 @@
 package GHome;
 
 import com.sun.spot.io.j2me.radiogram.RadiogramConnection;
+import com.sun.spot.peripheral.IBattery;
 import com.sun.spot.resources.Resources;
 import com.sun.spot.resources.transducers.ILightSensor;
 import com.sun.spot.resources.transducers.ITemperatureInput;
@@ -22,6 +23,7 @@ public class OnSpotApp extends MIDlet {
         String ourAddress = System.getProperty("IEEE_ADDRESS");
         ILightSensor lightSensor = (ILightSensor)Resources.lookup(ILightSensor.class);
         ITemperatureInput temperatureInput = (ITemperatureInput)Resources.lookup(ITemperatureInput.class);
+        IBattery batteryLevel = (IBattery)Resources.lookup(IBattery.class);
         ITriColorLED led = (ITriColorLED)Resources.lookup(ITriColorLED.class, "LED7");
         
         System.out.println("Starting sensor sampler application on " + ourAddress + " ...");
@@ -44,6 +46,7 @@ public class OnSpotApp extends MIDlet {
                 long now = System.currentTimeMillis();
                 int light = lightSensor.getValue();
                 double temperature = temperatureInput.getCelsius();
+                int battery = 100;//batteryLevel.getBatteryLevel();
 
                 // Flash an LED to indicate a sampling event
                 led.setRGB(255, 255, 255);
@@ -55,11 +58,12 @@ public class OnSpotApp extends MIDlet {
                 //dg.writeChar(0);
                 dg.writeInt(light);// Send lightValue to the base
                 dg.writeFloat(new Double(temperature).floatValue());// Send temperatureInput to the base
+                dg.writeInt(battery);
                 rCon.send(dg);
                 
                 System.out.println("New light value = " + light);                
-                System.out.println("New temperature value = " + temperature+"\n");
-
+                System.out.println("New temperature value = " + temperature);
+                System.out.println("New battery value = " + battery);
 
                 // Go to sleep to conserve battery
                 Utils.sleep(SAMPLE_PERIOD - (System.currentTimeMillis() - now));

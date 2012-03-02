@@ -12,7 +12,7 @@
 #include "sys/msg.h"
 #include "listen.h"
 #include "utils.h"
-#include "../drv_api.h"
+#include "drv_api.h"
 
 /* Thread's communication */
 sem_t to_send;
@@ -25,6 +25,7 @@ char* interesting_frame;
 void interpret(sunspot_data_structure* message, int* msgq_id){
 	struct msg_drv_notify msgTemp;/* Message pour la temperature. */
 	struct msg_drv_notify msgLumi;/* Message pour la luminosite. */
+    struct msg_drv_notify msgVolt;/* Message pour la batterie. */
 
 	// Info du capteur de type luminosite
 	msgLumi.flag_value = DRV_FIELD_BRIGHTNESS;
@@ -47,6 +48,17 @@ void interpret(sunspot_data_structure* message, int* msgq_id){
     {
         printf("Capteur : %X Temperature : %f !!!!\n", message->address, msgTemp.value);	
     }
+    
+   	// Info du capteur de type temperature
+	msgVolt.flag_value = DRV_FIELD_VOLTAGE;
+	msgVolt.msg_type = DRV_MSG_TYPE;
+	msgVolt.value = message->voltage;
+	msgVolt.id_sensor = message->address;
+    msgsnd( *msgq_id, (const void*) &msgVolt, sizeof(struct msg_drv_notify) - sizeof(long), 0 );
+    if(LOG)
+    {
+        printf("Capteur : %X Temperature : %d !!!!\n", message->address, (int) msgVolt.value);	
+    }    
 }
 
 /********************************************* PUBLICS FUNCTIONS */
@@ -97,14 +109,15 @@ int listenAndFilter(listen_and_filter_params* params)
         {            
             while(p_sensor != NULL)
             {
-                if(strlen(char_buffer) >= SENSORNAME_LEN && memcmp(p_sensor->sensor, char_buffer, SENSORNAME_LEN))
+                printf("%s == %s ?\n",p_sensor->sensor,char_buffer);
+                if(strlen(char_buffer) >= SENSORNAME_LEN-1 && memcmp(p_sensor->sensor, char_buffer, SENSORNAME_LEN-1) == 0)
                 {
                     sem_wait(&to_send_receive);
                     if(DEBUG_MODE)
                         printf("listen - message from one of ours sensors! \n");
                     interesting_frame = char_buffer;
                     sem_post(&to_send);
-                    char_buffer = (char*)malloc(MESSAGE_LEN);
+                    char_buffer = (char*)malloc(MESSAGE_LEN+1);
                     memset(char_buffer, 0, sizeof(char_buffer));
                     break; /* no need to go throw the end of the list */
                 }
@@ -135,7 +148,7 @@ void interpretAndSend(int* msgq_id)
 			interesting_frame = NULL;
 		}
 		sem_post(&to_send_receive);
-        sscanf(buffer, "%x %d %e", (int *) &(message->address), (int *) &(message->light), (float *) &(message->temperature));
+        sscanf(buffer, "%x %d %e %d", (int *) &(message->address), (int *) &(message->light), (float *) &(message->temperature), (int *) &(message->voltage));
 		free(buffer);
 
 		/* send the message */

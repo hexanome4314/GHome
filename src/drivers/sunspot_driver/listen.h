@@ -24,9 +24,10 @@ typedef struct sunspot_data_structure {
     int address; // 8 char
     int light; // 10 char
     float temperature; // 12 char
+    int voltage; // 3 char
 } sunspot_data_structure;
 
-#define MESSAGE_LEN 32 // 8+10+12+2 (espaces)
+#define MESSAGE_LEN 36 // 8+10+12+3+3 (espaces)
 
 /**
  * The default linked lists structure for SunSpot received messages
@@ -42,7 +43,7 @@ typedef _sunspot_data_structure_queue sunspot_data_structure_queue;
 /**
  * linked lists structure for sensors id.
  */
-#define SENSORNAME_LEN 9
+#define SENSORNAME_LEN 8
 typedef struct _sensors_queue _sensors_queue;
 struct _sensors_queue{
 	char sensor[SENSORNAME_LEN];

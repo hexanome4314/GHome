@@ -2,6 +2,7 @@
 <!DOCTYPE rules SYSTEM "rules.dtd">
 
 <rules>
+  <!--
   <rule name="Allumage chauffage chambre">
     <actions>
       <activate device="prise de la TV" field="BUTTON_3">True</activate>
@@ -10,8 +11,26 @@
     <conditions>
       <condition device="interrupteur ambiance disco" field="BUTTON_1" type="equ">1</condition>
     </conditions>
-  </rule>
+  </rule>-->
 
+  <rule name="Relais avec sunspot">
+    <actions>
+      <activate device="prise de la TV" field="BUTTON_3">True</activate>
+    </actions>
+    <conditions>
+      <condition device="chauffage" field="BRIGHTNESS" type="inf">5</condition>
+    </conditions>
+  </rule>
+  
+  <rule name="Relais avec sunspot">
+    <actions>
+      <activate device="prise de la TV" field="BUTTON_3">False</activate>
+    </actions>
+    <conditions>
+      <condition device="chauffage" field="BRIGHTNESS" type="sup">10</condition>
+    </conditions>
+  </rule>
+<!--
   <rule name="Eteinte chauffage chambre">
     <actions>
       <activate device="prise de la TV" field="BUTTON_3">False</activate>
@@ -20,7 +39,7 @@
     <conditions>
       <condition device="interrupteur ambiance disco" field="BUTTON_1" type="equ">-1</condition>
     </conditions>
-  </rule>
+  </rule>-->
   
   <rule name="Mise sous tension de la TV">
     <actions>

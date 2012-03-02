@@ -8,13 +8,15 @@ import javax.microedition.io.Datagram;
 public class Message {
     private int light;
     private float temperature;
-    private String address;  
+    private String address;
+    private int battery;
     
     public Message(Datagram datagram) {
         try {
             this.address = parseAddress(datagram.getAddress());
             this.light = datagram.readInt();
             this.temperature = datagram.readFloat();
+            this.battery = datagram.readInt();
         } catch (IOException ex) {
             Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -30,6 +32,6 @@ public class Message {
     //0,000000e+00 0
     //6,666600e+01 
     public String getFormattedMessage() {
-        return address+" "+String.format("%010d", light)+" "+String.format("%E", temperature).replace(",", ".");
+        return address+" "+String.format("%010d", light)+" "+String.format("%E", temperature).replace(",", ".")+" "+String.format("%03d", battery);
     }
 }

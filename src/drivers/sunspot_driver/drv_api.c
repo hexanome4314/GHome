@@ -27,7 +27,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "../drv_api.h"
+#include "drv_api.h"
 #include "listen.h"
 #include "utils.h"
 
