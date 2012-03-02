@@ -22,7 +22,7 @@
 /* ------------------------------------------------------------------- GLOBALS */
 
 static infos_drv drv[MAX_NUMBER_OF_DRIVERS];
-static infos_sensor sensor[MAX_NUMBER_OF_SENSORS]; /* variable globale fourni à l'IA */
+static infos_sensor sensor[MAX_NUMBER_OF_SENSORS]; /* variable globale fournie à l'IA */
 static sem_t stop_sem; // Semaphore arret application
 
 // Association id champ => nom
@@ -73,13 +73,14 @@ void print_sensors(){
 
 /* -------------------------------------------- HANDLER TRANSMISSION DONNÉES CAPTEUR */
 /**
- *   
+ * Ce handler est appelé à chaque fois qu'un capteur envoie une valeur
 */
 void process_data(int device, unsigned int field, float val)
 {
 	printf("Got some data from %d on field %d : %f\n", device, field, val);
-	/* appeler l'ia pour effectuer les actions necessaires */
+	/* Appel au gestionnaire de règles */
 	apply_actions(device, field, val);
+
 	/* écrire dans raw_data.json les valeurs */
 	/* avec reconstruction totale du fichier */
 	int i = 0;
