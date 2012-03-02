@@ -517,13 +517,3 @@ void free_rules(Rule* rules)
 		rule = new_rule;
 	}
 }
-/*
-  int main() {
-  Rule *rules;
-  rules = get_rules("rules.xml");
-  traceRules(rules);
-  free_rules(rules);
-  return 0;
-  }
-
-*/

@@ -1,6 +1,7 @@
 /*
 Test du bon fonctionnement de la gestion de mémoire
 Il n'y a pour l'instant pas grand chose ici...
+Le meilleurs test reste d'exécuter des applications
 */
 #include "memory_test.h"
 #include <stdio.h>

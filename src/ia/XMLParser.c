@@ -38,11 +38,8 @@ int compare(char *s1, char *s2)
     int ls1 = strlen(s1);
     int ls2 = strlen(s2);
 
-    //printf("comparing \"%s\" and \"%s\" : ", s1, s2);
-
     if(ls1 != ls2)
     {
-        //printf("no.\n");
         return -1;
     }
     else
@@ -52,12 +49,10 @@ int compare(char *s1, char *s2)
 
         if(i == ls1)
         {
-            //printf("yes.\n");
             return 0;
         }
         else
         {
-            //printf("no.\n");
             return -1;
         }
     }
