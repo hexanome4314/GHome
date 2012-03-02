@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!ELEMENT drivers (driver+)>
+<!ELEMENT driver (capteur+)>
+<!ELEMENT capteur (#PCDATA)>
+			
+<!ATTLIST driver so CDATA #REQUIRED>
+<!ATTLIST driver ip CDATA #REQUIRED>
+<!ATTLIST driver port CDATA #REQUIRED>	
+<!ATTLIST capteur id CDATA #REQUIRED>
+<!ATTLIST capteur etat (ON|OFF) #REQUIRED>
+
