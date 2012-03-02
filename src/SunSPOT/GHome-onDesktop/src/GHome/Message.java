@@ -11,6 +11,10 @@ public class Message {
     private String address;
     private int battery;
     
+    /*
+     * Créé un nouveau message depuis un datagram reçu par un spot
+     * Contrat : Le spot doit envoyer une trame cohérente
+     */
     public Message(Datagram datagram) {
         try {
             this.address = parseAddress(datagram.getAddress());
@@ -22,15 +26,17 @@ public class Message {
         }
     }
     
-    //Translate 7F00.0001.0000.1001 to 00001001
+    /*
+     * Convertit les addresses des spots vers le format retenu coté driver
+     * Exemple : 7F00.0001.0000.1001 -> 00001001
+     */
     private String parseAddress(String str) {
         return str.substring(10).replaceAll("\\.", "");
     }    
     
-    //3,402823e+38 max
-    //1,401298e-45 min
-    //0,000000e+00 0
-    //6,666600e+01 
+    /*
+     * Retourne le message formaté afin qu'il soit acceptable par le driver
+     */
     public String getFormattedMessage() {
         return address+" "+String.format("%010d", light)+" "+String.format("%E", temperature).replace(",", ".")+" "+String.format("%03d", battery);
     }

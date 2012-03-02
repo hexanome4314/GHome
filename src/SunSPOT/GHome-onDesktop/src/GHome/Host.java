@@ -24,6 +24,10 @@ public class Host {
     private Datagram dg;
     private OutputStreamWriter outStream;
     
+    /*
+     * Fonction de connection au en broadcast permettant la connexion des spots
+     * Retourne un booléen de l'état de la connexion
+     */
     private boolean connectToSensors(int remote_port) {
         try {
             // Open up a server-side broadcast radiogram connection
@@ -37,6 +41,11 @@ public class Host {
         return false;
     }
     
+    /*
+     * Fonction de connection au driver via le socket (interfacage C-Java)
+     * Cette fonction initialise le socket welcomeSocket avec les paramètres
+     * Retoure un booléen de l'état de la connexion
+     */
     private boolean connectToDriver(InetAddress server_addr, int server_port) {
         try {
             welcomeSocket = new ServerSocket(server_port);
@@ -49,18 +58,27 @@ public class Host {
             Logger.getLogger(Host.class.getName()).log(Level.SEVERE, null, ex);
         }
         return false;
-    }    
-
+    }
+    
+    /*
+     * Fonction de reconnection au driver en cas de déconnexion
+     * Le socket welcomeSocket doit être initialisé (les paramètres fournis par 
+     * connectToDriver sont mémorisés)
+     */
     private void reconnectToDriver() {
         try {
             client = welcomeSocket.accept();
             client.setReuseAddress(true);
             outStream = new OutputStreamWriter(client.getOutputStream());
+            System.out.println("Listener connected on port "+SERVER_PORT);            
         } catch (IOException ex) {
             Logger.getLogger(Host.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
+    /*
+     * Routine d'execution de la base
+     */
     private void run() {
         try {
             if(connectToSensors(HOST_PORT) && connectToDriver(InetAddress.getLocalHost(), SERVER_PORT))
@@ -68,20 +86,24 @@ public class Host {
                 // Main data collection loop
                 while (true) {
                     try {
-                        System.out.println("Listener connected on port "+SERVER_PORT);
+                        // Appel bloquant scrutant les messages des spots connectés
                         rCon.receive(dg);
                         System.out.println("Nouveau message recu.");
                         Message msg = new Message(dg);
                         try
                         {
+                            // Envoi dans le socket pour le driver du message formaté
                             outStream.write(msg.getFormattedMessage());
                             outStream.flush();
                             System.out.println("msg sent: "+msg.getFormattedMessage());
                         }
-                        catch (IOException ex)
-                        {System.out.println("Perte de la connexion client. Reconnexion en cours..."); reconnectToDriver();}
+                        catch (IOException ex) // Reconnexion
+                        {
+                            System.out.println("Perte de la connexion client. Reconnexion en cours..."); 
+                            reconnectToDriver();
+                        }
                     }
-                    catch (IOException ex) 
+                    catch (IOException ex)
                     {System.out.println("Erreur "+ex+" lors de la reception des capteurs.");}
                 }
             }

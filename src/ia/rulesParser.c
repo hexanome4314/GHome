@@ -1,7 +1,5 @@
 #include "rulesParser.h"
 
-#define FIELDS_SIZE DRV_LAST_VALUE
-
 // Association id champ => nom
 static char* Fields[] = {
 #define X(define, str) str,
@@ -9,14 +7,20 @@ FIELDS
 #undef X
 };
 
+#define FIELDS_SIZE DRV_LAST_VALUE
+
+// Activation des printf pour débogage (=1)
 #define DEBUG_MODE 0
 
+// Liste des "recipients" connus = entités à alerter
 #define RECIPIENTS_SIZE 2
 static char* Recipients[RECIPIENTS_SIZE] = {"Web", "Unknown_Recipient"};
 
+// Liste des opérations de comparaisons connues
 #define COMPARISONS_SIZE 4
 static char* Comparisons[COMPARISONS_SIZE] = {"Equ", "Sup", "Inf", "Unknown_Comparison"};
 
+// Pointeur sur la dernière règle éditée (optimisation)
 static Rule* lastRule = NULL;
 
 /** Liste de capteur fournie par core permettant d'associer un fd aux noms */
@@ -25,6 +29,8 @@ static infos_sensor *sensor;
 /**
  * Donne le file descriptor d'un capteur installé à partir de son id
  * Si le capteur n'est pas installé retourne -1
+ * \param id identifiant du capteur
+ * \return file descriptor du capteur identifié ou -1 si le capteur n'est pas installé
  */
 int get_fd(int id){
 	int loop_counter = 0;
@@ -52,6 +58,11 @@ int get_fd_by_name(char* name){
 	return -1;
 }
 
+/**
+ * Traduit un Condition_type en chaine affichable et compréhensible
+ * \param type le Condition_type à traduire
+ * \return la chaîne affichable et compréhensible
+ */
 char * getConditionType(enum Condition_type type)
 {
 	if(type < COMPARISONS_SIZE)
@@ -64,6 +75,11 @@ char * getConditionType(enum Condition_type type)
 	}
 }
 
+/**
+ * Traduit une chaine en son Condition_type équivalent
+ * \param type la chaine à traduire
+ * \return le Condition_type équivalent
+ */
 int getConditionTypeIndex(char *type)
 {
 	int i = 0;
@@ -73,10 +89,20 @@ int getConditionTypeIndex(char *type)
 	return i;
 }
 
+/**
+ * Retourne l'identifiant d'un device à partir de son nom
+ * \param device le nom du device
+ * \return le file descriptor du device
+ */
 int getDeviceIndex(char *device) {
 	return get_fd_by_name(device);
 }
 
+/**
+ * Retourne le nom affichable d'un device
+ * \param device le file descriptor du device
+ * \return le nom du device
+ */
 char * getDeviceName(int device)
 {
 	int i=0;
@@ -88,6 +114,11 @@ char * getDeviceName(int device)
 	return "DEVICE";
 }
 
+/**
+ * Traduit un état booléen d'une chaine vers un char ('t'="true", sinon 'f')
+ * \param state état booléen en chaine
+ * \return état booléen en caractère équivalent
+ */
 char getState(char *state) {
 	if(compare("True", state) == 0)
 	{
@@ -99,6 +130,11 @@ char getState(char *state) {
 	}
 }
 
+/**
+ * Traduit un état booléen d'un caractère vers une chaine ('t'="true", sinon 'f')
+ * \param state état booléen en caractère
+ * \return état booléen en chaine équivalente
+ */
 char * getStateName(char state)
 {
 	if(state == 't')
@@ -111,6 +147,11 @@ char * getStateName(char state)
 	}
 }
 
+/**
+ * Traduit un Recipient à partir de son index en chaine affichable et compréhensible
+ * \param recipient index (enum) du recipient
+ * \return nom du recipient affichable et compréhensible
+ */
 char * getRecipientName(int recipient) {
 	if(recipient < RECIPIENTS_SIZE)
 	{
@@ -122,6 +163,11 @@ char * getRecipientName(int recipient) {
 	}
 }
 
+/**
+ * Retourne l'index d'un recipient à partir de son nom
+ * \param recipient nom du recipient
+ * \return index du recipient (enum)
+ */
 int getRecipientIndex(char *recipient) {
 	int i = 0;
 
@@ -130,7 +176,11 @@ int getRecipientIndex(char *recipient) {
 	return i;
 }
 
-
+/**
+ * Retourne l'index d'un Field à partir de son nom
+ * \param field nom du field
+ * \return index du field (enum)
+ */
 int getFieldIndex(char *field) {
 	int i = 0;
 
@@ -139,6 +189,11 @@ int getFieldIndex(char *field) {
 	return i;
 }
 
+/**
+ * Traduit un field à partir de son index en chaine affichable et compréhensible
+ * \param field index (enum) du field
+ * \return nom du field affichable et compréhensible
+ */
 char * getFieldName(int field)
 {
 	if(field < FIELDS_SIZE)
@@ -151,6 +206,11 @@ char * getFieldName(int field)
 	}
 }
 
+/**
+ * Retourne la dernière action (dans la liste chainée) de la règle donnée
+ * \param rule règle dont la dernière action est à chercher
+ * \return pointeur sur la dernière action de la règle
+ */
 Action * getLastAction(Rule *rule)
 {
 	Action *a, *res = rule->actions;
@@ -163,6 +223,11 @@ Action * getLastAction(Rule *rule)
 	return res;
 }
 
+/**
+ * Retourne la dernière alerte (dans la liste chainée) de la règle donnée
+ * \param rule règle dont la dernière alerte est à chercher
+ * \return pointeur sur la dernière alerte de la règle
+ */
 Alert * getLastAlert(Rule *rule)
 {
 	Alert *a, *res = rule->alerts;
@@ -175,6 +240,11 @@ Alert * getLastAlert(Rule *rule)
 	return res;
 }
 
+/**
+ * Retourne la dernière condition (dans la liste chainée) de la règle donnée
+ * \param rule règle dont la dernière condition est à chercher
+ * \return pointeur sur la dernière condition de la règle
+ */
 Condition * getLastCondition(Rule *rule)
 {
 	Condition *c, *res = rule->conditions;
@@ -187,6 +257,10 @@ Condition * getLastCondition(Rule *rule)
 	return res;
 }
 
+/**
+ * Ajoute un règle à la règle en cours d'édition (variable gloable lastRule)
+ * \param name nom de la règle
+ */
 void addRule(char *name)
 {
 	Rule *rule = malloc(sizeof(Rule));
@@ -204,6 +278,12 @@ void addRule(char *name)
     }
 }
 
+/**
+ * Ajoute une action à la règle en cours d'édition (variable gloable lastRule)
+ * \param device capteur concerné
+ * \param state état du field du device
+ * \param field champ du capteur concerné
+ */
 void addAction(char *device, char *state, char *field) {
 	Action *action = malloc(sizeof(Action));
 	action->device = getDeviceIndex(device);
@@ -228,6 +308,11 @@ void addAction(char *device, char *state, char *field) {
     }
 }
 
+/**
+ * Ajoute une alerte à la règle en cours d'édition (variable gloable lastRule)
+ * \param recipient destinataire de l'alerte
+ * \param message message à envoyer au destinataire
+ */
 void addAlert(char *recipient, char *message)
 {
 	Alert *alert = malloc(sizeof(Action));
@@ -252,6 +337,13 @@ void addAlert(char *recipient, char *message)
     }
 }
 
+/**
+ * Ajoute une condition à la règle en cours d'édition (variable gloable lastRule)
+ * \param device capteur concerné
+ * \param field champ du capteur concerné
+ * \param type nature de la comparaison à effectuer (enum Condition_type)
+ * \param value valeur à comparer dans la condition (~seuil)
+ */
 void addCondition(char *device, char *field, char *type, char *value)
 {
 	Condition *condition = malloc(sizeof(Condition));
@@ -286,6 +378,11 @@ void addCondition(char *device, char *field, char *type, char *value)
     }
 }
 
+/**
+ * Switch case sur un noeud permettant de définir sa nature et extraire les 
+ * champs utiles afin de les ajouter à la liste chainée de rules
+ * \param node le noeud à parser
+ */
 void fillRules(xmlNodePtr node)
 {
 	// Ajout d'une regle
@@ -359,6 +456,11 @@ void fillRules(xmlNodePtr node)
 	}
 }
 
+/**
+ * Ecrit un fichier de règles sur une sortie
+ * \param rules les règles à écrire
+ * \param output la sortie à utiliser
+ */
 void ftraceRules(Rule *rules, int output)
 {
 	Rule *r;
@@ -433,11 +535,24 @@ void ftraceRules(Rule *rules, int output)
     printf("\n=========================================\n");    
 }                       
 
+/**
+ * Alais de ftraceRules permettant d'écrire sur la sortie standard
+ * \param rules les règles à écrire
+ */
 void traceRules(Rule *rules)
 {
 	ftraceRules(rules, stdout->_fileno);
 }
 
+/**
+ * Parse le fichier XML de règles et les intègre dans la structure Rule afin 
+ * qu'elles soient exploitables par le core.
+ * Le fichier est validé par le dtd
+ * La librairie libxml2 est utilisé en DOM
+ * \param filename le fichier xml de règles à parser
+ * \param sensor les capteurs reconnus par le core afin de les associer aux règles
+ * \return liste de règles dans la structure du code
+ */
 Rule * get_rules(const char *filename, infos_sensor *sensor_list)
 {
     xmlDocPtr doc;
@@ -480,6 +595,11 @@ Rule * get_rules(const char *filename, infos_sensor *sensor_list)
 	return rules->next;
 }
 
+/**
+ * Libère la mémoire allouée par le parsing XML à partir d'une liste Rule.
+ * (Notamment les xml_free de la librairie libxml2)
+ * \param rules les règles à nettoyer
+ */
 void free_rules(Rule* rules)
 {
 	Rule *rule, *new_rule;
@@ -517,13 +637,3 @@ void free_rules(Rule* rules)
 		rule = new_rule;
 	}
 }
-/*
-  int main() {
-  Rule *rules;
-  rules = get_rules("rules.xml");
-  traceRules(rules);
-  free_rules(rules);
-  return 0;
-  }
-
-*/

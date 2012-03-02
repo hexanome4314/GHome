@@ -15,7 +15,7 @@ import javax.microedition.midlet.MIDletStateChangeException;
 public class OnSpotApp extends MIDlet {
     private static final int HOST_PORT = 67;
     private static final int SAMPLE_PERIOD = 3 * 1000;  // in milliseconds
-    private static final int BUFFER_SIZE = 19 + 8 + 1; // Addresse + value + idProbe
+    private static final int BUFFER_SIZE = 36; // Addresse + value + idProbe
     
     protected void startApp() throws MIDletStateChangeException {
         RadiogramConnection rCon = null;
@@ -46,19 +46,18 @@ public class OnSpotApp extends MIDlet {
                 long now = System.currentTimeMillis();
                 int light = lightSensor.getValue();
                 double temperature = temperatureInput.getCelsius();
-                int battery = 100;//batteryLevel.getBatteryLevel();
+                int battery = batteryLevel.getBatteryLevel();
 
                 // Flash an LED to indicate a sampling event
-                led.setRGB(255, 255, 255);
+                led.setRGB(255, 255, 255);// White color (RVB)
                 led.setOn();
                 Utils.sleep(50);
                 led.setOff();
                 
                 dg.reset();
-                //dg.writeChar(0);
                 dg.writeInt(light);// Send lightValue to the base
                 dg.writeFloat(new Double(temperature).floatValue());// Send temperatureInput to the base
-                dg.writeInt(battery);
+                dg.writeInt(battery);// Send batteryLevel to the base
                 rCon.send(dg);
                 
                 System.out.println("New light value = " + light);                
